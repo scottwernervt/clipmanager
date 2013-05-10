@@ -1,0 +1,23 @@
+Author:
+* Scott Werner <scott.werner@gmail.com>
+
+Contributors:
+* None
+
+Code from other projects:
+* files: src/globalkeybinder.py
+  copyright: CongaBonga
+  license: GPLv2
+  url: http://svn.gna.org/svn/congabonga/trunk/lib/winhotkeys.py
+
+Images Authors:
+* files: src/images/app.ico
+  copyright: Lothar Grimme
+  license: GPL
+  url: http://www.grafixport.org/
+
+* files: src/*.png
+  copyright: Yannick <mail@yanlu.de>
+  license: Free
+  url: http://www.yanlu.de/Yanlu/Freecns.html
+

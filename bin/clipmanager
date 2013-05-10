@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+"""Launch script from the bin folder."""
+
+import os
+import sys
+import clipmanager
+
+sys.path.insert(0, os.path.dirname(clipmanager.__file__))
+
+from clipmanager.app import main
+main(sys.argv)

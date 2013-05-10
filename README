@@ -1,0 +1,20 @@
+ClipManager
+===========
+
+
+
+Build Requirements
+------------------
+All Platforms
+	* Python 2.7
+	* PySide 1.1.2
+		- Windows: http://qt-project.org/wiki/PySide_Binaries_Windows
+		- Ubuntu: https://launchpad.net/~pyside/+archive/ppa
+		- Redhat: http://rpmfind.net//linux/RPM/mageia/cauldron/x86_64/media/core/release/pyside-1.1.2-2.mga3.x86_64.html
+		- Arch: https://aur.archlinux.org/packages/python2-pyside/
+
+Windows:
+	* PyWin32 (http://starship.python.net/crew/mhammond/win32/Downloads.html)
+
+Linux:
+	* GTK+ 2.20 (keybinder)
