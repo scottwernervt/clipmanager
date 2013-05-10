@@ -487,12 +487,10 @@ class MainWidget(QtGui.QWidget):
         if self._duplicate(checksum):
             return None
 
+
         # Plain text for title or covert to string for copied files
-        if mime_data.hasText():
-            text = mime_data.text()
-        elif mime_data.hasHtml():
-            text = mime_data.html()
-        elif mime_data.hasUrls():
+        text = None
+        if mime_data.hasUrls():
             text = 'Copied File(s): '
             seperator = '\n'
             # if settings.get_word_wrap():
@@ -500,9 +498,20 @@ class MainWidget(QtGui.QWidget):
             # else:
             #     seperator = '\n'
             for url in mime_data.urls():
-                text += url.toLocalFile() + seperator
-        else:
-            text = 'Unknown'
+                # '' means url is a web address so we don't want Copied File(s)
+                if url.toLocalFile() == '':
+                    text = None
+                    break
+                
+                text += url.toString() + seperator
+
+        # Set plain text
+        if mime_data.hasText() and text == None:
+            text = mime_data.text()
+
+        # Last resort to create title
+        if mime_data.hasHtml() and text == None:
+            text = mime_data.html()
 
         # title_short used in list row view so clean it up by removing white
         # space, dedent, and striping uncessary line breaks
