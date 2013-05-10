@@ -271,8 +271,8 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
         # Set alignment and enable word wrap if applicable
         text_option = QtGui.QTextOption()
         text_option.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        if settings.get_word_wrap():
-            text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
+        # if settings.get_word_wrap():
+        #     text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
 
         # Add padding to left and right side of text
         text_rect = option.rect
@@ -311,8 +311,8 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
 
         # Reimplement as lines to display can be ignored if word wrap forces
         # an extra line to be created
-        if settings.get_word_wrap():
-            text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
+        # if settings.get_word_wrap():
+        #     text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
             
         doc.setDefaultTextOption(text_option)
         doc.setPlainText(index.data())
