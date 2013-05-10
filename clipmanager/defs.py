@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __init__ import __version__
+import sys
 
 from PySide import QtCore
 from PySide import QtGui
+
+from __init__ import __version__
 
 
 APP_ORG = 'Werner'
@@ -46,3 +48,6 @@ MIME_REFERENCES = [
     'text/uri-list',
     # 'application/x-qt-image'
     ]
+
+if sys.platform.startswith('linux'):
+    MIME_REFERENCES.append('x-special/gnome-copied-files')
