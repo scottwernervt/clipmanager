@@ -19,7 +19,7 @@ def clean_up_text(text):
     """
     text = textwrap.dedent(text)
     text = text.replace('\t', '    ')
-    return  text.rstrip().lstrip()
+    return text # .rstrip().lstrip()
 
 
 def remove_extra_lines(text, line_count):
