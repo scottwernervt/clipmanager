@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=ClipManager
+Comment=Manage clipboard history
+Exec=clipmanager
+Type=Application
