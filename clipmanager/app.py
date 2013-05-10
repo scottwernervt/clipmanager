@@ -114,7 +114,7 @@ def main(argv):
     parser.add_option('-l', '--logging-level', help='Logging level')
     (options, args) = parser.parse_args()
 
-    logging_level = LOGGING_LEVELS.get(options.logging_level, 'INFO')
+    logging_level = LOGGING_LEVELS.get(options.logging_level.lower(), 'INFO')
     setup_logging(logging_level)
 
     if single_instance.already_running():
