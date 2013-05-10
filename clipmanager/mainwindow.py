@@ -48,8 +48,8 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowIcon(QtGui.QIcon('icons/app.ico'))
 
         # Remove minimize and maximize buttons from window title
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        self.setWindowFlags(QtCore.Qt.CustomizeWindowHint|
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|
+                            QtCore.Qt.CustomizeWindowHint|
                             QtCore.Qt.WindowCloseButtonHint)
 
         # Connect to database and create tables
