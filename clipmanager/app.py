@@ -114,7 +114,13 @@ def main(argv):
     parser.add_option('-l', '--logging-level', help='Logging level')
     (options, args) = parser.parse_args()
 
-    logging_level = LOGGING_LEVELS.get(options.logging_level.lower(), 'INFO')
+    # If user does not specify an option then lower will fail
+    try:
+        log_option = options.logging_level.lower()
+    except AttributeError:
+        log_option = options.logging_level
+
+    logging_level = LOGGING_LEVELS.get(log_option, 'INFO')
     setup_logging(logging_level)
 
     if single_instance.already_running():
