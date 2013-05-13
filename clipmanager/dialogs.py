@@ -343,8 +343,8 @@ class AboutDialog(QtGui.QDialog):
         app_logo.setAlignment(QtCore.Qt.AlignHCenter)
 
         # Company url. Todo: Remove mailto when I have a domain/company name
-        company_url = QtGui.QLabel('<a href="mailto:%s">%s</a>' % (app_domain, 
-                                                                   app_domain))
+        company_url = QtGui.QLabel('<a href="%s">%s</a>' % (app_domain, 
+                                                            app_domain))
         company_url.setTextFormat(QtCore.Qt.RichText)
         company_url.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         company_url.setOpenExternalLinks(True)
