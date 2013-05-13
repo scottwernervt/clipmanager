@@ -11,10 +11,10 @@ from __init__ import __version__
 
 APP_ORG = 'Werner'
 APP_NAME = 'ClipManager'
-APP_DOMAIN = 'scott.werner.vt@gmail.com'
+APP_DOMAIN = 'https://bitbucket.org/mercnet/clipmanager'
 APP_VERSION = __version__
 APP_AUTHOR = 'Scott Werner'
-APP_DESCRIPTION = """Managers the history of your system's clipboard."""
+APP_DESCRIPTION = """Manage the system's clipboard history."""
 
 QtCore.QCoreApplication.setOrganizationName(APP_ORG)
 QtCore.QCoreApplication.setApplicationName(APP_NAME)
@@ -50,4 +50,4 @@ MIME_REFERENCES = [
     ]
 
 if sys.platform.startswith('linux'):
-    MIME_REFERENCES.append('x-special/gnome-copied-files')
+    MIME_REFERENCES.extend(['x-special/gnome-copied-files'])
