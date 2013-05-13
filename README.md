@@ -31,7 +31,7 @@ Download installer at [link here]
 
 **Linux**
 
-* [python-keybinder](https://github.com/engla/keybinder)
+* [python-keybinder 0.3.0](https://github.com/engla/keybinder)
 
 ## Todo
 1. Support X11 selection clipboard.
