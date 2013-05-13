@@ -26,7 +26,10 @@ WIN_VIRTUAL_KEYS = {
 }
 
 class Binder(QtCore.QObject):
-	
+	"""Global handler for binding and unbinding key strokes and their actions.
+
+	Class handles platform specific commands.
+	"""
 	def __init__(self, action, parent=None):        
 		super(Binder, self).__init__(parent)
 		self.action = action
@@ -35,7 +38,12 @@ class Binder(QtCore.QObject):
 		self.monitor_thread = None
 
 	def bind(self, key_seq, action):
-		""" Bind user set global hot key to action
+		"""Bind global hot key to action.
+
+		Args:
+			key_seq (str): <CTRL><ALT>H
+			action (bound method): Method to execute when key stroke is 
+				executed.
 		"""
 		logging.info('Binding key seq %s to : %s' % (key_seq, action))
 
@@ -55,7 +63,10 @@ class Binder(QtCore.QObject):
 		return result
 
 	def unbind(self, key_seq):
-		""" Unbind user set global hot key
+		"""Unbind global hot key.
+
+		Args:
+			key_seq (str): <CTRL><ALT>H
 		"""
 		logging.info('Unbinding key seq: %s' % key_seq)
 
@@ -67,8 +78,14 @@ class Binder(QtCore.QObject):
 
 
 class _Thread(QtCore.QThread):
-	""" https://github.com/Xifax/tuci/blob/master/src/hotkeys.py
-		TODO: http://mayaposch.wordpress.com/2011/11/01/how-to-really-truly-use-qthreads-the-full-explanation/
+	"""Monitor window key stroke events.
+
+	Todo:
+		http://mayaposch.wordpress.com/2011/11/01/how-to-really-truly-use-qthreads-the-full-explanation/
+
+	References:
+		http://svn.gna.org/svn/congabonga/trunk/lib/winhotkeys.py
+		https://github.com/Xifax/tuci/blob/master/src/hotkeys.py
 	""" 
 
 	def __init__(self, parent=None):        
@@ -85,8 +102,10 @@ class _Thread(QtCore.QThread):
 
 	def bind(self, key_seq, action=None):
 		""" 
-		Parameters
-			key_seq : str('<CTRL><ALT>H')	
+		Args:
+			key_seq (str): <CTRL><ALT>H
+			action (bound method): Method to execute when key stroke is 
+				executed.
 		"""
 		p = re.compile('\<(.*?)\>')
 		modifiers = p.findall(key_seq)
@@ -110,7 +129,7 @@ class _Thread(QtCore.QThread):
 		logging.info('Key: %s' % self.key)
 		return True
 	
-	def register_hot_key(self):        
+	def register_hot_key(self):      
 		if not self.user32.RegisterHotKey(None, self.id, self.modifiers
 			, self.vk):
 			logging.error('Failed to register.')
