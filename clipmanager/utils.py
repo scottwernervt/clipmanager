@@ -4,6 +4,7 @@
 import os
 import logging
 import textwrap
+import pkg_resources
 
 logging.getLogger(__name__)
 
@@ -53,6 +54,25 @@ def remove_extra_lines(text, line_count):
     else:
         return text
 
+
+def resource_filename(file_name):
+    # https://github.com/nvbn/everpad
+    # https://github.com/nvbn/everpad/blob/develop/setup.py
+    paths = map(
+        lambda path: os.path.join(path, file_name),
+        (
+            '/usr/local/',
+            '/usr/',
+        ),
+    )
+    for path in paths:
+        if os.path.isfile(path):
+            return path
+    return pkg_resources.resource_filename(
+        pkg_resources.Requirement.parse("clipmanager"), file_name)
+
+
+# print resource_filename()
 
 # def strip_extra_char(text, length):
 #     if len(text) > length:
