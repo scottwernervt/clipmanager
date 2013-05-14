@@ -21,11 +21,11 @@ def _disconnect_icon():
     """
     # Clipboard _disconnected and ignoring changes
     if settings.get_disconnect():
-        return QtGui.QIcon.fromTheme('network-offline', 
+        return QtGui.QIcon.fromTheme('network-offline',
                QtGui.QIcon('icons/disconnect.png'))
     # Clipboard connected and monitoring
     else:
-        return QtGui.QIcon.fromTheme('network-online', 
+        return QtGui.QIcon.fromTheme('network-transmit-receive', 
                QtGui.QIcon('icons/connect.png'))
 
 
