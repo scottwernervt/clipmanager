@@ -307,7 +307,8 @@ class MainWidget(QtGui.QWidget):
         self.search_box = searchbox.SearchBox(self.view_main, self.proxy_main)
 
         settings_button = QtGui.QPushButton(self)
-        settings_button.setIcon(QtGui.QIcon('icons/settings.png'))
+        settings_button.setIcon(QtGui.QIcon.fromTheme('emblem-system', 
+                                QtGui.QIcon('icons/settings.png')))
         settings_button.setToolTip('Settings...')
 
         # Create layout
