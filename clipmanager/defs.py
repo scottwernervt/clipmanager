@@ -14,6 +14,7 @@ APP_NAME = 'ClipManager'
 APP_DOMAIN = 'https://bitbucket.org/mercnet/clipmanager'
 APP_VERSION = __version__
 APP_AUTHOR = 'Scott Werner'
+APP_EMAIL = 'scott.werner.vt@gmail.com'
 APP_DESCRIPTION = """Manage the system's clipboard history."""
 
 QtCore.QCoreApplication.setOrganizationName(APP_ORG)
