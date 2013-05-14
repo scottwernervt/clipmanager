@@ -11,6 +11,7 @@ from database import delete_mime
 from defs import ID
 from defs import TITLESHORT
 from settings import settings
+from utils import resource_filename
 
 logging.getLogger(__name__)
 
@@ -89,19 +90,22 @@ class ListView(QtGui.QListView):
 
         # Set item to clipboard
         apply_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-add', 
-                                  QtGui.QIcon('icons/add.png')), 
+                                  QtGui.QIcon(
+                                    resource_filename('icons/add.png'))), 
                                   'Set to clipboard', self)
         apply_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return))
 
         # Preview item's contents
         preview_act = QtGui.QAction(QtGui.QIcon.fromTheme('document', 
-                                    QtGui.QIcon('icons/document.png')), 
+                                    QtGui.QIcon(
+                                      resource_filename('icons/document.png'))), 
                                     'Preview', self)
         preview_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_F11))
 
         # Delete item
         delete_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-remove', 
-                                   QtGui.QIcon('icons/remove.png')),
+                                   QtGui.QIcon(
+                                        resource_filename('icons/remove.png'))),
                                    'Delete', self)
         delete_act.setShortcut(QtGui.QKeySequence.Delete)
 
@@ -110,7 +114,8 @@ class ListView(QtGui.QListView):
 
         # Open settings dialog
         settings_act = QtGui.QAction(QtGui.QIcon.fromTheme('emblem-system', 
-                                     QtGui.QIcon('icons/settings.png')),
+                                     QtGui.QIcon(
+                                      resource_filename('icons/settings.png'))),
                                      'Settings', self)
 
         seperator_2 = QtGui.QAction(self)
@@ -118,7 +123,9 @@ class ListView(QtGui.QListView):
 
         # Exit
         exit_act = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit', 
-                                 QtGui.QIcon('icons/exit.png')), 'Quit', self)
+                                 QtGui.QIcon(
+                                         resource_filename('icons/exit.png'))), 
+                                 'Quit', self)
 
         self.addAction(apply_act)
         self.addAction(preview_act)
