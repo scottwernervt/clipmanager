@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pkg_resources
 import logging
 import textwrap
-import pkg_resources
+import sys
 
 logging.getLogger(__name__)
 
@@ -56,23 +57,28 @@ def remove_extra_lines(text, line_count):
 
 
 def resource_filename(file_name):
-    # https://github.com/nvbn/everpad
-    # https://github.com/nvbn/everpad/blob/develop/setup.py
+    """Get data file on physical disk or from resource package.
+
+    Args:
+        file_name (str): names.dat, icons\app.ico
+    """
     paths = map(
         lambda path: os.path.join(path, file_name),
         (
-            '/usr/local/',
-            '/usr/',
+            os.path.dirname(sys.argv[0]),   # Win: Executing path of exe
+            # Add possible linux paths
         ),
     )
+    # Return physical path to file if exists
     for path in paths:
         if os.path.isfile(path):
+            logging.info(path)
             return path
-    return pkg_resources.resource_filename(
-        pkg_resources.Requirement.parse("clipmanager"), file_name)
 
+    # Return to resource path
+    logging.info('Resource path')
+    return pkg_resources.resource_filename('clipmanager', file_name)
 
-# print resource_filename()
 
 # def strip_extra_char(text, length):
 #     if len(text) > length:
