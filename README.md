@@ -22,6 +22,7 @@ Download installer at [link here]
 
 * Python 2.7
 * PySide 1.1.2
+* setuptools 0.6
 * _Optional_ [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
 
 **Windows**
