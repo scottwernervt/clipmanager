@@ -9,6 +9,7 @@ from PySide import QtGui
 from defs import APP_NAME
 from dialogs import AboutDialog
 from settings import settings
+from utils import resource_filename
 
 logging.getLogger(__name__)
 
@@ -22,11 +23,11 @@ def _disconnect_icon():
     # Clipboard _disconnected and ignoring changes
     if settings.get_disconnect():
         return QtGui.QIcon.fromTheme('network-offline',
-               QtGui.QIcon('icons/disconnect.png'))
+               QtGui.QIcon(resource_filename('icons/disconnect.png')))
     # Clipboard connected and monitoring
     else:
         return QtGui.QIcon.fromTheme('network-transmit-receive', 
-               QtGui.QIcon('icons/connect.png'))
+               QtGui.QIcon(resource_filename('icons/connect.png')))
 
 
 class SystemTrayIcon(QtGui.QSystemTrayIcon):
@@ -37,7 +38,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__(parent)
         self.parent = parent
 
-        self.setIcon(QtGui.QIcon('icons/app.ico'))
+        self.setIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
         self.setToolTip(APP_NAME)
         self.setup_menu()
 
@@ -49,7 +50,9 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         # Open or hide main window
         toggle_act = menu.addAction(QtGui.QIcon.fromTheme('search', 
-                                    QtGui.QIcon('icons/search.png')), 'Toggle')
+                                    QtGui.QIcon(
+                                        resource_filename('icons/search.png'))),
+                                    'Toggle')
 
         menu.addSeparator()
 
@@ -60,18 +63,22 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
         # Open settings dialog
         settings_act = menu.addAction(QtGui.QIcon.fromTheme('emblem-system', 
-                                      QtGui.QIcon('icons/settings.png')), 
-                                      'Settings')
+                                      QtGui.QIcon(resource_filename(
+                                        'icons/settings.png'))), 'Settings')
 
         # Open about dialog
         about_act = menu.addAction(QtGui.QIcon.fromTheme('help-about', 
-                                   QtGui.QIcon('icons/about.png')), 'About')
+                                   QtGui.QIcon(
+                                        resource_filename('icons/about.png'))), 
+                                   'About')
 
         menu.addSeparator()
 
         # Exit application
         exit_act = menu.addAction(QtGui.QIcon.fromTheme('application-exit', 
-                                  QtGui.QIcon('icons/exit.png')), 'Quit')
+                                  QtGui.QIcon(
+                                    resource_filename('icons/exit.png'))),
+                                  'Quit')
 
         # Connect menu triggered action to functions
         self.connect(toggle_act, QtCore.SIGNAL('triggered()'), 
