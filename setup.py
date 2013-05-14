@@ -9,6 +9,13 @@ from distutils.sysconfig import get_python_lib
 import os
 import sys
 
+# try:
+#     from twisted import plugin
+#     from twisted.python.reflect import namedAny
+# except ImportError, e:
+#     print >>sys.stderr, "setup.py requires Twisted to create a proper modu installation. Please install it before continuing."
+#     sys.exit(1)
+
 version = __import__('clipmanager').__version__
 # print version
 
@@ -24,19 +31,23 @@ setup(
 	license='GNU GPL v2',
     packages = ['clipmanager'],
     cmdclass = {'install_data': install_data},
-    data_files = [['clipmanager/icons', 
-                    ['clipmanager/icons/exit.png'
-                    ,'clipmanager/icons/add.png'
-                    , 'clipmanager/icons/search.png'
-                    , 'clipmanager/icons/app.ico'
-                    , 'clipmanager/icons/remove.png'
-                    , 'clipmanager/icons/settings.png'
-                    , 'clipmanager/icons/disconnect.png'
-                    , 'clipmanager/icons/about.png']
-                    ],
-                   ['clipmanager', ['clipmanager/license.txt']],
-                   ['/usr/share/applications', ['clipmanager.desktop']],
-                ],
+    package_data = {
+        'clipmanager': ['*.txt'],
+        'clipmanager': ['icons/*.png', 'icons/*.ico'],
+    },
+    # data_files = [['clipmanager/icons', 
+    #                 ['clipmanager/icons/exit.png'
+    #                 ,'clipmanager/icons/add.png'
+    #                 , 'clipmanager/icons/search.png'
+    #                 , 'clipmanager/icons/app.ico'
+    #                 , 'clipmanager/icons/remove.png'
+    #                 , 'clipmanager/icons/settings.png'
+    #                 , 'clipmanager/icons/disconnect.png'
+    #                 , 'clipmanager/icons/about.png']
+    #                 ],
+    #                ['clipmanager', ['clipmanager/license.txt']],
+    #                ['/usr/share/applications', ['clipmanager.desktop']],
+    #             ],
     scripts = ['bin/clipmanager'],
     requires=['PySide (>=1.1.2)'], # Add gtk and keybinder
   )
