@@ -8,6 +8,7 @@ from PySide import QtGui
 from PySide import QtWebKit
 
 from settings import settings
+from utils import resource_filename
 
 logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class PreviewDialog(QtGui.QDialog):
         super(PreviewDialog, self).__init__(parent)
         self.parent = parent
         
-        self.setWindowIcon(QtGui.QIcon('icons/app.ico'))
+        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
         self.setWindowTitle('Preview')
         self.resize(QtCore.QSize(500,300))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -114,7 +115,7 @@ class SettingsDialog(QtGui.QDialog):
         super(SettingsDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QtGui.QIcon('icons/app.ico'))
+        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
         self.setWindowTitle('Settings')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -317,7 +318,7 @@ class AboutDialog(QtGui.QDialog):
         super(AboutDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QtGui.QIcon('icons/app.ico'))
+        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
         self.setWindowTitle('About')
         self.resize(QtCore.QSize(350,200))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -349,7 +350,7 @@ class AboutDialog(QtGui.QDialog):
         company_url.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         company_url.setOpenExternalLinks(True)
 
-        with open ('license.txt', 'r') as license_file:
+        with open (resource_filename('license.txt'), 'r') as license_file:
             about_text = license_file.read()
 
         about_doc = QtGui.QTextEdit()
