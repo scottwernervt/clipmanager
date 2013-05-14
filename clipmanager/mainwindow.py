@@ -45,7 +45,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QtGui.QIcon('icons/app.ico'))
+        self.setWindowIcon(QtGui.QIcon(utils.resource_filename('icons/app.ico')))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|
@@ -308,7 +308,9 @@ class MainWidget(QtGui.QWidget):
 
         settings_button = QtGui.QPushButton(self)
         settings_button.setIcon(QtGui.QIcon.fromTheme('emblem-system', 
-                                QtGui.QIcon('icons/settings.png')))
+                                QtGui.QIcon(
+                                  utils.resource_filename('icons/settings.png')
+                                )))
         settings_button.setToolTip('Settings...')
 
         # Create layout
