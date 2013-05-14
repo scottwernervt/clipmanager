@@ -32,6 +32,7 @@ includes = [
             'ctypes',
             'logging',
             'os',
+            'pkg_resources',
             'textwrap',
             're', 
             'subprocess',
