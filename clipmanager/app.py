@@ -13,7 +13,7 @@ from defs import APP_ORG
 from defs import APP_NAME
 from defs import APP_VERSION
 from mainwindow import MainWindow
-from singleinstance import single_instance
+from singleinstance import SingleInstance
 
 
 LOGGING_LEVELS = {'critical': 'CRITICAL',
@@ -123,7 +123,8 @@ def main(argv):
     logging_level = LOGGING_LEVELS.get(log_option, 'INFO')
     setup_logging(logging_level)
 
-    if single_instance.already_running():
+    single_instance = SingleInstance()
+    if single_instance.is_running():
         logging.warn('Application already running!')
         return -1
 
