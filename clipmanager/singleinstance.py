@@ -1,8 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# TEST LINUX:
+# https://github.com/josephturnerjr/boatshoes/blob/master/boatshoes/SingleInstance.py
+# https://github.com/csuarez/emesene-1.6.3-fixed/blob/master/SingleInstance.py
+
 import logging
 import sys
+
+if sys.platform.startswith('win32'):
+    from win32event import CreateMutex
+    from win32api import CloseHandle, GetLastError
+    from winerror import ERROR_ALREADY_EXISTS
+else:
+    import commands
+    import os
 
 from defs import APP_DOMAIN
 from defs import APP_ORG
@@ -12,68 +24,62 @@ from defs import APP_VERSION
 logging.getLogger(__name__)
 
 
-# Todo:
-#       Write linux class to create a lock file on the PID. --> https://github.com/wiliamsouza/guanandy/blob/master/Guanandy/SingleInstance.py
-#       Combine classes and use if sys.platform.startswith()
+class SingleInstance(object):
+    """Limits application to single instance on Windows and Linux.
+    """
+    def __init__(self):
+        self.last_error = False
 
-# Platform dependent modules
-single_instance = None
-if sys.platform.startswith('linux'):
-    class LinuxSingleInstance(object):
+        if sys.platform.startswith('win32'):
+            # HANDLE WINAPI CreateMutex(
+            #   _In_opt_  LPSECURITY_ATTRIBUTES lpMutexAttributes,
+            #   _In_      BOOL bInitialOwner,
+            #   _In_opt_  LPCTSTR lpName
+            # );
+            # 
+            # DWORD WINAPI GetLastError(void);
+            self.mutex_name = '%s.%s' % (APP_ORG, APP_NAME)
+            self.mutex = CreateMutex(None, False, self.mutex_name)
+            self.last_error = GetLastError()
+        else:
+            self.pid_path = '/tmp/clipmanager.pid'
+            if os.path.exists(self.pid_path):
+                pid = open(self.pid_path, 'r').read().strip()
+                pid_running = commands.getoutput('ls /proc | grep %s' % pid)
 
-        def __init__(self):
-            pass
+                if pid_running:
+                    self.last_error = True
 
-        def already_running(self):
-            return False
+            if not self.last_error:
+                f = open(self.pid_path, 'w')
+                f.write(str(os.getpid()))
+                f.close()
 
-    single_instance = LinuxSingleInstance()
+    def is_running(self):
+        """Check if application is running.
 
-
-elif sys.platform.startswith('win32'):
-    from win32event import CreateMutex
-    from win32api import CloseHandle, GetLastError
-    from winerror import ERROR_ALREADY_EXISTS
-
-    class WinSingleInstance(object):
-        """Limits application to single instance on Windows.
+        Returns:
+            True/False
         """
-        def __init__(self):
-            """Create mutex name based on application organization and name.
+        if sys.platform.startswith('win32'):
+            # ERROR_ALREADY_EXISTS
+            # 183 (0xB7)
+            # Cannot create a file when that file already exists.
+            return (self.last_error == ERROR_ALREADY_EXISTS)
+        else:
+            return self.last_error
 
-            HANDLE WINAPI CreateMutex(
-              _In_opt_  LPSECURITY_ATTRIBUTES lpMutexAttributes,
-              _In_      BOOL bInitialOwner,
-              _In_opt_  LPCTSTR lpName
-            );
-
-            DWORD WINAPI GetLastError(void);
-            """
-            self.mutexname = '%s.%s' % (APP_ORG, APP_NAME)
-            self.mutex = CreateMutex(None, False, self.mutexname)
-            self.lasterror = GetLastError()
-        
-        def already_running(self):
-            """Check if application is running.
-
-            ERROR_ALREADY_EXISTS
-                183 (0xB7)
-                Cannot create a file when that file already exists.
-
-            Returns:
-                True/False
-            """
-            return (self.lasterror == ERROR_ALREADY_EXISTS)
-            
-        def __del__(self):
-            """Close out mutex handle on exit. Note, handle automatically 
-            closed if process is terminated.
-
-            BOOL WINAPI CloseHandle(
-              _In_  HANDLE hObject
-            );
-            """
+    def __del__(self):
+        """Close out mutex handle on exit. Note, handle automatically closed if
+        process is terminated.
+        """
+        if sys.platform.startswith('win32'):
             if self.mutex:
+                # BOOL WINAPI CloseHandle(
+                #   _In_  HANDLE hObject
+                # );
                 CloseHandle(self.mutex)
+        else:
+            if not self.last_error:
+                os.unlink(self.pid_path)
 
-    single_instance = WinSingleInstance()
