@@ -20,7 +20,11 @@ try:
 except WindowsError as err:
 	assert err
 
-app = QtGui.QApplication(sys.argv)
+try:
+	app = QtGui.QApplication(sys.argv)
+except RuntimeError:
+	pass
+
 db = database.create_connection('')
 
 
@@ -89,5 +93,5 @@ def test_delete_mime():
 	assert database.delete_mime(parent_id=10000) == False
 
 
-# Close datbase for test
+# Close database for test
 db.close()
