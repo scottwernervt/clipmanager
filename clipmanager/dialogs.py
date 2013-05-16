@@ -65,8 +65,9 @@ class PreviewDialog(QtGui.QDialog):
         if mime_data.hasHtml():
             doc = QtWebKit.QWebView(self)
             doc.settings().setAttribute(
-                          QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls,
-                          True)
+                QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+            doc.settings().setAttribute(
+                QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
             doc.setHtml(mime_data.html())
         else:
             doc = QtGui.QTextEdit(self)
