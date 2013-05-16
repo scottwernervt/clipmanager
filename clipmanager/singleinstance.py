@@ -42,7 +42,7 @@ class SingleInstance(object):
             self.mutex = CreateMutex(None, False, self.mutex_name)
             self.last_error = GetLastError()
         else:
-            self.pid_path = '/tmp/clipmanager.pid'
+            self.pid_path = '/tmp/%s.pid' % APP_NAME.lower()
             if os.path.exists(self.pid_path):
                 pid = open(self.pid_path, 'r').read().strip()
                 pid_running = commands.getoutput('ls /proc | grep %s' % pid)
