@@ -1,0 +1,1 @@
+http://halfcooked.svn.sourceforge.net/viewvc/halfcooked/tags/release-0.4/gerald/tests/test_mysql_schema.py?revision=131&view=markup
