@@ -63,38 +63,38 @@ class PreviewDialog(QtGui.QDialog):
 
         # Allow images to be loaded if html
         if mime_data.hasHtml():
-            doc = QtWebKit.QWebView(self)
-            doc.settings().setAttribute(
+            self.doc = QtWebKit.QWebView(self)
+            self.doc.settings().setAttribute(
                 QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-            doc.settings().setAttribute(
+            self.doc.settings().setAttribute(
                 QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
-            doc.setHtml(mime_data.html())
+            self.doc.setHtml(mime_data.html())
         else:
-            doc = QtGui.QTextEdit(self)
+            self.doc = QtGui.QTextEdit(self)
 
             if mime_data.hasUrls():
                 text = 'Copied File(s): '
                 for url in mime_data.urls():
                     text += url.toLocalFile() + '\n'
-                doc.setPlainText(text)
+                self.doc.setPlainText(text)
 
-            elif doc.canInsertFromMimeData(mime_data):
-                doc.insertFromMimeData(mime_data)
+            elif self.doc.canInsertFromMimeData(mime_data):
+                self.doc.insertFromMimeData(mime_data)
 
             else:
-                doc.setPlainText(('Unknown error has occured.\n'
+                self.doc.setPlainText(('Unknown error has occured.\n'
                                   'Formats: %s' % mime_data.formats()))
 
             # Move cursor to top causing scrollbar to move to top
-            doc.moveCursor(QtGui.QTextCursor.Start)
-            doc.ensureCursorVisible()
-            doc.setReadOnly(True)   # Do not support editing data yet
+            self.doc.moveCursor(QtGui.QTextCursor.Start)
+            self.doc.ensureCursorVisible()
+            self.doc.setReadOnly(True)   # Do not support editing data yet
 
         button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Close)
         button_box.setFocus()
         
         layout = QtGui.QGridLayout(self)
-        layout.addWidget(doc, 0, 0)
+        layout.addWidget(self.doc, 0, 0)
         layout.addWidget(button_box, 1, 0)
         self.setLayout(layout)
 
@@ -354,14 +354,14 @@ class AboutDialog(QtGui.QDialog):
         with open (resource_filename('license.txt'), 'r') as license_file:
             about_text = license_file.read()
 
-        about_doc = QtGui.QTextEdit()
-        about_doc.setReadOnly(True)
-        about_doc.setPlainText(about_text)
+        self.about_doc = QtGui.QTextEdit()
+        self.about_doc.setReadOnly(True)
+        self.about_doc.setPlainText(about_text)
         # about_doc.setHtml(about_text)
 
         # Close button
         button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Close)
- 
+
         layout = QtGui.QGridLayout()
         # layout.addWidget(app_logo, 0, 0, 4, 1)
 
@@ -377,7 +377,7 @@ class AboutDialog(QtGui.QDialog):
         layout.addWidget(QtGui.QLabel('Url:'), 3, 0)
         layout.addWidget(company_url, 3, 1)
 
-        layout.addWidget(about_doc, 4, 0, 1, 4)
+        layout.addWidget(self.about_doc, 4, 0, 1, 4)
         layout.addWidget(button_box, 5, 0, 1, 4)
 
         self.setLayout(layout)
@@ -391,3 +391,4 @@ class AboutDialog(QtGui.QDialog):
             True
         """
         self.done(True)
+
