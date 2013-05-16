@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+*.db
 build
 dist
 testing
