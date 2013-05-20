@@ -74,8 +74,11 @@ class ClipBoards(QtCore.QObject):
     
 
 class ClipBoard(QtCore.QObject):
-    """Handles communication for individual clipboad type: global, 
-    TODO: selection, and TODO: buffer.
+    """Handles monitoring each clipboard and perfoming actions on it.
+    
+    Todo:
+        X11 selection
+        OSX find buffer
     """
     def __init__(self, clip_board, new_item_callback, mode, parent=None):
         super(ClipBoard, self).__init__(parent)
@@ -115,7 +118,7 @@ class ClipBoard(QtCore.QObject):
             self.new_item_callback(self.clipboard_contents)
 
     def on_data_changed(self):
-        """Sends clipboard mime data back to master clipboard class.
+        """Send clipboard mime data back to master clipboard class.
         """
         if not settings.get_disconnect():
             self.clipboard_contents = self.clip_board.mimeData(self.mode)
@@ -151,13 +154,15 @@ def get_x11_owner():
 
     if errcode != 0:
         logging.debug('cmd: %s' % cmd)
+        logging.warn('std.out: %s' % pid)
         logging.warn('std.err: %s' % err)
-        logging.warn('Exit code: %s' % errcode)
+        logging.warn('exit: %s' % errcode)
         pid = None
     
     # Method 2: xprop
     if not pid:
-        cmd = """xprop -id $(xprop -root | awk '/_NET_ACTIVE_WINDOW\(WINDOW\)/{print $NF}') | awk '/_NET_WM_PID\(CARDINAL\)/{print $NF}'"""
+        cmd = ("xprop -id $(xprop -root | awk '/_NET_ACTIVE_WINDOW\(WINDOW\)"
+               "/{print $NF}') | awk '/_NET_WM_PID\(CARDINAL\)/{print $NF}'")
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
                                    stderr=subprocess.PIPE)
         pid, err = process.communicate()
@@ -166,8 +171,9 @@ def get_x11_owner():
         # Return if failed to PID
         if errcode != 0:
             logging.debug('cmd: %s' % cmd)
+            logging.warn('std.out: %s' % pid)
             logging.warn('std.err: %s' % err)
-            logging.warn('Exit code: %s' % errcode)
+            logging.warn('exit: %s' % errcode)
             return None
 
     # Get path to binary from PID #
@@ -179,8 +185,9 @@ def get_x11_owner():
 
     if errcode != 0:
         logging.debug('cmd: %s' % cmd)
+        logging.warn('std.out: %s' % binary_path)
         logging.warn('std.err: %s' % err)
-        logging.warn('Exit code: %s' % errcode)
+        logging.warn('exit: %s' % errcode)
         return name
 
     name = os.path.basename(binary_path).strip()
@@ -241,7 +248,10 @@ def get_win32_owner():
         logging.exception(err)
         name = None
 
+    # BOOL WINAPI CloseHandle(
+    #   _In_  HANDLE hObject
+    # );
     windll.kernel32.CloseHandle(pid_handle)
+    
     logging.info('name: %s' % name)
-
     return name
