@@ -59,7 +59,7 @@ class SingleInstance(object):
         """Check if application is running.
 
         Returns:
-            True/False
+            True/False (bool): Instance of app is or is not running
         """
         if sys.platform.startswith('win32'):
             # ERROR_ALREADY_EXISTS
