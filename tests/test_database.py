@@ -15,7 +15,7 @@ from clipmanager import database
 def delete_temp_db():
 	try:
 		os.unlink('contents.db')
-	except WindowsError as err:
+	except Exception as err:
 		pass
 
 try:
