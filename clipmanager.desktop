@@ -1,5 +1,9 @@
 [Desktop Entry]
+Encoding=UTF-8
+Type=Application
+
+Exec=clipmanager
+Icon=clipmanager
+
 Name=ClipManager
 Comment=Manage clipboard history
-Exec=clipmanager
-Type=Application
