@@ -72,11 +72,11 @@ def resource_filename(file_name):
     # Return physical path to file if exists
     for path in paths:
         if os.path.isfile(path):
-            logging.info(path)
+            logging.debug(path)
             return path
 
     # Return to resource path
-    logging.info('Resource path')
+    logging.debug('Using resouce filename.')
     return pkg_resources.resource_filename('clipmanager', file_name)
 
 
