@@ -96,6 +96,27 @@ class TestListView(object):
     def test_left_arrow(self):
         assert self.key_arrow(QtCore.Qt.Key_Left)
 
+    def test_insert_rows(self):
+        insert_data = 'testing'
+        self.view.model().contents.append(insert_data)
+
+        found = False
+        for row in range(self.view.model().rowCount(None)):
+            source_index = self.view.model().index(row)
+            item_text = self.view.model().data(source_index)
+            if item_text == insert_data:
+                found = True
+                break
+
+        assert found
+
+    def test_delete_rows(self):
+        num_of_rows = self.view.model().rowCount(None)
+
+        self.select_item(1)
+        self.view._delete_rows()
+        assert (len(self.data) < num_of_rows)        
+
     def test_select_all(self):
         selection_model = self.view.selectionModel()
         QtTest.QTest.keyPress(self.view, QtCore.Qt.Key_A,
@@ -134,11 +155,4 @@ class TestListView(object):
 
         self.connection_box.assertSignalArrived('open-preview(QModelIndex)')
         self.connection_box.assertNumberOfArguments(1)
-        self.connection_box.assertArgumentTypes(QtCore.QModelIndex)
-
-    def test_delete_rows(self):
-        num_of_rows = self.view.model().rowCount(None)
-
-        self.select_item(1)
-        self.view._delete_rows()
-        assert (len(self.data) < num_of_rows) 
+        self.connection_box.assertArgumentTypes(QtCore.QModelIndex) 
