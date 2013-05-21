@@ -81,5 +81,8 @@ class SingleInstance(object):
                 CloseHandle(self.mutex)
         else:
             if not self.last_error:
-                os.unlink(self.pid_path)
+                try:
+                    os.unlink(self.pid_path)
+                except OSError as err:
+                    logging.error(err)
 
