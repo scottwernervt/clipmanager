@@ -52,5 +52,6 @@ setup(
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files = [('share/applications', ['clipmanager.desktop']),
-                  ('clipmanager/', ['clipmanager/license.txt'])]
+                  ('clipmanager/', ['clipmanager/license.txt']),
+                  ('share/pixmaps', ['clipmanager/icons/clipamanger.ico'])]
 )
