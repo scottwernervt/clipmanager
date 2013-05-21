@@ -230,12 +230,13 @@ class ListView(QtGui.QListView):
                 # Get model index
                 model_index = self.model().index(row, ID)
                 parent_id = self.model().data(model_index)
-                
+
                 delete_mime(parent_id)
                 self.model().removeRow(row)
             else:
                 pass
 
+        self.model().sourceModel().submitAll()
         self.unsetCursor()
 
 
