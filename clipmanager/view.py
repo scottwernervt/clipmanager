@@ -236,7 +236,7 @@ class ListView(QtGui.QListView):
             else:
                 pass
 
-        self.model().sourceModel().submitAll()
+        self.model().submit()
         self.unsetCursor()
 
 
