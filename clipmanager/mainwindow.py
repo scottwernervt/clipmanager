@@ -45,7 +45,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QtGui.QIcon(utils.resource_filename('icons/app.ico')))
+        self.setWindowIcon(QtGui.QIcon(utils.resource_filename('icons/clipmanager.ico')))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|
