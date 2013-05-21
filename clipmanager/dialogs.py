@@ -38,7 +38,7 @@ class PreviewDialog(QtGui.QDialog):
         super(PreviewDialog, self).__init__(parent)
         self.parent = parent
         
-        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
+        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('Preview')
         self.resize(QtCore.QSize(500,300))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -116,7 +116,7 @@ class SettingsDialog(QtGui.QDialog):
         super(SettingsDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
+        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('Settings')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -319,7 +319,7 @@ class AboutDialog(QtGui.QDialog):
         super(AboutDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
+        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('About')
         self.resize(QtCore.QSize(350,200))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
