@@ -46,7 +46,7 @@ def remove_extra_lines(text, line_count):
         return text
 
     # Split text by line breaks
-    lines = text.split('\n')
+    lines = text.splitlines()
 
     # Remove extra lines
     if len(lines) > line_count:
