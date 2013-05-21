@@ -22,17 +22,20 @@ Download installer at [link here]
 
 * Python 2.7
 * PySide 1.1.2
-* setuptools 0.6
-* _Optional_ [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
+* [setuptools](https://pypi.python.org/pypi/setuptools)
+* _Optional_
+	* [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
+	* [py.test](http://pytest.org/latest/) to run unit tests.
 
 **Windows**
 
-* [pywin32 218](http://sourceforge.net/projects/pywin32/files/)
-* _Optional_ [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
+* [pywin32](http://sourceforge.net/projects/pywin32/files/)
+* _Optional_
+	* [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
 
 **Linux**
 
-* [python-keybinder 0.3.0](https://github.com/engla/keybinder)
+* [python-keybinder](https://github.com/engla/keybinder)
 
 ## Todo
 1. Support X11 selection clipboard.
@@ -41,8 +44,8 @@ Download installer at [link here]
 
 
 ## Contributors
-* [Scott Werner](http://www.linkedin.com/in/scottwernervt) <scott.werner.vt@gmail.com>, alias [mercnet](https://bitbucket.org/mercnet)
-
+* [Scott Werner](http://www.linkedin.com/in/scottwernervt) <<scott.werner.vt@gmail.com>>, alias [mercnet](https://bitbucket.org/mercnet)
+* I am looking for code mentoring/tips as this is my first public application.
 
 ## Inspiration
 * [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
