@@ -11,18 +11,17 @@ from PySide import QtSql
 
 from clipmanager import database
 
+try:
+    app = QtGui.QApplication(sys.argv)
+except RuntimeError:
+    pass
+
 
 def delete_temp_db():
 	try:
 		os.unlink('contents.db')
 	except Exception as err:
 		pass
-
-try:
-	app = QtGui.QApplication(sys.argv)
-except RuntimeError:
-	pass
-
 
 MAIN_IDS = []
 DATA_IDS = []
@@ -99,3 +98,4 @@ def test_delete_mime():
 # Close database for test
 db.close()
 delete_temp_db()
+app.exit()
