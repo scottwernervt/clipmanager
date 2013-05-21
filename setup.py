@@ -1,53 +1,56 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# http://www.siafoo.net/article/77
 
-from distutils.core import setup
-from distutils.command.install_data import install_data
-from distutils.command.install import INSTALL_SCHEMES
-from distutils.sysconfig import get_python_lib
 import os
 import sys
 
-# try:
-#     from twisted import plugin
-#     from twisted.python.reflect import namedAny
-# except ImportError, e:
-#     print >>sys.stderr, "setup.py requires Twisted to create a proper modu installation. Please install it before continuing."
-#     sys.exit(1)
+try:
+    from setuptools import Command
+    from setuptools import find_packages
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
+    from distutils.command.install_data import install_data
+    from distutils.command.install import INSTALL_SCHEMES
+    from distutils.sysconfig import get_python_lib
 
+
+# Application specific data from package
 version = __import__('clipmanager').__version__
-# print version
+
+from clipmanager.defs import APP_ORG as organization
+from clipmanager.defs import APP_NAME as name
+from clipmanager.defs import APP_DOMAIN as domain
+from clipmanager.defs import APP_DESCRIPTION as description
+from clipmanager.defs import APP_AUTHOR as author
+from clipmanager.defs import APP_EMAIL as email
+
+
+# Requires
+required_packages = ['PySide (>=1.1.2)', 'keybinder (>=0.3.0)']
 
 setup(
-	name='ClipManager',
-	version=version,
-	description='Manage clipboard history',
-	author='Scott Werner',
-	author_email='scott.werner.vt@gmail.com',
-	maintainer='Scott Werner',
-	maintainer_email='scott.werner.vt@gmail.com',
-	url='http://mercnet.github.com/clipman/',
-	license='GNU GPL v2',
-    packages = ['clipmanager'],
-    cmdclass = {'install_data': install_data},
+    scripts = ['bin/clipmanager'],
+	name = name.lower(),
+	version = version,
+	description = description,
+    license = 'BSD',
+
+	author = author,
+	author_email = email,
+	maintainer = author,
+	maintainer_email = author,
+	url = domain,
+    download_url = domain,
+
+    platforms = ['unix', 'linux', 'win32'],
+    requires = required_packages, 
+	
+    packages = ['clipmanager', 'clipmanager.paste', 'clipmanager.hotkey'],
     package_data = {
         'clipmanager': ['*.txt'],
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
-    # data_files = [['clipmanager/icons', 
-    #                 ['clipmanager/icons/exit.png'
-    #                 ,'clipmanager/icons/add.png'
-    #                 , 'clipmanager/icons/search.png'
-    #                 , 'clipmanager/icons/app.ico'
-    #                 , 'clipmanager/icons/remove.png'
-    #                 , 'clipmanager/icons/settings.png'
-    #                 , 'clipmanager/icons/disconnect.png'
-    #                 , 'clipmanager/icons/about.png']
-    #                 ],
-    #                ['clipmanager', ['clipmanager/license.txt']],
-    #                ['/usr/share/applications', ['clipmanager.desktop']],
-    #             ],
-    scripts = ['bin/clipmanager'],
-    requires=['PySide (>=1.1.2)'], # Add gtk and keybinder
-  )
+    data_files = [('share/applications', ['clipmanager.desktop']),
+                  ('clipmanager/', ['clipmanager/license.txt'])]
+)
