@@ -52,6 +52,9 @@ setup(
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files = [('share/applications', ['clipmanager.desktop']),
-                  ('clipmanager/', ['clipmanager/license.txt']),
-                  ('share/pixmaps', ['clipmanager/icons/clipmanager.ico'])]
+                  ('clipmanager/', ['clipmanager/license.txt'])]
+                  # ('share/clipmanager/pixmaps', ['clipmanager/icons/48x48/clipmanager.png']),
+                  # ('share/icons/hicolor/16x16/apps', ['clipmanager/icons/16x16/clipmanager.png']),
+                  # ('share/icons/hicolor/22x22/apps', ['clipmanager/icons/22x22/clipmanager.png']),
+                  # ('share/icons/hicolor/48x48/apps', ['clipmanager/icons/48x48/clipmanager.png'])]
 )
