@@ -38,7 +38,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__(parent)
         self.parent = parent
 
-        self.setIcon(QtGui.QIcon(resource_filename('icons/app.ico')))
+        self.setIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setToolTip(APP_NAME)
         self.setup_menu()
 
