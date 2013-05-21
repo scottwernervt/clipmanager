@@ -1,3 +1,5 @@
-include bin clipmanager
-recursive-include clipmanager *
-recursive-exclude tests *
+include *.txt
+recursive-include clipmanager/icons *.*
+prune build
+prune dist
+prune tests
