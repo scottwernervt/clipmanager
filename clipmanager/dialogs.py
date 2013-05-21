@@ -335,14 +335,14 @@ class AboutDialog(QtGui.QDialog):
         app_domain = QtCore.QCoreApplication.organizationDomain()
 
         # Application logo
-        app_pixmap = QtGui.QPixmap('icons/app.ico')
-        scale_size = QtCore.QSize(50, 50)
-        app_pixmap = app_pixmap.scaled(scale_size, QtCore.Qt.IgnoreAspectRatio, 
-                                       QtCore.Qt.FastTransformation)
-        app_logo = QtGui.QLabel()
-        app_logo.setFixedSize(scale_size)
-        app_logo.setPixmap(app_pixmap)
-        app_logo.setAlignment(QtCore.Qt.AlignHCenter)
+        # app_pixmap = QtGui.QPixmap('icons/app.ico')
+        # scale_size = QtCore.QSize(50, 50)
+        # app_pixmap = app_pixmap.scaled(scale_size, QtCore.Qt.IgnoreAspectRatio, 
+        #                                QtCore.Qt.FastTransformation)
+        # app_logo = QtGui.QLabel()
+        # app_logo.setFixedSize(scale_size)
+        # app_logo.setPixmap(app_pixmap)
+        # app_logo.setAlignment(QtCore.Qt.AlignHCenter)
 
         # Company url. Todo: Remove mailto when I have a domain/company name
         company_url = QtGui.QLabel('<a href="%s">%s</a>' % (app_domain, 
