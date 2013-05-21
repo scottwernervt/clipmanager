@@ -12,7 +12,7 @@ from PySide import QtWebKit
 from PySide import QtTest
 
 from clipmanager import dialogs
-# from clipmanager.settings import settings
+
 
 try:
 	app = QtGui.QApplication(sys.argv)
@@ -81,33 +81,46 @@ class TestAboutDialog(object):
 		assert os.path.exists('../clipmanager/license.txt')
 
 	def test_license_textedit(self):
-		assert (self.dialog.about_doc.toPlainText() != '')
 		assert (len(self.dialog.about_doc.toPlainText()) > 0)
 
 
 class TestPreviewDialog(object):
 
 	def test_doc_plaintext(self):
-		self.dialog = dialogs.PreviewDialog()
+		dialog = dialogs.PreviewDialog()
 
 		# Plain text displays in QTextEdit
 		mime_data = QtCore.QMimeData()
 		mime_data.setText('hi')
-		self.dialog.setup_ui(mime_data)
+		dialog.setup_ui(mime_data)
 
-		assert (type(self.dialog.doc) == QtGui.QTextEdit)
-		assert (len(self.dialog.doc.toPlainText()) > 0)
-	
+		assert (type(dialog.doc) == QtGui.QTextEdit)
+		assert (len(dialog.doc.toPlainText()) > 0)
+		del dialog
+
 	def test_doc_html(self):
-		self.dialog = dialogs.PreviewDialog()
-
-		print self.dialog.setup_ui().item
+		dialog = dialogs.PreviewDialog()
 
 		# Html text displays in QWebView
 		text = 'hi'
 		mime_data = QtCore.QMimeData()
 		mime_data.setHtml('<b>' + text + '</b>')
-		self.dialog.setup_ui(mime_data)
+		dialog.setup_ui(mime_data)
 
-		assert (type(self.dialog.doc) == QtWebKit.QWebView)
-		assert (self.dialog.doc.findText(text))
+		assert (type(dialog.doc) == QtWebKit.QWebView)
+		assert (dialog.doc.findText(text))
+		del dialog
+
+	def test_mix_mime(self):
+		dialog = dialogs.PreviewDialog()
+
+		# Html text displays in QWebView
+		text = 'hi'
+		mime_data = QtCore.QMimeData()
+		mime_data.setHtml('<b>' + text + '</b>')
+		mime_data.setText('hi')
+		dialog.setup_ui(mime_data)
+
+		assert (type(dialog.doc) == QtWebKit.QWebView)
+		assert (dialog.doc.findText(text))
+		del dialog
