@@ -9,20 +9,20 @@ from PySide import QtSql
 logging.getLogger(__name__)
 
 
-_tblMain = """CREATE TABLE Main(
+_tblMain = """CREATE TABLE IF NOT EXISTS Main(
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     date            timestamp,
     titleshort      TEXT,
     titlefull       TEXT,
     checksum        STRING
-)"""
+);"""
 
-_tblData = """CREATE TABLE Data(
+_tblData = """CREATE TABLE IF NOT EXISTS Data(
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     parentid    INTEGER,
     format      STRING,
     data        BLOB
-)"""
+);"""
 
 
 def create_connection(storage_path):
@@ -58,15 +58,21 @@ def create_tables():
     setting. TITLEFULL is the entire string used during proxy filter search.
     CHECKSUM is the cyclic redundancy check of the mime data QByteArray.
     """
-    query = QtSql.QSqlQuery()
-    
-    query.exec_(_tblMain)
-    query.exec_()
+    query_main = QtSql.QSqlQuery()
+    query_main.exec_(_tblMain)
+    query_main.finish()
+    if query_main.lastError().isValid():
+        logging.error(query_main.lastError().text())
+        return False
 
-    query.exec_(_tblData)
-    query.exec_()
+    query_data = QtSql.QSqlQuery()
+    query_data.exec_(_tblData)
+    query_data.finish()
+    if query_data.lastError().isValid():
+        logging.error(query_data.lastError().text())
+        return False
 
-    query.finish()
+    return True
 
 
 # def count_main():
