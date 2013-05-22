@@ -20,3 +20,7 @@ def test_remove_extra_lines():
 	assert utils.remove_extra_lines('Line1', 1) == 'Line1'
 	assert utils.remove_extra_lines('Line1\nLine2', 1) == 'Line1...'
 	assert utils.remove_extra_lines('Line1\nLine2\nLine3', 2) == 'Line1\nLine2...'
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-vs'])

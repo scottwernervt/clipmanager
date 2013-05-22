@@ -25,3 +25,7 @@ class TestSingleInstance(object):
 		
 		assert (app_b.is_running() == True)
 		del app_a, app_b
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-vs'])

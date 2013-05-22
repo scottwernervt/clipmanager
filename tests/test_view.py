@@ -155,4 +155,8 @@ class TestListView(object):
 
         self.connection_box.assertSignalArrived('open-preview(QModelIndex)')
         self.connection_box.assertNumberOfArguments(1)
-        self.connection_box.assertArgumentTypes(QtCore.QModelIndex) 
+        self.connection_box.assertArgumentTypes(QtCore.QModelIndex)
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-vs'])

@@ -124,3 +124,7 @@ class TestPreviewDialog(object):
         assert (type(dialog.doc) == QtWebKit.QWebView)
         assert (dialog.doc.findText(text))
         del dialog
+
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-vs'])
