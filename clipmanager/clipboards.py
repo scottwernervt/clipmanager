@@ -56,6 +56,12 @@ class ClipBoards(QtCore.QObject):
                                            self.emit_new_item,
                                            QtGui.QClipboard.Clipboard, self)
 
+    def clear(self):
+        self.clip_board_global.clear()
+
+    def get_global_clipboard_data(self):
+        return self.clip_board_global.get_data()
+
     def set_data(self, mime_data):
         """Sets user select contents to all clipboards.
 
@@ -95,6 +101,13 @@ class ClipBoard(QtCore.QObject):
         
         self.connect(self.clip_board, QtCore.SIGNAL('ownerDestroyed()'), 
                      self.on_owner_destroyed)
+
+    def clear(self):
+        if not settings.get_disconnect():
+            self.clip_board.clear(mode=self.mode)
+
+    def get_data(self):
+        return self.clip_board.mimeData(self.mode)
 
     def set_data(self, mime_data):
         """Set mime_data to clipboard.
