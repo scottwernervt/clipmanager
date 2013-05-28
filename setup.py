@@ -31,21 +31,21 @@ required_packages = ['PySide (>=1.1.2)', 'keybinder (>=0.3.0)']
 
 setup(
     scripts = ['bin/clipmanager'],
-	name = name.lower(),
-	version = version,
-	description = description,
+    name = name.lower(),
+    version = version,
+    description = description,
     license = 'BSD',
 
-	author = author,
-	author_email = email,
-	maintainer = author,
-	maintainer_email = author,
-	url = domain,
+    author = author,
+    author_email = email,
+    maintainer = author,
+    maintainer_email = author,
+    url = domain,
     download_url = domain,
 
     platforms = ['unix', 'linux', 'win32'],
     requires = required_packages, 
-	
+
     packages = ['clipmanager', 'clipmanager.paste', 'clipmanager.hotkey'],
     package_data = {
         'clipmanager': ['*.txt'],
