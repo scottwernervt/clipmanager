@@ -3,7 +3,6 @@
 
 import logging
 import sys
-import zlib
 
 from PySide import QtCore
 from PySide import QtGui
@@ -455,41 +454,13 @@ class MainWidget(QtGui.QWidget):
 
         logging.debug('Clipboard Formats: %s' % str(mime_data.formats()))
 
-        # Determine what should the checksum should be calculated from
-        checksum_string = None
-        if mime_data.hasText():
-            checksum_string = mime_data.text()
-        if mime_data.hasHtml():
-            checksum_string = mime_data.html()
-        if mime_data.hasUrls():
-            checksum_string = str(mime_data.urls())
-        # if mime_data.hasImage():
-        #     image = mime_data.imageData()
-        #     ba = QtCore.QByteArray()
-        #     buff = QtCore.QBuffer(ba)
-        #     image.save(buff, 'PNG')
-        #     byte_array = QtCore.QByteArray(buff.buffer())
-        #     buff.close()
-        #     checksum_string = str(byte_array.toBase64())
-            
-        # Ignore content that does not have text, html, or image
-        if not checksum_string:
-            logging.warn('Mime Data does not have text, html, or urls.')
+        checksum = utils.calculate_checksum(mime_data)
+        if checksum == None:
             return None
-
-        # CRASH FIX: Handle unicode characters for calculating checksum
-        codec = QtCore.QTextCodec.codecForName('UTF-8')
-        encoder = QtCore.QTextEncoder(codec)
-        bytes = encoder.fromUnicode(checksum_string)    # QByteArray
-
-        # Calculate checksum with crc32 method (quick)
-        checksum = zlib.crc32(bytes)
-        logging.debug('Checksum=%s' % checksum)
-
-        # If duplicate found then exit function
-        if self._duplicate(checksum):
-            return None
-
+        else:
+            # If duplicate found then exit function
+            if self._duplicate(checksum):
+                return None
 
         # Plain text for title or covert to string for copied files
         text = None
@@ -552,8 +523,8 @@ class MainWidget(QtGui.QWidget):
             database.insert_mime(parent_id, format, byte_data)
 
         # Free memory?
-        del data_insert, index, parent_id, title_short, text, codec, encoder
-        del bytes, checksum_string, checksum, mime_data, proc_name
+        # del data_insert, index, parent_id, title_short, text, codec, encoder
+        # del bytes, checksum_string, checksum, mime_data, proc_name
 
         return True
    

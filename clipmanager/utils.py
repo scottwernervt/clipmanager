@@ -6,8 +6,60 @@ import pkg_resources
 import logging
 import textwrap
 import sys
+import zlib
+
+from PySide import QtCore
 
 logging.getLogger(__name__)
+
+
+def calculate_checksum(mime_data):
+    """Calculates checksum from mime_data contents.
+
+    Calculate CRC32 checksum using byte data from clipboard contents. 
+
+    Args:
+        mime_data (QMimeData): data from clipboard
+
+    Returns:
+        None: Clipboard contents do not have text, html, or url. In other words,
+              the format is not supported.
+        checksum: QMimeData bytes converted to crc32.
+    """
+    checksum_str = None
+
+    if mime_data.hasText():
+        checksum_str = mime_data.text()
+    if mime_data.hasHtml():
+        checksum_str = mime_data.html()
+    if mime_data.hasUrls():
+        checksum_str = str(mime_data.urls())
+    # if mime_data.hasImage():
+    #     image = mime_data.imageData()
+    #     ba = QtCore.QByteArray()
+    #     buff = QtCore.QBuffer(ba)
+    #     image.save(buff, 'PNG')
+    #     byte_array = QtCore.QByteArray(buff.buffer())
+    #     buff.close()
+    #     checksum_string = str(byte_array.toBase64())
+
+    # Ignore content that does not have text, html, or image
+    if not checksum_str:
+        logging.warn('Mime Data does not have text, html, or urls.')
+        return None
+    else:
+        logging.debug('checksum_str=%s' % checksum_str)
+
+    # CRASH FIX: Handle unicode characters for calculating checksum
+    codec = QtCore.QTextCodec.codecForName('UTF-8')
+    encoder = QtCore.QTextEncoder(codec)
+    bytes = encoder.fromUnicode(checksum_str)    # QByteArray
+
+    # Calculate checksum with crc32 method (quick)
+    checksum = zlib.crc32(bytes)
+    logging.debug('checksum=%s' % checksum)
+
+    return checksum
 
 
 def clean_up_text(text):
