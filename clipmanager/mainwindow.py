@@ -457,46 +457,23 @@ class MainWidget(QtGui.QWidget):
         checksum = utils.calculate_checksum(mime_data)
         if checksum == None:
             return None
-        else:
-            # If duplicate found then exit function
-            if self._duplicate(checksum):
-                return None
+        elif self._duplicate(checksum): # If duplicate found then exit function
+            return None
 
-        # Plain text for title or covert to string for copied files
-        text = None
-        if mime_data.hasUrls():
-            text = 'Copied File(s): '
-            seperator = '\n'
-            # if settings.get_word_wrap():
-            #     seperator = ', '
-            # else:
-            #     seperator = '\n'
-            for url in mime_data.urls():
-                # '' means url is a web address so we don't want Copied File(s)
-                if url.toLocalFile() == '':
-                    text = None
-                    break
-                
-                text += url.toString() + seperator
-
-        # Set plain text
-        if mime_data.hasText() and text == None:
-            text = mime_data.text()
-
-        # Last resort to create title
-        if mime_data.hasHtml() and text == None:
-            text = mime_data.html()
+        text = utils.create_full_title(mime_data)
 
         # title_short used in list row view so clean it up by removing white
         # space, dedent, and striping uncessary line breaks
         title_short = utils.clean_up_text(text)
         title_short = utils.remove_extra_lines(text=title_short,
-                                         line_count=settings.get_lines_to_display())
-        parent_id = database.insert_main(
-                                     date=QtCore.QDateTime.currentMSecsSinceEpoch(), 
-                                     titleshort=title_short,
-                                     titlefull=text,
-                                     checksum=checksum)
+                                    line_count=settings.get_lines_to_display())
+
+        date = QtCore.QDateTime.currentMSecsSinceEpoch()
+
+        parent_id = database.insert_main(date=date, 
+                                         titleshort=title_short,
+                                         titlefull=text,
+                                         checksum=checksum)
 
         # Store mime data into database
         if not parent_id:

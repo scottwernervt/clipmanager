@@ -13,6 +13,35 @@ from PySide import QtCore
 logging.getLogger(__name__)
 
 
+def create_full_title(mime_data):
+    # Plain text for title or covert to string for copied files
+    text = None
+    if mime_data.hasUrls():
+        text = 'Copied File(s): '
+        seperator = '\n'
+        # if settings.get_word_wrap():
+        #     seperator = ', '
+        # else:
+        #     seperator = '\n'
+        for url in mime_data.urls():
+            # '' means url is a web address so we don't want Copied File(s)
+            if url.toLocalFile() == '':
+                text = None
+                break
+            
+            text += url.toString() + seperator
+
+    # Set plain text
+    if mime_data.hasText() and text == None:
+        text = mime_data.text()
+
+    # Last resort to create title
+    if mime_data.hasHtml() and text == None:
+        text = mime_data.html()
+
+    return text    
+
+
 def calculate_checksum(mime_data):
     """Calculates checksum from mime_data contents.
 
