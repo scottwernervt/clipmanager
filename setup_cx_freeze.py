@@ -25,7 +25,7 @@ packages_path = os.path.join(py_install_path, 'lib', 'site-packages')
 
 # Path to icons/images
 icons_path = os.path.join(pwd, 'clipmanager', 'icons', '*.*') # Glob
-icon = os.path.join(pwd, 'clipmanager', 'icons', 'app.ico')
+icon = os.path.join(pwd, 'clipmanager', 'icons', 'clipmanager.ico')
 
 # Python packages
 includes = [

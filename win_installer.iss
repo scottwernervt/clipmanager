@@ -25,7 +25,7 @@ DisableProgramGroupPage=yes
 LicenseFile=clipmanager\license.txt
 OutputDir=dist
 OutputBaseFilename=clipmanager-setup-0.1
-SetupIconFile=clipmanager\icons\app.ico
+SetupIconFile=clipmanager\icons\clipmanager.ico
 Compression=lzma
 SolidCompression=yes
 ; http://www.jrsoftware.org/iskb.php?startup
