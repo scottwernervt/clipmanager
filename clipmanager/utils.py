@@ -14,6 +14,17 @@ logging.getLogger(__name__)
 
 
 def create_full_title(mime_data):
+    """Create a title from QMimeData.
+
+    Extract a title from QMimeData using hasUrls(), hasText(), or hasHtml().
+
+    Args:
+        mime_data: QMimeData
+
+    Returns:
+        str: title
+        None: QMimeData did not have plain text, html, or url(s). 
+    """
     # Plain text for title or covert to string for copied files
     text = None
     if mime_data.hasUrls():
@@ -39,6 +50,7 @@ def create_full_title(mime_data):
     if mime_data.hasHtml() and text == None:
         text = mime_data.html()
 
+    logging.debug(text)
     return text    
 
 
@@ -95,14 +107,13 @@ def clean_up_text(text):
     """Dedent text and replace tab's with spaces.
 
     Args:
-        text (unicode): single or multline text with or without indentation.
+        text (unicode): Single or multline text with or without indentation.
 
     Returns:
-        unicode: formatted text
+        unicode: Input text dedented and tab's replaced by spaces.
     """
-    text = textwrap.dedent(text)
-    text = text.replace('\t', '    ')
-    return text # .rstrip().lstrip()
+    modified = textwrap.dedent(text)
+    return modified.replace('\t', '    ')
 
 
 def remove_extra_lines(text, line_count):
@@ -113,8 +124,8 @@ def remove_extra_lines(text, line_count):
     to end of text to inform user of truncation.
 
     Args:
-        text (str): Text that 
-        line_count (int): Number of lines to keep.
+        text (str): Single or multline line string.
+        line_count (int): Number of lines to return.
 
     Returns:
         text (str): Extra lines removed from variables text
@@ -142,6 +153,10 @@ def resource_filename(file_name):
 
     Args:
         file_name (str): names.dat, icons\app.ico
+
+    Returns:
+        path: Absolute path to resource file found locally on disk.
+        pkg_resource: Return a true filesystem path for specified resource.
     """
     paths = map(
         lambda path: os.path.join(path, file_name),
@@ -159,10 +174,3 @@ def resource_filename(file_name):
     # Return to resource path
     logging.debug('Using resouce filename.')
     return pkg_resources.resource_filename('clipmanager', file_name)
-
-
-# def strip_extra_char(text, length):
-#     if len(text) > length:
-#         return text[:length] + '...'
-#     else:
-#         return text
