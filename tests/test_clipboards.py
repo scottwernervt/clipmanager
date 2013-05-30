@@ -74,6 +74,8 @@ class TestClipBoards(object):
             proc_name = clipboards.get_x11_owner()
 
         assert len(proc_name) > 0
+        # Might fail on linux if computer uses alias for python
+        assert 'python' in proc_name.lower()
 
     def test_clear(self):
         """Does the clipboard contents get deleted?"""
