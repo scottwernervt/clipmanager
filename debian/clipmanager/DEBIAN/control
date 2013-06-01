@@ -1,0 +1,12 @@
+Package: clipmanager
+Version: 0.1
+Architecture: i386
+Maintainer: Scott Werner <scott.werner.vt@gmail.com>
+Installed-Size: 254
+Section: utils
+Priority: optional
+Homepage: https://bitbucket.org/mercnet/clipmanager
+Description: Manage the system's clipboard history.
+ Capture history of clipboard. Stores  plain text,
+ rich text, html, and file copies. Easily retrieve
+ old clipboard data with global hot key.

@@ -17,6 +17,7 @@ lib64
 __pycache__
 testing
 MANIFEST
+.gnupg
 
 # SQL databases
 *.db
