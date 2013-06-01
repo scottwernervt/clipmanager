@@ -20,7 +20,7 @@ from clipmanager.defs import APP_EMAIL as email
 
 
 # Requires
-required_packages = ['PySide>=1.1.2)', 'keybinder>=0.3.0)']
+required_packages = ['PySide', 'keybinder',]
 
 setup(
     scripts = ['bin/clipmanager'],
