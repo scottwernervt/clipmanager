@@ -1,0 +1,16 @@
+Source: clipmanager
+Section: utils
+Priority: optional
+Maintainer: Scott Werner <scott.werner.vt@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), python-setuptools (>=0.6)
+Standards-Version: 3.9.2
+Homepage: https://bitbucket.org/mercnet/clipmanager
+Vcs-Git: https://mercnet@bitbucket.org/mercnet/clipmanager.git
+
+Package: clipmanager
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Manage the system's clipboard history.
+ Capture history of clipboard. Stores  plain text, 
+ rich text, html, and file copies. Easily retrieve
+ old clipboard data with global hot key.
