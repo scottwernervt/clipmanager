@@ -35,19 +35,15 @@ setup(
     maintainer_email = author,
     url = domain,
     download_url = domain,
-
+    include_package_data=True,
     platforms = ['unix', 'linux', 'win32'],
     requires = required_packages, 
-
     packages = ['clipmanager', 'clipmanager.paste', 'clipmanager.hotkey'],
     package_data = {
         'clipmanager': ['*.txt'],
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files = [('share/applications', ['clipmanager.desktop']),
-                  ('clipmanager/', ['clipmanager/license.txt'])]
-                  # ('share/clipmanager/pixmaps', ['clipmanager/icons/48x48/clipmanager.png']),
-                  # ('share/icons/hicolor/16x16/apps', ['clipmanager/icons/16x16/clipmanager.png']),
-                  # ('share/icons/hicolor/22x22/apps', ['clipmanager/icons/22x22/clipmanager.png']),
-                  # ('share/icons/hicolor/48x48/apps', ['clipmanager/icons/48x48/clipmanager.png'])]
+                  # ('clipmanager/', ['clipmanager/license.txt']),
+                  ('share/pixmaps', ['clipmanager/icons/clipmanager.png'])]
 )
