@@ -1,5 +1,6 @@
-include *.txt
+include clipmanager/license.txt
 recursive-include clipmanager/icons *.*
 prune build
 prune dist
 prune tests
+recursive-exclude .gnupg *
