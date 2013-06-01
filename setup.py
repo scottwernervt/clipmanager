@@ -28,7 +28,6 @@ setup(
     version = version,
     description = description,
     license = 'BSD',
-
     author = author,
     author_email = email,
     maintainer = author,
@@ -44,6 +43,5 @@ setup(
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files = [('share/applications', ['clipmanager.desktop']),
-                  # ('clipmanager/', ['clipmanager/license.txt']),
                   ('share/pixmaps', ['clipmanager/icons/clipmanager.png'])]
 )
