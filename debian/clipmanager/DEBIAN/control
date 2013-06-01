@@ -2,7 +2,7 @@ Package: clipmanager
 Version: 0.1
 Architecture: i386
 Maintainer: Scott Werner <scott.werner.vt@gmail.com>
-Installed-Size: 254
+Installed-Size: 279
 Section: utils
 Priority: optional
 Homepage: https://bitbucket.org/mercnet/clipmanager
