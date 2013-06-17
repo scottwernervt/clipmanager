@@ -260,7 +260,6 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
 
         References:
             http://pydoc.net/Python/gayeogi/0.6/gayeogi.plugins.player/
-            https://github.com/fluggo/Canvas/blob/master/fluggo/editor/ui/plugineditor.py
         """
         if not index.isValid():
             return QtGui.QStyledItemDelegate.paint(self, painter, option, index)
@@ -319,8 +318,8 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
         text_option = QtGui.QTextOption()
         text_option.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
 
-        # Reimplement as lines to display can be ignored if word wrap forces
-        # an extra line to be created
+        # Reimplement as lines to display canFetchMore be ignored if word wrap 
+        # forces an extra line to be created
         if settings.get_word_wrap():
             text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
         else:

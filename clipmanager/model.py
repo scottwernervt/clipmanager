@@ -44,10 +44,23 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
 
         self.select()
 
+    def select(self):
+        """Subclass of select to disable lazy loading.
+
+        References:
+            http://qtsimplify.blogspot.com/2013/05/eager-loading.html
+
+        Returns:
+            bool: True/False
+        """
+        status = super(MainSqlTableModel, self).select()
+
         # Issue #1: QSortFilterProxyModel does not show all matching records 
         # due to all records not being loaded until scrolled.
         while self.canFetchMore():
             self.fetchMore()
+
+        return status
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         """Subclass of data.

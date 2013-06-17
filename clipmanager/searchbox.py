@@ -30,8 +30,8 @@ class SearchFilterProxyModel(QtGui.QSortFilterProxyModel):
         """
         # Issue #1: QSortFilterProxyModel does not show all matching records 
         # due to all records not being loaded until scrolled.
-        while self.sourceModel().canFetchMore():
-            self.sourceModel().fetchMore()
+        # while self.sourceModel().canFetchMore():
+        #     self.sourceModel().fetchMore()
         QtGui.QSortFilterProxyModel.setFilterFixedString(self, args[0])
 
 
