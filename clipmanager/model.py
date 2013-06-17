@@ -44,6 +44,11 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
 
         self.select()
 
+        # Issue #1: QSortFilterProxyModel does not show all matching records 
+        # due to all records not being loaded until scrolled.
+        while self.canFetchMore():
+            self.fetchMore()
+
     def data(self, index, role=QtCore.Qt.DisplayRole):
         """Subclass of data.
 
