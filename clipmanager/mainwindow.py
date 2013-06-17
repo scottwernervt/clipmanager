@@ -293,11 +293,14 @@ class MainWidget(QtGui.QWidget):
         self.view_main = view.ListView(self)
         self.model_main = model.MainSqlTableModel(self)
         
-        self.proxy_main = QtGui.QSortFilterProxyModel(self)
-        self.proxy_main.setFilterKeyColumn(TITLEFULL)
+        self.proxy_main = searchbox.SearchFilterProxyModel(self)
         self.proxy_main.setSourceModel(self.model_main)
-        self.proxy_main.setDynamicSortFilter(True)
-        self.proxy_main.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+
+        # self.proxy_main = QtGui.QSortFilterProxyModel(self)
+        # self.proxy_main.setFilterKeyColumn(TITLEFULL)
+        # self.proxy_main.setSourceModel(self.model_main)
+        # self.proxy_main.setDynamicSortFilter(True)
+        # self.proxy_main.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
 
         self.view_main.setModel(self.proxy_main)
         self.view_main.setModelColumn(TITLESHORT)

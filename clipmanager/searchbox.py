@@ -7,8 +7,32 @@ from PySide import QtCore
 from PySide import QtGui
 
 from defs import TITLESHORT
+from defs import TITLEFULL
 
 logging.getLogger(__name__)
+
+
+class SearchFilterProxyModel(QtGui.QSortFilterProxyModel):
+    """Search database using fixed string.
+    """
+    def __init__(self, parent=None):
+        super(SearchFilterProxyModel, self).__init__()
+        self.setFilterKeyColumn(TITLEFULL)
+        self.setDynamicSortFilter(True)
+        self.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+
+    QtCore.Slot(str)
+    def setFilterFixedString(self, *args):
+        """Fetch more rows from the source model before filtering the QListView.
+        
+        Args:
+            *args: tuple with a unicode string, (u'string',)
+        """
+        # Issue #1: QSortFilterProxyModel does not show all matching records 
+        # due to all records not being loaded until scrolled.
+        while self.sourceModel().canFetchMore():
+            self.sourceModel().fetchMore()
+        QtGui.QSortFilterProxyModel.setFilterFixedString(self, args[0])
 
 
 class SearchBox(QtGui.QLineEdit):
