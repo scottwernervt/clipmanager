@@ -11,30 +11,23 @@ from setuptools import setup
 # Application specific data from package
 version = __import__('clipmanager').__version__
 
-from clipmanager.defs import APP_ORG as organization
-from clipmanager.defs import APP_NAME as name
-from clipmanager.defs import APP_DOMAIN as domain
-from clipmanager.defs import APP_DESCRIPTION as description
-from clipmanager.defs import APP_AUTHOR as author
-from clipmanager.defs import APP_EMAIL as email
-
 
 # Requires
 required_packages = ['PySide', 'keybinder',]
 
 setup(
     scripts = ['bin/clipmanager'],
-    name = name.lower(),
+    name = 'clipmanager',
     version = version,
-    description = description,
+    description = "Manage the system's clipboard history.",
     license = 'BSD',
-    author = author,
-    author_email = email,
-    maintainer = author,
-    maintainer_email = author,
-    url = domain,
-    download_url = domain,
-    include_package_data=True,
+    author = 'Scott Werner',
+    author_email = 'scott.werner.vt@gmail.com',
+    maintainer = 'Scott Werner',
+    maintainer_email = 'scott.werner.vt@gmail.com',
+    url = 'https://bitbucket.org/mercnet/clipmanager',
+    download_url = 'https://bitbucket.org/mercnet/clipmanager',
+    include_package_data = True,
     platforms = ['unix', 'linux', 'win32'],
     requires = required_packages, 
     packages = ['clipmanager', 'clipmanager.paste', 'clipmanager.hotkey'],
