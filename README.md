@@ -12,9 +12,15 @@ Download installer at [link here]
 
 **Linux**
 
-    arch: yaourt -S {package-name}
-    ubuntu: sudo apt-get install {package-name}
-    redhat: sudo yum install {package-name}
+    ubuntu:
+    sudo add-apt-repository ppa:mercnet/clipmanager
+    sudo apt-get install clipmanager
+
+    arch:
+    yaourt -S {package-name}
+
+    redhat:
+    sudo yum install {package-name}
 
 
 ## Build Requirements
