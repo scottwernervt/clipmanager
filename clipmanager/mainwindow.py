@@ -41,7 +41,13 @@ logging.getLogger(__name__)
 class MainWindow(QtGui.QMainWindow):
     """Main window container for main widget.
     """
-    def __init__(self):
+    def __init__(self, minimize=False):
+        """Initialize main window, systemtray, global hotkey, and signals.
+
+        Args:
+            minimize: True, minimize to system tray.
+                      False, bring window to front.
+        """
         super(MainWindow, self).__init__()
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QtGui.QIcon(utils.resource_filename('icons/clipmanager.ico')))
@@ -85,7 +91,8 @@ class MainWindow(QtGui.QMainWindow):
                      self._on_open_settings)
 
         # Show window
-        self._on_toggle_window()
+        if not minimize:
+            self._on_toggle_window()
 
     def closeEvent(self, event):
         """Capture close event and hide main window.

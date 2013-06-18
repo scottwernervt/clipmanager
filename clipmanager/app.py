@@ -77,9 +77,12 @@ class MainApp(QtGui.QApplication):
         self.setApplicationName(APP_NAME)
         self.setApplicationVersion(APP_VERSION)
 
-        # Crebate main window
-        self.mw = MainWindow()
-
+        # Create main window
+        if 'minimize' in args:
+            self.mw = MainWindow(minimize=True)
+        else:
+            self.mw = MainWindow(minimize=False)
+        
         # Perform clean up actions when quit message signaled
         self.connect(self, QtCore.SIGNAL('aboutToQuit()'), self._on_quit)
 
@@ -113,6 +116,8 @@ def main(argv):
     parser = optparse.OptionParser()
     parser.add_option('-l', '--logging-level', help='Logging level')
     (options, args) = parser.parse_args()
+    logging.debug(options)
+    logging.debug(args)
 
     # If user does not specify an option then lower will fail
     try:
