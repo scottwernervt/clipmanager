@@ -9,7 +9,7 @@ Vcs-Git: https://mercnet@bitbucket.org/mercnet/clipmanager.git
 
 Package: clipmanager
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, python-pyside, python-keybinder, xdotool
 Description: Manage the system's clipboard history.
  Capture history of clipboard. Stores  plain text, 
  rich text, html, and file copies. Easily retrieve
