@@ -36,5 +36,6 @@ setup(
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files = [('share/applications', ['clipmanager.desktop']),
+                  ('/etc/xdg/autostart', ['clipmanager-autostart.desktop']),
                   ('share/pixmaps', ['clipmanager/icons/clipmanager.png'])]
 )
