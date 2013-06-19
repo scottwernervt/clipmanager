@@ -19,5 +19,10 @@ testing
 MANIFEST
 .gnupg
 
+# Debian
+debian/clipmanager/*
+debian/clipmanager.debhelper.log
+debian/clipmanager.substvars
+
 # SQL databases
 *.db
