@@ -10,15 +10,15 @@ license=('BSD')
 depends=('python2'
 		 'python2-distribute'
 		 'python2-pyside'
-		 'python2-keybinder2'
-		 'xdotool')
+		 'python2-keybinder2')
+optdepends=('xdotool: paste to active window')
 install=$pkgname.install
 source=("https://bitbucket.org/mercnet/clipmanager/downloads/${pkgname}-${pkgver}.tar.gz")
-md5sums=('49aab74e79bda06d0e4afd9c8379a303')
+md5sums=('f692ee04fb67da58f6a76ee565c7d772')
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"
-  python setup.py install --root="$pkgdir/" --optimize=1
+  python2 setup.py install --root="$pkgdir/" --optimize=1
 }
 
 # vim:set ts=2 sw=2 et:
