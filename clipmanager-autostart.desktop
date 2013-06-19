@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=ClipManager
+Version=0.3
+Comment=Manage clipboard history
+Type=Application
+Exec=clipmanager minimize
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
