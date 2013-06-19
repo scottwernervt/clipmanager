@@ -14,7 +14,7 @@ depends=('python2'
 optdepends=('xdotool: paste to active window')
 install=$pkgname.install
 source=("https://bitbucket.org/mercnet/clipmanager/downloads/${pkgname}-${pkgver}.tar.gz")
-md5sums=('f692ee04fb67da58f6a76ee565c7d772')
+md5sums=('d181dd0fcdb1e6996a2952de0c47c451')
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"
