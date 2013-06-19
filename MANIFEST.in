@@ -1,4 +1,6 @@
 include clipmanager/license.txt
+include clipmanager.desktop
+include clipmanager-autostart.desktop
 recursive-include clipmanager/icons *.*
 prune build
 prune dist
