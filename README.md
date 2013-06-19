@@ -8,19 +8,20 @@ Cross-platform (Windows and Linux) GUI application to manage the history of the 
 ## Installation
 **Windows**
 
-Download installer at [link here]
+Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.org/mercnet/clipmanager/downloads/clipmanager-setup-0.3.exe).
 
-**Linux**
+**Ubuntu**
 
-    ubuntu:
+[launchpad.net](https://launchpad.net/~mercnet/+archive/clipmanager)
+
     sudo add-apt-repository ppa:mercnet/clipmanager
     sudo apt-get install clipmanager
 
-    arch:
-    yaourt -S {package-name}
+**Arch**
 
-    redhat:
-    sudo yum install {package-name}
+[aur.archlinux.org](https://aur.archlinux.org/packages/clipmanager) | [Install Yaourt](https://wiki.archlinux.org/index.php/Yaourt#Installation)
+
+    yaourt -S clipmanager
 
 
 ## Build Requirements
