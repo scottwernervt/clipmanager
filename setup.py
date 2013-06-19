@@ -12,9 +12,6 @@ from setuptools import setup
 version = __import__('clipmanager').__version__
 
 
-# Requires
-required_packages = ['PySide', 'keybinder',]
-
 setup(
     scripts = ['bin/clipmanager'],
     name = 'clipmanager',
@@ -29,13 +26,13 @@ setup(
     download_url = 'https://bitbucket.org/mercnet/clipmanager',
     include_package_data = True,
     platforms = ['unix', 'linux', 'win32'],
-    requires = required_packages, 
+    requires = ['PySide', 'keybinder'],
     packages = ['clipmanager', 'clipmanager.paste', 'clipmanager.hotkey'],
     package_data = {
         'clipmanager': ['*.txt'],
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files = [('share/applications', ['clipmanager.desktop']),
-                  ('/etc/xdg/autostart', ['clipmanager-autostart.desktop']),
-                  ('share/pixmaps', ['clipmanager/icons/clipmanager.png'])]
+                  ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
+                  ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])]
 )
