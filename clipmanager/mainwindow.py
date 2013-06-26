@@ -510,10 +510,6 @@ class MainWidget(QtGui.QWidget):
         # Maintain maximum number of entries    
         self._check_max_entries()
 
-        # Check expiration of entries
-        if settings.get_expire_value != 0:
-            print 'Checking expiration'
-
         return True
 
     def _check_max_entries(self):
