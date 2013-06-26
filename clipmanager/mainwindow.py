@@ -508,8 +508,11 @@ class MainWidget(QtGui.QWidget):
             database.insert_mime(parent_id, format, byte_data)
 
         # Maintain maximum number of entries    
-        if settings.get_max_entries_enabled():
-            self._check_max_entries()
+        self._check_max_entries()
+
+        # Check expiration of entries
+        if settings.get_expire_value != 0:
+            print 'Checking expiration'
 
         return True
 
