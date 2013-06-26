@@ -618,8 +618,4 @@ class MainWidget(QtGui.QWidget):
         # Update the date column in source
         self.model_main.setData(self.model_main.index(model_index.row(), DATE), 
                                 QtCore.QDateTime.currentMSecsSinceEpoch())
-        self.model_main.submit()
-
-        # Destroy mime data object?
-        del mime_data, mime_list, proxy_index, source_index, model_index 
-        del parent_id
+        self.model_main.submitAll()
