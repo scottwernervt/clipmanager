@@ -513,7 +513,32 @@ class MainWidget(QtGui.QWidget):
         # del data_insert, index, parent_id, title_short, text, codec, encoder
         # del bytes, checksum_string, checksum, mime_data, proc_name
 
+        # Maintain maximum number of entries    
+        if settings.get_max_entries_enabled():
+            self._check_max_entries()
+
         return True
+
+    def _check_max_entries(self):
+        row_count = self.model_main.rowCount()
+        max_entries = settings.get_max_entries_value()
+
+        logging.debug('Row count: %s' % row_count)
+        logging.debug('Max entries: %s' % max_entries)
+
+        if row_count > max_entries:
+            # Delete extra rows
+            # self.model_main.removeRows(max_entries, row_count-max_entries)
+            for row in range(max_entries, row_count):
+                logging.debug('Row: %d' % row)
+
+                index_id = self.model_main.index(row, ID)
+                parent_id = self.model_main.data(index_id)
+
+                database.delete_mime(parent_id)
+                self.model_main.removeRow(row)
+
+            self.model_main.submitAll()
    
     @QtCore.Slot(QtCore.QModelIndex)
     def _on_open_preview(self, index):
