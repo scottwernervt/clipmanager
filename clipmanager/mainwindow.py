@@ -280,8 +280,6 @@ class MainWindow(QtGui.QMainWindow):
                                        icon=QtGui.QSystemTrayIcon.Warning,
                                        msecs=10000)
 
-        del hotkey
-
 
 class MainWidget(QtGui.QWidget):
     """Main widget container for main window.
@@ -509,10 +507,6 @@ class MainWidget(QtGui.QWidget):
         for format, byte_data in data_insert:
             database.insert_mime(parent_id, format, byte_data)
 
-        # Free memory?
-        # del data_insert, index, parent_id, title_short, text, codec, encoder
-        # del bytes, checksum_string, checksum, mime_data, proc_name
-
         # Maintain maximum number of entries    
         if settings.get_max_entries_enabled():
             self._check_max_entries()
@@ -570,8 +564,6 @@ class MainWidget(QtGui.QWidget):
         preview_dialog = dialogs.PreviewDialog(self)
         preview_dialog.setup_ui(mime_data)
         preview_dialog.exec_()
-
-        del index_id, parent_id, mime_list, mime_data, preview_dialog
       
     @QtCore.Slot()
     def on_set_clipboard(self):
