@@ -130,6 +130,7 @@ class SettingsDialog(QtGui.QDialog):
         """
         self.key_combo_edit = HotKeyEdit(self)
 
+        # Global Options Start
         # Allow user to insert <SUPER> on a Win OS
         self.super_check = QtGui.QCheckBox('Win')
         self.super_check.setToolTip('Insert <SUPER>')
@@ -155,9 +156,22 @@ class SettingsDialog(QtGui.QDialog):
         self.paste_check = QtGui.QCheckBox('Paste in active window after '
                                            'selection')
         self.paste_check.setCheckState(_check_state(settings.get_send_paste()))
+        
 
-        # Ignore applications
-        group_box = QtGui.QGroupBox('Ignore the following applications')
+        self.entries_edit = QtGui.QLineEdit(self)
+        self.entries_edit.setText(str(settings.get_max_entries_value()))
+        self.entries_edit.setFixedWidth(50)
+
+        self.expire_edit = QtGui.QSpinBox(self)
+        self.expire_edit.setRange(0, 60)
+        self.expire_edit.setSuffix(' days')
+        self.expire_edit.setToolTip('Ignored if set to 0 days.')
+        self.expire_edit.setValue(settings.get_expire_value())
+        # Global Options End
+
+
+        # Ignore Applications Start
+        ignore_box = QtGui.QGroupBox('Ignore the following applications')
         self.exclude_list = QtGui.QLineEdit(self)
         self.exclude_list.setPlaceholderText('KeePass.exe;binaryname')
         self.exclude_list.setText(settings.get_exclude())
@@ -165,11 +179,14 @@ class SettingsDialog(QtGui.QDialog):
         # Create seperate layout for ignore applications
         vbox = QtGui.QVBoxLayout()
         vbox.addWidget(self.exclude_list)
-        group_box.setLayout(vbox)
+        ignore_box.setLayout(vbox)
+        # Ignore Applications End
 
-        # Save and cancel buttons
+
+        # Save and Cancel Buttons
         button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Save|
                                             QtGui.QDialogButtonBox.Cancel)
+
 
         # Create form layout to align widgets
         layout = QtGui.QFormLayout()
@@ -178,13 +195,15 @@ class SettingsDialog(QtGui.QDialog):
         layout.addRow('', self.super_check)
         layout.addRow('Open window at:', self.open_at_pos_combo)
         layout.addRow('Lines to display:', self.line_count_spin)
+        layout.addRow('Maximum entries:', self.entries_edit)
+        layout.addRow('Expire after:', self.expire_edit)
 
         # Set main layout
         main_layout = QtGui.QVBoxLayout(self)
         main_layout.addLayout(layout)
         # main_layout.addWidget(self.word_wrap)
         main_layout.addWidget(self.paste_check)
-        main_layout.addWidget(group_box)
+        main_layout.addWidget(ignore_box)
         main_layout.addWidget(button_box)
         self.setLayout(main_layout)
 
@@ -216,6 +235,8 @@ class SettingsDialog(QtGui.QDialog):
         settings.set_word_wrap(self.word_wrap.isChecked())
         settings.set_send_paste(self.paste_check.isChecked())
         settings.set_exclude(self.exclude_list.text())
+        settings.set_max_entries_value(self.entries_edit.text())
+        settings.set_expire_value(self.expire_edit.value())
 
         # Get data integer from combo box string
         index = self.open_at_pos_combo.currentIndex()
