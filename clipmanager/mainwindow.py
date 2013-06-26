@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import datetime
 import logging
 import sys
 
@@ -510,7 +511,39 @@ class MainWidget(QtGui.QWidget):
         # Maintain maximum number of entries    
         self._check_max_entries()
 
+        # Check expiration of entries
+        if settings.get_expire_value() != 0:
+            self._check_expired_entries()
+
         return True
+
+    def _check_expired_entries(self):
+        # Work in reverse and break when row date is less than
+        # expiration date
+        max_entries = settings.get_max_entries_value()
+        entries = range(0, max_entries)
+        entries.reverse()   # Start from bottom of QListView
+
+        for row in entries:
+            index = self.model_main.index(row, DATE)
+            date = self.model_main.data(index)
+
+            # Convert from ms to s
+            time = datetime.datetime.fromtimestamp(date/1000)
+            today = datetime.datetime.today()
+            delta = today - time
+            
+            logging.debug('Row: %d' % row)
+            logging.debug('Delta: %d days' % delta.days)
+            if delta.days > settings.get_expire_value():
+                index = self.model_main.index(row, ID)
+                parent_id = self.model_main.data(index_id)
+
+                database.delete_mime(parent_id)
+                self.model_main.removeRow(row)
+            else:
+                logging.debug('Last row not expired, breaking!')
+                break
 
     def _check_max_entries(self):
         row_count = self.model_main.rowCount()
