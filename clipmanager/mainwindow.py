@@ -521,19 +521,21 @@ class MainWidget(QtGui.QWidget):
         # Work in reverse and break when row date is less than
         # expiration date
         max_entries = settings.get_max_entries_value()
-        entries = range(0, max_entries)
+        entries = range(0, self.model_main.rowCount())
         entries.reverse()   # Start from bottom of QListView
 
         for row in entries:
+            logging.debug('Row: %d' % row)
             index = self.model_main.index(row, DATE)
             date = self.model_main.data(index)
+            logging.debug('Date: %s' % date)
 
             # Convert from ms to s
             time = datetime.datetime.fromtimestamp(date/1000)
             today = datetime.datetime.today()
             delta = today - time
             
-            logging.debug('Row: %d' % row)
+            
             logging.debug('Delta: %d days' % delta.days)
             if delta.days > settings.get_expire_value():
                 index = self.model_main.index(row, ID)
