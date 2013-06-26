@@ -537,13 +537,15 @@ class MainWidget(QtGui.QWidget):
             logging.debug('Delta: %d days' % delta.days)
             if delta.days > settings.get_expire_value():
                 index = self.model_main.index(row, ID)
-                parent_id = self.model_main.data(index_id)
+                parent_id = self.model_main.data(index)
 
                 database.delete_mime(parent_id)
                 self.model_main.removeRow(row)
             else:
                 logging.debug('Last row not expired, breaking!')
                 break
+
+        self.model_main.submitAll()
 
     def _check_max_entries(self):
         row_count = self.model_main.rowCount()
