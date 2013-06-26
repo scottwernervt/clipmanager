@@ -233,6 +233,7 @@ class ListView(QtGui.QListView):
 
                 delete_mime(parent_id)
                 self.model().removeRow(row)
+                self.model().sourceModel().submitAll()
             else:
                 pass
 
