@@ -508,11 +508,12 @@ class MainWidget(QtGui.QWidget):
         for format, byte_data in data_insert:
             database.insert_mime(parent_id, format, byte_data)
 
-        # Maintain maximum number of entries    
-        self._check_max_entries()
+        # Maintain maximum number of entries
+        if int(settings.get_max_entries_value()) != 0:   
+            self._check_max_entries()
 
         # Check expiration of entries
-        if settings.get_expire_value() != 0:
+        if int(settings.get_expire_value()) != 0:
             self._check_expired_entries()
 
         return True
