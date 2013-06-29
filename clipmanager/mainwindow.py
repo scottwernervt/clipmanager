@@ -508,11 +508,12 @@ class MainWidget(QtGui.QWidget):
         for format, byte_data in data_insert:
             database.insert_mime(parent_id, format, byte_data)
 
-        # Maintain maximum number of entries    
-        self._check_max_entries()
+        # Maintain maximum number of entries
+        if int(settings.get_max_entries_value()) != 0:   
+            self._check_max_entries()
 
         # Check expiration of entries
-        if settings.get_expire_value() != 0:
+        if int(settings.get_expire_value()) != 0:
             self._check_expired_entries()
 
         return True
@@ -521,12 +522,14 @@ class MainWidget(QtGui.QWidget):
         # Work in reverse and break when row date is less than
         # expiration date
         max_entries = settings.get_max_entries_value()
-        entries = range(0, max_entries)
+        entries = range(0, self.model_main.rowCount())
         entries.reverse()   # Start from bottom of QListView
 
         for row in entries:
+            logging.debug('Row: %d' % row)
             index = self.model_main.index(row, DATE)
             date = self.model_main.data(index)
+            logging.debug('Date: %s' % date)
 
             if not date:
                 logging.warn('History is empty or date is missing from db!')
@@ -537,17 +540,19 @@ class MainWidget(QtGui.QWidget):
             today = datetime.datetime.today()
             delta = today - time
             
-            logging.debug('Row: %d' % row)
+            
             logging.debug('Delta: %d days' % delta.days)
             if delta.days > settings.get_expire_value():
                 index = self.model_main.index(row, ID)
-                parent_id = self.model_main.data(index_id)
+                parent_id = self.model_main.data(index)
 
                 database.delete_mime(parent_id)
                 self.model_main.removeRow(row)
             else:
                 logging.debug('Last row not expired, breaking!')
                 break
+
+        self.model_main.submitAll()
 
     def _check_max_entries(self):
         row_count = self.model_main.rowCount()
