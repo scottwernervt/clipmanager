@@ -528,6 +528,10 @@ class MainWidget(QtGui.QWidget):
             index = self.model_main.index(row, DATE)
             date = self.model_main.data(index)
 
+            if not date:
+                logging.warn('History is empty or date is missing from db!')
+                break
+
             # Convert from ms to s
             time = datetime.datetime.fromtimestamp(date/1000)
             today = datetime.datetime.today()
