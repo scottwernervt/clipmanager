@@ -138,14 +138,14 @@ class Settings(QtCore.QObject):
         self.q_settings.setValue('wordwrap', int(value))
 
     def get_max_entries_value(self):
-        return int(self.q_settings.value('maxentriesvalue', 200))
+        return int(self.q_settings.value('maxentriesvalue', 300))
 
     def set_max_entries_value(self, value):
         logging.debug(value)
         self.q_settings.setValue('maxentriesvalue', int(value))
 
     def get_expire_value(self):
-        return int(self.q_settings.value('expirevalue', 7))
+        return int(self.q_settings.value('expirevalue', 14))
 
     def set_expire_value(self, value):
         logging.debug(value)
