@@ -519,6 +519,12 @@ class MainWidget(QtGui.QWidget):
         return True
 
     def _check_expired_entries(self):
+        """Remove entries that have expired.
+
+        Starting at the bottom of the list, compare each item's date to user 
+        set expire in X days. If item is older than setting, remove it from
+        database.
+        """
         # Work in reverse and break when row date is less than
         # expiration date
         max_entries = settings.get_max_entries_value()
@@ -554,6 +560,11 @@ class MainWidget(QtGui.QWidget):
         self.model_main.submitAll()
 
     def _check_max_entries(self):
+        """Remove extra entries.
+
+        Count total number of items in history, and if greater than user
+        setting for maximum entries, delete them.
+        """
         row_count = self.model_main.rowCount()
         max_entries = settings.get_max_entries_value()
 
