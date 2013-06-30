@@ -540,7 +540,6 @@ class MainWidget(QtGui.QWidget):
             today = datetime.datetime.today()
             delta = today - time
             
-            
             logging.debug('Delta: %d days' % delta.days)
             if delta.days > settings.get_expire_value():
                 index = self.model_main.index(row, ID)
