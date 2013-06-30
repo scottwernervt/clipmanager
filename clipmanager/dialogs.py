@@ -130,7 +130,7 @@ class SettingsDialog(QtGui.QDialog):
         """
         self.key_combo_edit = HotKeyEdit(self)
 
-        # Global Options Start
+        # Global Options
         # Allow user to insert <SUPER> on a Win OS
         self.super_check = QtGui.QCheckBox('Win')
         self.super_check.setToolTip('Insert <SUPER>')
@@ -151,15 +151,25 @@ class SettingsDialog(QtGui.QDialog):
         # Word wrap display text
         self.word_wrap = QtGui.QCheckBox('Word wrap')
         self.word_wrap.setCheckState(_check_state(settings.get_word_wrap()))
+    
+        global_form = QtGui.QFormLayout()
+        global_form.setFieldGrowthPolicy(QtGui.QFormLayout.FieldsStayAtSizeHint)
+        global_form.addRow('Global shortcut:', self.key_combo_edit)
+        global_form.addRow('', self.super_check)
+        global_form.addRow('Open window at:', self.open_at_pos_combo)
+        # global_form.addRow('Maximum entries:', self.entries_edit)
+        # global_form.addRow('Expire after:', self.expire_edit)
+        global_form.addRow('Lines to display:', self.line_count_spin)
+        ######################
 
-        # Send paste key stroke when content set to clipboard
+        # Manage History
         self.paste_check = QtGui.QCheckBox('Paste in active window after '
                                            'selection')
         self.paste_check.setCheckState(_check_state(settings.get_send_paste()))
-        
 
         self.entries_edit = QtGui.QLineEdit(self)
         self.entries_edit.setText(str(settings.get_max_entries_value()))
+        self.entries_edit.setToolTip('Ignored if set to 0 days.')
         self.entries_edit.setFixedWidth(50)
 
         self.expire_edit = QtGui.QSpinBox(self)
@@ -167,42 +177,40 @@ class SettingsDialog(QtGui.QDialog):
         self.expire_edit.setSuffix(' days')
         self.expire_edit.setToolTip('Ignored if set to 0 days.')
         self.expire_edit.setValue(settings.get_expire_value())
-        # Global Options End
 
+        manage_form = QtGui.QFormLayout()
+        manage_form.setFieldGrowthPolicy(QtGui.QFormLayout.FieldsStayAtSizeHint)
+        manage_form.addRow('Maximum entries:', self.entries_edit)
+        manage_form.addRow('Expire after:', self.expire_edit)
 
-        # Ignore Applications Start
-        ignore_box = QtGui.QGroupBox('Ignore the following applications')
+        manage_box = QtGui.QGroupBox('Manage history:')
+        manage_box.setAlignment(QtCore.Qt.AlignLeft)
+        manage_box.setLayout(manage_form)
+        ######################
+
+        # Ignore Applications
+        ignore_box = QtGui.QGroupBox('Ignore the following applications:')
         self.exclude_list = QtGui.QLineEdit(self)
         self.exclude_list.setPlaceholderText('KeePass.exe;binaryname')
         self.exclude_list.setText(settings.get_exclude())
 
         # Create seperate layout for ignore applications
-        vbox = QtGui.QVBoxLayout()
-        vbox.addWidget(self.exclude_list)
-        ignore_box.setLayout(vbox)
-        # Ignore Applications End
+        ignore_layout = QtGui.QVBoxLayout()
+        ignore_layout.addWidget(self.exclude_list)
+        ignore_box.setLayout(ignore_layout)
+        ######################
 
-
-        # Save and Cancel Buttons
+        # Save and Cancel
         button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Save|
                                             QtGui.QDialogButtonBox.Cancel)
-
-
-        # Create form layout to align widgets
-        layout = QtGui.QFormLayout()
-        layout.setFieldGrowthPolicy(QtGui.QFormLayout.FieldsStayAtSizeHint)
-        layout.addRow('Global shortcut:', self.key_combo_edit)
-        layout.addRow('', self.super_check)
-        layout.addRow('Open window at:', self.open_at_pos_combo)
-        layout.addRow('Lines to display:', self.line_count_spin)
-        layout.addRow('Maximum entries:', self.entries_edit)
-        layout.addRow('Expire after:', self.expire_edit)
+        ######################
 
         # Set main layout
         main_layout = QtGui.QVBoxLayout(self)
-        main_layout.addLayout(layout)
-        # main_layout.addWidget(self.word_wrap)
+        main_layout.addLayout(global_form)
         main_layout.addWidget(self.paste_check)
+        main_layout.addWidget(manage_box)
+        # main_layout.addWidget(self.word_wrap)
         main_layout.addWidget(ignore_box)
         main_layout.addWidget(button_box)
         self.setLayout(main_layout)
@@ -210,9 +218,9 @@ class SettingsDialog(QtGui.QDialog):
         # LINUX: I use Windows key to move windows with my wm
         self.setFocus(QtCore.Qt.PopupFocusReason)
 
+        # Connect
         button_box.accepted.connect(self.save)
         button_box.rejected.connect(self.cancel)
-
         self.connect(self.super_check, QtCore.SIGNAL('stateChanged(int)'), 
                      self.insert_win_key)
 
