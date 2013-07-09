@@ -35,7 +35,7 @@ if not QtCore.QFile.exists(STORAGE_PATH):
     directory.mkpath(STORAGE_PATH)
 
 # Database columns set as integers
-ID, DATE, TITLESHORT, TITLEFULL, CHECKSUM = range(5)
+ID, DATE, TITLESHORT, TITLEFULL, CHECKSUM, SAVE = range(6)
 ID, PARENTID, FORMAT, DATA = range(4)
 
 # Formats to check and save with from OS clipboard
