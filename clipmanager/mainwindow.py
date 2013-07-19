@@ -410,7 +410,7 @@ class MainWidget(QtGui.QWidget):
                 
                 self.model_main.setData(self.model_main.index(row, DATE), 
                                     QtCore.QDateTime.currentMSecsSinceEpoch())
-                self.model_main.submit()
+                self.model_main.submitAll()
                 logging.info(True)
                 return True
                 
