@@ -4,10 +4,9 @@
 import logging
 
 from PySide import QtCore
-from PySide import QtGui
 
-from defs import APP_ORG
 from defs import APP_NAME
+from defs import APP_ORG
 
 logging.getLogger(__name__)
 
@@ -19,7 +18,8 @@ class Settings(QtCore.QObject):
         Possibly change to requesting settings by string instead of defining
         functions for each.
     """
-    def __init__(self, parent=None):        
+
+    def __init__(self, parent=None):
         super(Settings, self).__init__(parent)
         self.q_settings = QtCore.QSettings(APP_ORG, APP_NAME)
 
@@ -78,7 +78,7 @@ class Settings(QtCore.QObject):
                 data += ';'
         else:
             data = value
-            
+
         self.q_settings.setValue('exclude', str(data))
 
     def get_global_hot_key(self):
@@ -150,6 +150,7 @@ class Settings(QtCore.QObject):
     def set_expire_value(self, value):
         logging.debug(value)
         self.q_settings.setValue('expirevalue', int(value))
+
 
 # Return a reference to the class for other modules to use
 settings = Settings()

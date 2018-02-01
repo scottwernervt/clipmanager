@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import pkg_resources
 import logging
-import textwrap
+import os
 import sys
+import textwrap
 import zlib
 
+import pkg_resources
 from PySide import QtCore
 
 logging.getLogger(__name__)
@@ -39,7 +39,7 @@ def create_full_title(mime_data):
             if url.toLocalFile() == '':
                 text = None
                 break
-            
+
             text += url.toString() + seperator
 
     # Set plain text
@@ -51,7 +51,7 @@ def create_full_title(mime_data):
         text = mime_data.html()
 
     logging.debug(text)
-    return text    
+    return text
 
 
 def calculate_checksum(mime_data):
@@ -94,7 +94,7 @@ def calculate_checksum(mime_data):
     # CRASH FIX: Handle unicode characters for calculating checksum
     codec = QtCore.QTextCodec.codecForName('UTF-8')
     encoder = QtCore.QTextEncoder(codec)
-    bytes = encoder.fromUnicode(checksum_str)    # QByteArray
+    bytes = encoder.fromUnicode(checksum_str)  # QByteArray
 
     # Calculate checksum with crc32 method (quick)
     checksum = zlib.crc32(bytes)
@@ -161,7 +161,7 @@ def resource_filename(file_name):
     paths = map(
         lambda path: os.path.join(path, file_name),
         (
-            os.path.dirname(sys.argv[0]),   # Win: Executing path of exe
+            os.path.dirname(sys.argv[0]),  # Win: Executing path of exe
             # Add possible linux paths
         ),
     )

@@ -14,14 +14,10 @@ from settings import settings
 # Windows API to get clipboard owner process name
 if sys.platform.startswith('win32'):
     from ctypes import c_char
-    from ctypes import create_unicode_buffer
     from ctypes import windll
-    from ctypes.wintypes import HWND
-    from ctypes.wintypes import DWORD
     from win32process import GetWindowThreadProcessId
 
 logging.getLogger(__name__)
-
 
 # Win32 only
 MAX_PATH = 260
@@ -35,11 +31,12 @@ class ClipBoards(QtCore.QObject):
     Source:
         http://bazaar.launchpad.net/~glipper-drivers/glipper/trunk/view/head:/glipper/Clipboards.py
     """
+
     def __init__(self, parent=None):
         super(ClipBoards, self).__init__(parent)
         self.parent = None
         logging.debug('test')
-        
+
         # QApplication = QtCore.QCoreApplication.instance() # Access QApplication
 
         # TODO: Add Selection and Find Buffer clipboards
@@ -52,7 +49,7 @@ class ClipBoards(QtCore.QObject):
         #       , self.emit_new_item)
 
         # Primary clip board
-        self.clip_board_global = ClipBoard(QtGui.QApplication.clipboard(), 
+        self.clip_board_global = ClipBoard(QtGui.QApplication.clipboard(),
                                            self.emit_new_item,
                                            QtGui.QClipboard.Clipboard, self)
 
@@ -69,7 +66,7 @@ class ClipBoards(QtCore.QObject):
             mime_data: QtCore.QMimeData
         """
         self.clip_board_global.set_data(mime_data)
-    
+
     def emit_new_item(self, mime_data):
         """Emits new lipboard contents to main window.
 
@@ -77,7 +74,7 @@ class ClipBoards(QtCore.QObject):
            mime_data: QtCore.QMimeData
         """
         self.emit(QtCore.SIGNAL('new-item(QMimeData)'), mime_data)
-    
+
 
 class ClipBoard(QtCore.QObject):
     """Handles monitoring each clipboard and perfoming actions on it.
@@ -86,6 +83,7 @@ class ClipBoard(QtCore.QObject):
         X11 selection
         OSX find buffer
     """
+
     def __init__(self, clip_board, new_item_callback, mode, parent=None):
         super(ClipBoard, self).__init__(parent)
         self.parent = parent
@@ -96,10 +94,10 @@ class ClipBoard(QtCore.QObject):
 
         self.clipboard_contents = None
 
-        self.connect(self.clip_board, QtCore.SIGNAL('dataChanged()'), 
+        self.connect(self.clip_board, QtCore.SIGNAL('dataChanged()'),
                      self.on_data_changed)
-        
-        self.connect(self.clip_board, QtCore.SIGNAL('ownerDestroyed()'), 
+
+        self.connect(self.clip_board, QtCore.SIGNAL('ownerDestroyed()'),
                      self.on_owner_destroyed)
 
     def clear(self):
@@ -160,7 +158,7 @@ def get_x11_owner():
     # Get active window PID
     # Method 1: xdotool
     cmd = 'xdotool getactivewindow getwindowpid'
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     pid, err = process.communicate()
     errcode = process.returncode
@@ -171,12 +169,12 @@ def get_x11_owner():
         logging.warn('std.err: %s' % err)
         logging.warn('exit: %s' % errcode)
         pid = None
-    
+
     # Method 2: xprop
     if not pid:
         cmd = ("xprop -id $(xprop -root | awk '/_NET_ACTIVE_WINDOW\(WINDOW\)"
                "/{print $NF}') | awk '/_NET_WM_PID\(CARDINAL\)/{print $NF}'")
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         pid, err = process.communicate()
         errcode = process.returncode
@@ -191,7 +189,7 @@ def get_x11_owner():
 
     # Get path to binary from PID #
     cmd = 'readlink -f /proc/%s/exe' % pid.strip()
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     binary_path, err = process.communicate()
     errcode = process.returncode
@@ -205,7 +203,7 @@ def get_x11_owner():
 
     name = os.path.basename(binary_path).strip()
     logging.info(name)
-    
+
     return name
 
 
@@ -241,19 +239,19 @@ def get_win32_owner():
     #   _In_  DWORD dwProcessId
     # );
     pid_handle = windll.kernel32.OpenProcess(PROCESS_TERMINATE |
-                                             PROCESS_QUERY_INFORMATION, False, 
+                                             PROCESS_QUERY_INFORMATION, False,
                                              owner_pid)
     logging.debug('pid_handle: %s' % pid_handle)
 
-    ImageFileName = (c_char*MAX_PATH)()
+    ImageFileName = (c_char * MAX_PATH)()
     try:
         # DWORD WINAPI GetProcessImageFileName(
         #   _In_   HANDLE hProcess,
         #   _Out_  LPTSTR lpImageFileName,
         #   _In_   DWORD nSize
         # );
-        if windll.psapi.GetProcessImageFileNameA(pid_handle, ImageFileName, 
-                                                 MAX_PATH)>0:
+        if windll.psapi.GetProcessImageFileNameA(pid_handle, ImageFileName,
+                                                 MAX_PATH) > 0:
             name = os.path.basename(ImageFileName.value)
         else:
             name = None
@@ -265,6 +263,6 @@ def get_win32_owner():
     #   _In_  HANDLE hObject
     # );
     windll.kernel32.CloseHandle(pid_handle)
-    
+
     logging.info('name: %s' % name)
     return name

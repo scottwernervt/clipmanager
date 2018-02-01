@@ -9,12 +9,11 @@ from PySide import QtCore
 from PySide import QtGui
 
 from defs import APP_DOMAIN
-from defs import APP_ORG
 from defs import APP_NAME
+from defs import APP_ORG
 from defs import APP_VERSION
 from mainwindow import MainWindow
 from singleinstance import SingleInstance
-
 
 LOGGING_LEVELS = {'critical': 'CRITICAL',
                   'error': 'ERROR',
@@ -29,31 +28,31 @@ def setup_logging(logging_level):
         'version': 1,
         'handlers': {
             'file_handler': {
-                    'class':        'logging.handlers.RotatingFileHandler',
-                    'formatter':    'custom_format',
-                    'filename':     log_file_path,
-                    'maxBytes':     1048576,
-                    'backupCount':  0,
+                'class': 'logging.handlers.RotatingFileHandler',
+                'formatter': 'custom_format',
+                'filename': log_file_path,
+                'maxBytes': 1048576,
+                'backupCount': 0,
             },
             'stream_handler': {
-                    'class':        'logging.StreamHandler',
-                    'formatter':    'custom_format',
-                    'stream':       'ext://sys.stdout',
+                'class': 'logging.StreamHandler',
+                'formatter': 'custom_format',
+                'stream': 'ext://sys.stdout',
             }
-        },     
+        },
         'loggers': {
             '': {
-                    'handlers': ['file_handler', 'stream_handler'],
-                    'level':    logging_level, # INFO/DEBUG
-                }
+                'handlers': ['file_handler', 'stream_handler'],
+                'level': logging_level,  # INFO/DEBUG
+            }
         },
         'formatters': {
             'custom_format': {
-                  'format': '%(asctime)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)s - %(message)s'
+                'format': '%(asctime)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)s - %(message)s'
             }
         }
     }
-    
+
     logging.config.dictConfig(dict_log_config)
     logging.info(log_file_path)
 
@@ -61,7 +60,8 @@ def setup_logging(logging_level):
 class MainApp(QtGui.QApplication):
     """Application event loop thats spawns the main window.
     """
-    def __init__(self, args):        
+
+    def __init__(self, args):
         super(MainApp, self).__init__(args)
         """Initialize application properties and open main window.
 
@@ -69,7 +69,7 @@ class MainApp(QtGui.QApplication):
             args (list): sys.argv
         """
         # Prevent a dialog from exiting if main window not visisble
-        self.setQuitOnLastWindowClosed(False) 
+        self.setQuitOnLastWindowClosed(False)
 
         # Set application properties
         self.setApplicationName(APP_DOMAIN)
@@ -82,7 +82,7 @@ class MainApp(QtGui.QApplication):
             self.mw = MainWindow(minimize=True)
         else:
             self.mw = MainWindow(minimize=False)
-        
+
         # Perform clean up actions when quit message signaled
         self.connect(self, QtCore.SIGNAL('aboutToQuit()'), self._on_quit)
 
@@ -142,4 +142,5 @@ def main(argv):
 
 if __name__ == '__main__':
     import sys
+
     sys.exit(main(sys.argv))

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import logging
+import os
 
 from PySide import QtSql
 
 logging.getLogger(__name__)
-
 
 _tblMain = """CREATE TABLE IF NOT EXISTS Main(
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,7 +85,7 @@ def create_tables():
 # def count_main():
 #     query = QtSql.QSqlQuery()
 #     query.prepare('SELECT Count(*) FROM Main')
-    
+
 #     query.exec_()
 #     query.next()
 
@@ -94,7 +93,7 @@ def create_tables():
 #     if query.lastError().isValid():
 #         logging.error(query.lastError().text())
 #         count = 0
-    
+
 #     return count
 
 
@@ -125,13 +124,13 @@ def insert_main(date, titleshort, titlefull, checksum):
     if query.lastError().isValid():
         logging.error(query.lastError().text())
 
-    row_id = query.lastInsertId()   # If failed: None
+    row_id = query.lastInsertId()  # If failed: None
     logging.info('ID: %s' % row_id)
-    
+
     query.finish()
-    
+
     return row_id
-    
+
 
 def insert_mime(parent_id, format, byte_data):
     """Insert mime data into Data table.
@@ -159,9 +158,9 @@ def insert_mime(parent_id, format, byte_data):
     if query.lastError().isValid():
         logging.error(query.lastError().text())
 
-    row_id = query.lastInsertId()   # If failed: None
+    row_id = query.lastInsertId()  # If failed: None
     logging.info('ParentID-ChildID: %s-%s' % (parent_id, row_id))
-    
+
     query.finish()
 
     return row_id
@@ -186,7 +185,7 @@ def delete_main(row_id):
 
     rows_affected = query.numRowsAffected()
     query.finish()
-    
+
     logging.info('ID: %s' % row_id)
     logging.info('Rows: %s' % rows_affected)
 
@@ -212,7 +211,7 @@ def delete_mime(parent_id):
 
     rows_affected = query.numRowsAffected()
     query.finish()
-    
+
     logging.info('ID: %s' % parent_id)
     logging.info('Rows: %s' % rows_affected)
 

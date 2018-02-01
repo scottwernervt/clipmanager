@@ -9,8 +9,8 @@ from PySide import QtSql
 from defs import CHECKSUM
 from defs import DATE
 from defs import ID
-from defs import TITLESHORT
 from defs import TITLEFULL
+from defs import TITLESHORT
 
 logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
         
         http://stackoverflow.com/questions/13055423/virtual-column-in-qtableview
     """
+
     def __init__(self, parent=None):
         super(MainSqlTableModel, self).__init__(parent)
         self.parent = parent
@@ -34,10 +35,10 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
         # Call submitAll() to submit changes and update QListView
         # Necessary for handling max num of entries and date check
         self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
-        
+
         # Model view is only for Main table, not Data
         self.setTable('Main')
-        self.setSort(DATE, QtCore.Qt.DescendingOrder)   # Sort by Date
+        self.setSort(DATE, QtCore.Qt.DescendingOrder)  # Sort by Date
 
         # Create header data
         self.setHeaderData(ID, QtCore.Qt.Horizontal, 'ID')
@@ -103,7 +104,7 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
             date_index = self.index(row, DATE)
 
             time_stamp = QtCore.QDateTime()
-            time_stamp.setMSecsSinceEpoch(QtSql.QSqlTableModel.data(self, 
+            time_stamp.setMSecsSinceEpoch(QtSql.QSqlTableModel.data(self,
                                                                     date_index))
             date_string = time_stamp.toString(QtCore.Qt.SystemLocaleShortDate)
             return 'Last used: %s' % date_string
@@ -128,6 +129,6 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
         """
         if not index.isValid():
             return QtCore.Qt.ItemFlags()
-        
-        return QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEnabled | 
+
+        return QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEnabled |
                                    QtCore.Qt.ItemIsSelectable)

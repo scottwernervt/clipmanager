@@ -5,10 +5,11 @@ import logging
 
 from PySide import QtCore
 from PySide import QtGui
-from PySide import QtWebKit
 
 from settings import settings
 from utils import resource_filename
+
+# from PySide import QtWebKit
 
 logging.getLogger(__name__)
 
@@ -34,13 +35,15 @@ class PreviewDialog(QtGui.QDialog):
     Todo:
         Allow user to edit data and save it back to database.
     """
+
     def __init__(self, parent=None):
         super(PreviewDialog, self).__init__(parent)
         self.parent = parent
-        
-        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
+
+        self.setWindowIcon(
+            QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('Preview')
-        self.resize(QtCore.QSize(500,300))
+        self.resize(QtCore.QSize(500, 300))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
     def setup_ui(self, mime_data):
@@ -63,12 +66,13 @@ class PreviewDialog(QtGui.QDialog):
 
         # Allow images to be loaded if html
         if mime_data.hasHtml():
-            self.doc = QtWebKit.QWebView(self)
-            self.doc.settings().setAttribute(
-                QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-            self.doc.settings().setAttribute(
-                QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
-            self.doc.setHtml(mime_data.html())
+            pass
+            # self.doc = QtWebKit.QWebView(self)
+            # self.doc.settings().setAttribute(
+            #     QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+            # self.doc.settings().setAttribute(
+            #     QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
+            # self.doc.setHtml(mime_data.html())
         else:
             self.doc = QtGui.QTextEdit(self)
 
@@ -83,16 +87,16 @@ class PreviewDialog(QtGui.QDialog):
 
             else:
                 self.doc.setPlainText(('Unknown error has occured.\n'
-                                  'Formats: %s' % mime_data.formats()))
+                                       'Formats: %s' % mime_data.formats()))
 
             # Move cursor to top causing scrollbar to move to top
             self.doc.moveCursor(QtGui.QTextCursor.Start)
             self.doc.ensureCursorVisible()
-            self.doc.setReadOnly(True)   # Do not support editing data yet
+            self.doc.setReadOnly(True)  # Do not support editing data yet
 
         button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Close)
         button_box.setFocus()
-        
+
         layout = QtGui.QGridLayout(self)
         layout.addWidget(self.doc, 0, 0)
         layout.addWidget(button_box, 1, 0)
@@ -112,11 +116,13 @@ class PreviewDialog(QtGui.QDialog):
 class SettingsDialog(QtGui.QDialog):
     """Dialog that allows user to change application settings.
     """
+
     def __init__(self, parent=None):
         super(SettingsDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(
+            QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('Settings')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
@@ -151,7 +157,7 @@ class SettingsDialog(QtGui.QDialog):
         # Word wrap display text
         self.word_wrap = QtGui.QCheckBox('Word wrap')
         self.word_wrap.setCheckState(_check_state(settings.get_word_wrap()))
-    
+
         global_form = QtGui.QFormLayout()
         global_form.setFieldGrowthPolicy(QtGui.QFormLayout.FieldsStayAtSizeHint)
         global_form.addRow('Global shortcut:', self.key_combo_edit)
@@ -201,7 +207,7 @@ class SettingsDialog(QtGui.QDialog):
         ######################
 
         # Save and Cancel
-        button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Save|
+        button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Save |
                                             QtGui.QDialogButtonBox.Cancel)
         ######################
 
@@ -221,7 +227,7 @@ class SettingsDialog(QtGui.QDialog):
         # Connect
         button_box.accepted.connect(self.save)
         button_box.rejected.connect(self.cancel)
-        self.connect(self.super_check, QtCore.SIGNAL('stateChanged(int)'), 
+        self.connect(self.super_check, QtCore.SIGNAL('stateChanged(int)'),
                      self.insert_win_key)
 
     def insert_win_key(self):
@@ -250,7 +256,7 @@ class SettingsDialog(QtGui.QDialog):
         index = self.open_at_pos_combo.currentIndex()
         userdata = self.open_at_pos_combo.itemData(index)
         settings.set_open_window_at(userdata)
-        
+
         settings.sync()
         self.done(True)
 
@@ -264,6 +270,7 @@ class SettingsDialog(QtGui.QDialog):
 class HotKeyEdit(QtGui.QLineEdit):
     """Capture key presses for setting global hot key.
     """
+
     def __init__(self, parent=None):
         super(HotKeyEdit, self).__init__(parent)
         self.parent = parent
@@ -313,7 +320,7 @@ class HotKeyEdit(QtGui.QLineEdit):
             mod_seq += '<Alt>'
         if event.modifiers() == QtCore.Qt.MetaModifier:
             mod_seq += '<Super>'
-        
+
         # Set new text based on key press
         self.setText(mod_seq)
 
@@ -324,6 +331,7 @@ class HotKeyEdit(QtGui.QLineEdit):
 class ConvertUpperCase(QtGui.QValidator):
     """Convert text to upper case.
     """
+
     def __init__(self, parent=None):
         super(ConvertUpperCase, self).__init__(parent)
 
@@ -344,13 +352,15 @@ class ConvertUpperCase(QtGui.QValidator):
 class AboutDialog(QtGui.QDialog):
     """About dialog that displays information about application.
     """
+
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(
+            QtGui.QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('About')
-        self.resize(QtCore.QSize(350,200))
+        self.resize(QtCore.QSize(350, 200))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.setup_ui()
@@ -374,13 +384,13 @@ class AboutDialog(QtGui.QDialog):
         # app_logo.setAlignment(QtCore.Qt.AlignHCenter)
 
         # Company url. Todo: Remove mailto when I have a domain/company name
-        company_url = QtGui.QLabel('<a href="%s">%s</a>' % (app_domain, 
+        company_url = QtGui.QLabel('<a href="%s">%s</a>' % (app_domain,
                                                             app_domain))
         company_url.setTextFormat(QtCore.Qt.RichText)
         company_url.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         company_url.setOpenExternalLinks(True)
 
-        with open (resource_filename('license.txt'), 'r') as license_file:
+        with open(resource_filename('license.txt'), 'r') as license_file:
             about_text = license_file.read()
 
         self.about_doc = QtGui.QTextEdit()
@@ -420,4 +430,3 @@ class AboutDialog(QtGui.QDialog):
             True
         """
         self.done(True)
-

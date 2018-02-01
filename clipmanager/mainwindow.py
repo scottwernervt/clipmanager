@@ -11,20 +11,20 @@ from PySide import QtGui
 import clipboards
 import database
 import dialogs
+import model
+import searchbox
+import systemtray
+import utils
+import view
+
 from defs import APP_NAME
 from defs import CHECKSUM
 from defs import DATE
 from defs import ID
 from defs import MIME_REFERENCES
-from defs import TITLESHORT
-from defs import TITLEFULL
 from defs import STORAGE_PATH
-import model
-import searchbox
+from defs import TITLESHORT
 from settings import settings
-import systemtray
-import view
-import utils
 
 # Platform dependent package.modules: paste and global hot key binder
 if sys.platform.startswith('win32'):
@@ -42,6 +42,7 @@ logging.getLogger(__name__)
 class MainWindow(QtGui.QMainWindow):
     """Main window container for main widget.
     """
+
     def __init__(self, minimize=False):
         """Initialize main window, systemtray, global hotkey, and signals.
 
@@ -51,11 +52,12 @@ class MainWindow(QtGui.QMainWindow):
         """
         super(MainWindow, self).__init__()
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QtGui.QIcon(utils.resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(
+            QtGui.QIcon(utils.resource_filename('icons/clipmanager.ico')))
 
         # Remove minimize and maximize buttons from window title
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint|
-                            QtCore.Qt.CustomizeWindowHint|
+        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint |
+                            QtCore.Qt.CustomizeWindowHint |
                             QtCore.Qt.WindowCloseButtonHint)
 
         # Connect to database and create tables
@@ -63,7 +65,7 @@ class MainWindow(QtGui.QMainWindow):
         database.create_tables()
 
         # Create main widget that holds contents of clipboard history
-        self.main_widget = MainWidget(self) 
+        self.main_widget = MainWidget(self)
         self.setCentralWidget(self.main_widget)
 
         # Create system tray icon
@@ -71,7 +73,7 @@ class MainWindow(QtGui.QMainWindow):
             logging.warn('cannot find a system tray.')
             QtGui.QMessageBox.warning(self, 'System Tray',
                                       'Cannot find a system tray.')
-        
+
         self.tray_icon = systemtray.SystemTrayIcon(self)
         self.tray_icon.activated.connect(self._on_icon_activated)
         self.tray_icon.show()
@@ -85,10 +87,10 @@ class MainWindow(QtGui.QMainWindow):
                      self._on_toggle_window)
 
         # Open settings dialog from right click menu on system tray and view
-        self.connect(self.tray_icon, QtCore.SIGNAL('open-settings()'), 
+        self.connect(self.tray_icon, QtCore.SIGNAL('open-settings()'),
                      self._on_open_settings)
 
-        self.connect(self.main_widget, QtCore.SIGNAL('open-settings()'), 
+        self.connect(self.main_widget, QtCore.SIGNAL('open-settings()'),
                      self._on_open_settings)
 
         # Show window
@@ -112,7 +114,7 @@ class MainWindow(QtGui.QMainWindow):
         settings.set_window_size(self.size())
 
         self.hide()
-        
+
     def clean_up(self):
         """Perform actions before exiting the application.
 
@@ -130,7 +132,7 @@ class MainWindow(QtGui.QMainWindow):
 
         logging.debug('Submitting changes to model.')
         self.main_widget.model_main.submitAll()
-        
+
         logging.debug('Closing model.')
         self.db.close()
 
@@ -145,11 +147,11 @@ class MainWindow(QtGui.QMainWindow):
         if reason in (QtGui.QSystemTrayIcon.Trigger,
                       QtGui.QSystemTrayIcon.DoubleClick):
             if self.isVisible():
-                self.show()             # Open window
-                self.activateWindow()   # Bring to front
+                self.show()  # Open window
+                self.activateWindow()  # Bring to front
             else:
                 self._on_toggle_window()
-    
+
     @QtCore.Slot()
     def _on_open_settings(self):
         """Open settings dialog.
@@ -192,7 +194,7 @@ class MainWindow(QtGui.QMainWindow):
 
         TODO: Clean up this code as it is long and can most likely be improved.
         """
-        win_size = settings.get_window_size()   # QSize()
+        win_size = settings.get_window_size()  # QSize()
 
         # Hide window if visible and leave function
         if self.isVisible():
@@ -212,10 +214,10 @@ class MainWindow(QtGui.QMainWindow):
             y_max = 999999
             for screen in range(0, desktop.screenCount()):
                 x_max += desktop.availableGeometry(screen).width()
-                
+
                 y_screen = desktop.availableGeometry(screen).height()
                 if y_screen < y_max:
-                     y_max = y_screen
+                    y_max = y_screen
 
             # Minimum x and y screen coordinates
             x_min, y_min, __, __ = desktop.availableGeometry().getCoords()
@@ -232,7 +234,7 @@ class MainWindow(QtGui.QMainWindow):
             elif settings.get_open_window_at() == 1:
                 x = settings.get_window_pos().x()
                 y = settings.get_window_pos().y()
-                logging.debug('LastPositionCoords=(%d,%d)' % (x ,y))
+                logging.debug('LastPositionCoords=(%d,%d)' % (x, y))
 
             # 0: At mouse cursor
             else:
@@ -256,15 +258,15 @@ class MainWindow(QtGui.QMainWindow):
                 self.main_widget.search_box.clear()
 
             logging.debug('MainWindowCoords=(%d,%d)' % (x, y))
-            logging.debug('MainWindowSize=(%d,%d)' % (win_size.width(), 
+            logging.debug('MainWindowSize=(%d,%d)' % (win_size.width(),
                                                       win_size.height()))
 
             # Reposition and resize the main window
             self.move(x, y)
             self.resize(win_size.width(), win_size.height())
 
-            self.show()             # Open window
-            self.activateWindow()   # Bring to front
+            self.show()  # Open window
+            self.activateWindow()  # Bring to front
             self.main_widget.check_selection()
 
     def _set_hot_key(self):
@@ -277,7 +279,7 @@ class MainWindow(QtGui.QMainWindow):
         if not self.key_binder.bind(hotkey, self._on_toggle_window):
             title = 'Global Hot Key'
             message = 'Failed to bind global hot key %s.' % hotkey
-            self.tray_icon.showMessage(title, message, 
+            self.tray_icon.showMessage(title, message,
                                        icon=QtGui.QSystemTrayIcon.Warning,
                                        msecs=10000)
 
@@ -285,7 +287,8 @@ class MainWindow(QtGui.QMainWindow):
 class MainWidget(QtGui.QWidget):
     """Main widget container for main window.
     """
-    def __init__(self, parent=None):        
+
+    def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
         self.parent = parent
 
@@ -298,7 +301,7 @@ class MainWidget(QtGui.QWidget):
         # Create view, model, and proxy
         self.view_main = view.ListView(self)
         self.model_main = model.MainSqlTableModel(self)
-        
+
         self.proxy_main = searchbox.SearchFilterProxyModel(self)
         self.proxy_main.setSourceModel(self.model_main)
 
@@ -310,15 +313,16 @@ class MainWidget(QtGui.QWidget):
 
         self.view_main.setModel(self.proxy_main)
         self.view_main.setModelColumn(TITLESHORT)
-        
+
         # Pass view and proxy pointers to search box class
         self.search_box = searchbox.SearchBox(self.view_main, self.proxy_main)
 
         settings_button = QtGui.QPushButton(self)
-        settings_button.setIcon(QtGui.QIcon.fromTheme('emblem-system', 
-                                QtGui.QIcon(
-                                  utils.resource_filename('icons/settings.png')
-                                )))
+        settings_button.setIcon(QtGui.QIcon.fromTheme('emblem-system',
+                                                      QtGui.QIcon(
+                                                          utils.resource_filename(
+                                                              'icons/settings.png')
+                                                      )))
         settings_button.setToolTip('Settings...')
 
         # Create layout
@@ -329,23 +333,23 @@ class MainWidget(QtGui.QWidget):
         self.setLayout(layout)
 
         # Set clipboard contents if return pressed or from right click menu
-        self.connect(self.search_box, QtCore.SIGNAL('returnPressed()'), 
+        self.connect(self.search_box, QtCore.SIGNAL('returnPressed()'),
                      self.on_set_clipboard)
-        
+
         # Search proxy model
-        self.connect(self.search_box, QtCore.SIGNAL('textChanged(QString)'), 
+        self.connect(self.search_box, QtCore.SIGNAL('textChanged(QString)'),
                      self.proxy_main.setFilterFixedString)
 
         # Check selection in view during search
-        self.connect(self.search_box, QtCore.SIGNAL('textChanged(QString)'), 
+        self.connect(self.search_box, QtCore.SIGNAL('textChanged(QString)'),
                      self.check_selection)
 
         # Set clipboard data from signal by view
-        self.connect(self.view_main, QtCore.SIGNAL('set-clipboard()'), 
+        self.connect(self.view_main, QtCore.SIGNAL('set-clipboard()'),
                      self.on_set_clipboard)
 
         # Open settings dialog from button next to search box
-        self.connect(settings_button, QtCore.SIGNAL('clicked()'), 
+        self.connect(settings_button, QtCore.SIGNAL('clicked()'),
                      self._emit_open_settings)
 
         # Open settings dialog from right click menu of the view
@@ -354,7 +358,7 @@ class MainWidget(QtGui.QWidget):
 
         # Show preview of selected item in view
         self.connect(self.view_main,
-                     QtCore.SIGNAL('open-preview(QModelIndex)'), 
+                     QtCore.SIGNAL('open-preview(QModelIndex)'),
                      self._on_open_preview)
 
         # Clipboard dataChanged() emits to append new item to model->view
@@ -374,7 +378,7 @@ class MainWidget(QtGui.QWidget):
         if not indexes:
             index = self.proxy_main.index(0, TITLESHORT)
             selection_model.select(index, QtGui.QItemSelectionModel.Select)
-            selection_model.setCurrentIndex(index, 
+            selection_model.setCurrentIndex(index,
                                             QtGui.QItemSelectionModel.Select)
 
     @QtCore.Slot()
@@ -407,13 +411,13 @@ class MainWidget(QtGui.QWidget):
             # Update DATE column if checksums match
             if str(checksum) == str(checksum_source):
                 logging.debug('%s == %s' % (checksum, checksum_source))
-                
-                self.model_main.setData(self.model_main.index(row, DATE), 
-                                    QtCore.QDateTime.currentMSecsSinceEpoch())
+
+                self.model_main.setData(self.model_main.index(row, DATE),
+                                        QtCore.QDateTime.currentMSecsSinceEpoch())
                 self.model_main.submitAll()
                 logging.info(True)
                 return True
-                
+
         logging.info(False)
 
         return False
@@ -466,7 +470,7 @@ class MainWidget(QtGui.QWidget):
         checksum = utils.calculate_checksum(mime_data)
         if checksum == None:
             return None
-        elif self._duplicate(checksum): # If duplicate found then exit function
+        elif self._duplicate(checksum):  # If duplicate found then exit function
             return None
 
         text = utils.create_full_title(mime_data)
@@ -475,11 +479,11 @@ class MainWidget(QtGui.QWidget):
         # space, dedent, and striping uncessary line breaks
         title_short = utils.clean_up_text(text)
         title_short = utils.remove_extra_lines(text=title_short,
-                                    line_count=settings.get_lines_to_display())
+                                               line_count=settings.get_lines_to_display())
 
         date = QtCore.QDateTime.currentMSecsSinceEpoch()
 
-        parent_id = database.insert_main(date=date, 
+        parent_id = database.insert_main(date=date,
                                          titleshort=title_short,
                                          titlefull=text,
                                          checksum=checksum)
@@ -490,7 +494,7 @@ class MainWidget(QtGui.QWidget):
             return None
 
         # Highlight top item and then insert mime data
-        self.model_main.select() # Update view
+        self.model_main.select()  # Update view
         index = QtCore.QModelIndex(self.view_main.model().index(0, TITLESHORT))
         self.view_main.setCurrentIndex(index)
 
@@ -503,13 +507,13 @@ class MainWidget(QtGui.QWidget):
 
         for format, __ in data_insert:
             logging.debug('Format Saved: %s' % format)
-        
+
         # Insert mime data into database
         for format, byte_data in data_insert:
             database.insert_mime(parent_id, format, byte_data)
 
         # Maintain maximum number of entries
-        if int(settings.get_max_entries_value()) != 0:   
+        if int(settings.get_max_entries_value()) != 0:
             self._check_max_entries()
 
         # Check expiration of entries
@@ -529,7 +533,7 @@ class MainWidget(QtGui.QWidget):
         # expiration date
         max_entries = settings.get_max_entries_value()
         entries = range(0, self.model_main.rowCount())
-        entries.reverse()   # Start from bottom of QListView
+        entries.reverse()  # Start from bottom of QListView
 
         for row in entries:
             logging.debug('Row: %d' % row)
@@ -542,10 +546,10 @@ class MainWidget(QtGui.QWidget):
                 break
 
             # Convert from ms to s
-            time = datetime.datetime.fromtimestamp(date/1000)
+            time = datetime.datetime.fromtimestamp(date / 1000)
             today = datetime.datetime.today()
             delta = today - time
-            
+
             logging.debug('Delta: %d days' % delta.days)
             if delta.days > settings.get_expire_value():
                 index = self.model_main.index(row, ID)
@@ -584,7 +588,7 @@ class MainWidget(QtGui.QWidget):
                 self.model_main.removeRow(row)
 
             self.model_main.submitAll()
-   
+
     @QtCore.Slot(QtCore.QModelIndex)
     def _on_open_preview(self, index):
         """Open preview dialog of selected item.
@@ -615,7 +619,7 @@ class MainWidget(QtGui.QWidget):
         preview_dialog = dialogs.PreviewDialog(self)
         preview_dialog.setup_ui(mime_data)
         preview_dialog.exec_()
-      
+
     @QtCore.Slot()
     def on_set_clipboard(self):
         """Set clipboard contents from list selection.
@@ -637,7 +641,7 @@ class MainWidget(QtGui.QWidget):
         # Map the view->proxy to the source->db index
         proxy_index = self.view_main.currentIndex()
         source_index = self.proxy_main.mapToSource(proxy_index)
-        
+
         # Get parent ID by creating a new index for data
         model_index = self.model_main.index(source_index.row(), ID)
         parent_id = self.model_main.data(model_index)
@@ -650,7 +654,7 @@ class MainWidget(QtGui.QWidget):
         mime_data = QtCore.QMimeData()
         for format, byte_data in mime_list:
             mime_data.setData(format, byte_data)
-        
+
         # Set to clipboard
         self.clipboard_monitor.set_data(mime_data)
 
@@ -659,6 +663,6 @@ class MainWidget(QtGui.QWidget):
             paste.send_event()
 
         # Update the date column in source
-        self.model_main.setData(self.model_main.index(model_index.row(), DATE), 
+        self.model_main.setData(self.model_main.index(model_index.row(), DATE),
                                 QtCore.QDateTime.currentMSecsSinceEpoch())
         self.model_main.submitAll()

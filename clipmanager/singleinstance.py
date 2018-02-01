@@ -16,10 +16,8 @@ else:
     import commands
     import os
 
-from defs import APP_DOMAIN
 from defs import APP_ORG
 from defs import APP_NAME
-from defs import APP_VERSION
 
 logging.getLogger(__name__)
 
@@ -27,6 +25,7 @@ logging.getLogger(__name__)
 class SingleInstance(object):
     """Limits application to single instance on Windows and Linux.
     """
+
     def __init__(self):
         self.last_error = False
 
@@ -85,4 +84,3 @@ class SingleInstance(object):
                     os.unlink(self.pid_path)
                 except OSError as err:
                     logging.error(err)
-

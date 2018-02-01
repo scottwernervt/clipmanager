@@ -23,17 +23,20 @@ def _disconnect_icon():
     # Clipboard _disconnected and ignoring changes
     if settings.get_disconnect():
         return QtGui.QIcon.fromTheme('network-offline',
-               QtGui.QIcon(resource_filename('icons/disconnect.png')))
+                                     QtGui.QIcon(resource_filename(
+                                         'icons/disconnect.png')))
     # Clipboard connected and monitoring
     else:
-        return QtGui.QIcon.fromTheme('network-transmit-receive', 
-               QtGui.QIcon(resource_filename('icons/connect.png')))
+        return QtGui.QIcon.fromTheme('network-transmit-receive',
+                                     QtGui.QIcon(resource_filename(
+                                         'icons/connect.png')))
 
 
 class SystemTrayIcon(QtGui.QSystemTrayIcon):
     """System tray icon with right click menu and ability to open main window
     by clicking on the icon.
     """
+
     def __init__(self, parent=None):
         super(SystemTrayIcon, self).__init__(parent)
         self.parent = parent
@@ -49,9 +52,10 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         menu = QtGui.QMenu()
 
         # Open or hide main window
-        toggle_act = menu.addAction(QtGui.QIcon.fromTheme('search', 
-                                    QtGui.QIcon(
-                                        resource_filename('icons/search.png'))),
+        toggle_act = menu.addAction(QtGui.QIcon.fromTheme('search',
+                                                          QtGui.QIcon(
+                                                              resource_filename(
+                                                                  'icons/search.png'))),
                                     'Toggle')
 
         menu.addSeparator()
@@ -62,30 +66,34 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         self.disconnect_act.setChecked(settings.get_disconnect())
 
         # Open settings dialog
-        settings_act = menu.addAction(QtGui.QIcon.fromTheme('emblem-system', 
-                                      QtGui.QIcon(resource_filename(
-                                        'icons/settings.png'))), 'Settings')
+        settings_act = menu.addAction(QtGui.QIcon.fromTheme('emblem-system',
+                                                            QtGui.QIcon(
+                                                                resource_filename(
+                                                                    'icons/settings.png'))),
+                                      'Settings')
 
         # Open about dialog
-        about_act = menu.addAction(QtGui.QIcon.fromTheme('help-about', 
-                                   QtGui.QIcon(
-                                        resource_filename('icons/about.png'))), 
+        about_act = menu.addAction(QtGui.QIcon.fromTheme('help-about',
+                                                         QtGui.QIcon(
+                                                             resource_filename(
+                                                                 'icons/about.png'))),
                                    'About')
 
         menu.addSeparator()
 
         # Exit application
-        exit_act = menu.addAction(QtGui.QIcon.fromTheme('application-exit', 
-                                  QtGui.QIcon(
-                                    resource_filename('icons/exit.png'))),
+        exit_act = menu.addAction(QtGui.QIcon.fromTheme('application-exit',
+                                                        QtGui.QIcon(
+                                                            resource_filename(
+                                                                'icons/exit.png'))),
                                   'Quit')
 
         # Connect menu triggered action to functions
-        self.connect(toggle_act, QtCore.SIGNAL('triggered()'), 
+        self.connect(toggle_act, QtCore.SIGNAL('triggered()'),
                      self._emit_toggle_window)
-        self.connect(self.disconnect_act, QtCore.SIGNAL('triggered()'), 
+        self.connect(self.disconnect_act, QtCore.SIGNAL('triggered()'),
                      self._disconnect)
-        self.connect(settings_act, QtCore.SIGNAL('triggered()'), 
+        self.connect(settings_act, QtCore.SIGNAL('triggered()'),
                      self._emit_open_settings)
         self.connect(about_act, QtCore.SIGNAL("triggered()"), self._about)
         self.connect(exit_act, QtCore.SIGNAL("triggered()"), self._exit)
@@ -111,13 +119,11 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
     def _about(self):
         """Open about dialog.
         """
-        about = AboutDialog(self.parent)    # Opens dialog near main window
+        about = AboutDialog(self.parent)  # Opens dialog near main window
         about.exec_()
         del about
-        
+
     def _exit(self):
         """Tell the application to exit with return code 0 (success).
         """
         QtCore.QCoreApplication.quit()
-
-
