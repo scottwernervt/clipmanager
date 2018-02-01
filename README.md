@@ -6,18 +6,19 @@ Cross-platform (Windows and Linux) GUI application to manage the history of the 
 [Application settings](http://i.imgur.com/3VVXFI4.png) and [history preview](http://i.imgur.com/DeaeSqp.png) screenshots.
 
 ## Installation
-**Windows**
+
+### Windows
 
 Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.org/mercnet/clipmanager/downloads/clipmanager-setup-0.3.exe).
 
-**Ubuntu**
+### Ubuntu
 
 [launchpad.net](https://launchpad.net/~mercnet/+archive/clipmanager)
 
     sudo add-apt-repository ppa:mercnet/clipmanager
     sudo apt-get install clipmanager
 
-**Arch**
+### Arch
 
 [aur.archlinux.org](https://aur.archlinux.org/packages/clipmanager) | [Install Yaourt](https://wiki.archlinux.org/index.php/Yaourt#Installation)
 
@@ -25,34 +26,20 @@ Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.o
 
 
 ## Build Requirements
-**All Platforms**
 
-* Python 2.7
-* PySide 1.1.2
-* [setuptools](https://pypi.python.org/pypi/setuptools)
-* _Optional_
-	* [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
-	* [py.test](http://pytest.org/latest/) to run unit tests.
+### Linux
 
-**Windows**
+#### Arch
+
+* [qt4](https://www.archlinux.org/packages/extra/x86_64/qt4/)
+* [qtwebkit](https://aur.archlinux.org/packages/qtwebkit/)
+
+### Windows
 
 * [pywin32](http://sourceforge.net/projects/pywin32/files/)
-* _Optional_
-	* [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
+* [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
+* [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
 
-**Linux**
-
-* [python-keybinder](https://github.com/engla/keybinder)
-
-## Todo
-1. Support X11 selection clipboard.
-1. Support OSX. 
-1. Capture images and display them in history.
-
-
-## Contributors
-* [Scott Werner](http://www.linkedin.com/in/scottwernervt) <<scott.werner.vt@gmail.com>>, alias [mercnet](https://bitbucket.org/mercnet)
-* I am looking for code mentoring/tips as this is my first public application.
 
 ## Inspiration
 * [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
