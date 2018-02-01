@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import datetime
 import logging
 import sys
 
@@ -280,8 +281,6 @@ class MainWindow(QtGui.QMainWindow):
                                        icon=QtGui.QSystemTrayIcon.Warning,
                                        msecs=10000)
 
-        del hotkey
-
 
 class MainWidget(QtGui.QWidget):
     """Main widget container for main window.
@@ -411,7 +410,7 @@ class MainWidget(QtGui.QWidget):
                 
                 self.model_main.setData(self.model_main.index(row, DATE), 
                                     QtCore.QDateTime.currentMSecsSinceEpoch())
-                self.model_main.submit()
+                self.model_main.submitAll()
                 logging.info(True)
                 return True
                 
@@ -509,11 +508,82 @@ class MainWidget(QtGui.QWidget):
         for format, byte_data in data_insert:
             database.insert_mime(parent_id, format, byte_data)
 
-        # Free memory?
-        # del data_insert, index, parent_id, title_short, text, codec, encoder
-        # del bytes, checksum_string, checksum, mime_data, proc_name
+        # Maintain maximum number of entries
+        if int(settings.get_max_entries_value()) != 0:   
+            self._check_max_entries()
+
+        # Check expiration of entries
+        if int(settings.get_expire_value()) != 0:
+            self._check_expired_entries()
 
         return True
+
+    def _check_expired_entries(self):
+        """Remove entries that have expired.
+
+        Starting at the bottom of the list, compare each item's date to user 
+        set expire in X days. If item is older than setting, remove it from
+        database.
+        """
+        # Work in reverse and break when row date is less than
+        # expiration date
+        max_entries = settings.get_max_entries_value()
+        entries = range(0, self.model_main.rowCount())
+        entries.reverse()   # Start from bottom of QListView
+
+        for row in entries:
+            logging.debug('Row: %d' % row)
+            index = self.model_main.index(row, DATE)
+            date = self.model_main.data(index)
+            logging.debug('Date: %s' % date)
+
+            if not date:
+                logging.warn('History is empty or date is missing from db!')
+                break
+
+            # Convert from ms to s
+            time = datetime.datetime.fromtimestamp(date/1000)
+            today = datetime.datetime.today()
+            delta = today - time
+            
+            logging.debug('Delta: %d days' % delta.days)
+            if delta.days > settings.get_expire_value():
+                index = self.model_main.index(row, ID)
+                parent_id = self.model_main.data(index)
+
+                database.delete_mime(parent_id)
+                self.model_main.removeRow(row)
+            else:
+                logging.debug('Last row not expired, breaking!')
+                break
+
+        self.model_main.submitAll()
+
+    def _check_max_entries(self):
+        """Remove extra entries.
+
+        Count total number of items in history, and if greater than user
+        setting for maximum entries, delete them.
+        """
+        row_count = self.model_main.rowCount()
+        max_entries = settings.get_max_entries_value()
+
+        logging.debug('Row count: %s' % row_count)
+        logging.debug('Max entries: %s' % max_entries)
+
+        if row_count > max_entries:
+            # Delete extra rows
+            # self.model_main.removeRows(max_entries, row_count-max_entries)
+            for row in range(max_entries, row_count):
+                logging.debug('Row: %d' % row)
+
+                index_id = self.model_main.index(row, ID)
+                parent_id = self.model_main.data(index_id)
+
+                database.delete_mime(parent_id)
+                self.model_main.removeRow(row)
+
+            self.model_main.submitAll()
    
     @QtCore.Slot(QtCore.QModelIndex)
     def _on_open_preview(self, index):
@@ -545,8 +615,6 @@ class MainWidget(QtGui.QWidget):
         preview_dialog = dialogs.PreviewDialog(self)
         preview_dialog.setup_ui(mime_data)
         preview_dialog.exec_()
-
-        del index_id, parent_id, mime_list, mime_data, preview_dialog
       
     @QtCore.Slot()
     def on_set_clipboard(self):
@@ -593,8 +661,4 @@ class MainWidget(QtGui.QWidget):
         # Update the date column in source
         self.model_main.setData(self.model_main.index(model_index.row(), DATE), 
                                 QtCore.QDateTime.currentMSecsSinceEpoch())
-        self.model_main.submit()
-
-        # Destroy mime data object?
-        del mime_data, mime_list, proxy_index, source_index, model_index 
-        del parent_id
+        self.model_main.submitAll()

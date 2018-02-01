@@ -30,6 +30,10 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
     def __init__(self, parent=None):
         super(MainSqlTableModel, self).__init__(parent)
         self.parent = parent
+
+        # Call submitAll() to submit changes and update QListView
+        # Necessary for handling max num of entries and date check
+        self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
         
         # Model view is only for Main table, not Data
         self.setTable('Main')

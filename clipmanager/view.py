@@ -45,8 +45,12 @@ class ListView(QtGui.QListView):
         delegate = ItemDelegate(self)
         self.setItemDelegate(delegate)
 
-        # List item right click menu
-        self._create_context_menu()
+        # Build right click menu and connect actions to widget
+        # Changed from 
+        self._build_menu()
+        self.addAction(self.apply_act)
+        self.addAction(self.preview_act)
+        self.addAction(self.delete_act)
 
         # Item double clicked is set to clipboard
         self.doubleClicked.connect(self._emit_set_clipboard)
@@ -83,31 +87,35 @@ class ListView(QtGui.QListView):
         """
         QtCore.QCoreApplication.quit()
 
-    def _create_context_menu(self):
-        """Create right click menu item for items in list.
+    def _build_menu(self):
+        """Create right click menu.
         """
-        self.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.menu = QtGui.QMenu(self)
 
         # Set item to clipboard
-        apply_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-add', 
+        self.apply_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-add', 
                                   QtGui.QIcon(
                                     resource_filename('icons/add.png'))), 
                                   'Set to clipboard', self)
-        apply_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return))
+        self.apply_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return))
 
         # Preview item's contents
-        preview_act = QtGui.QAction(QtGui.QIcon.fromTheme('document', 
+        self.preview_act = QtGui.QAction(QtGui.QIcon.fromTheme('document', 
                                     QtGui.QIcon(
                                       resource_filename('icons/document.png'))), 
                                     'Preview', self)
-        preview_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_F11))
+        self.preview_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_F11))
+
+        # Prevent item from being deleted
+        self.save_act = QtGui.QAction('Never delete', self)
+        self.save_act.setCheckable(True)
 
         # Delete item
-        delete_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-remove', 
+        self.delete_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-remove', 
                                    QtGui.QIcon(
                                         resource_filename('icons/remove.png'))),
                                    'Delete', self)
-        delete_act.setShortcut(QtGui.QKeySequence.Delete)
+        self.delete_act.setShortcut(QtGui.QKeySequence.Delete)
 
         seperator_1 = QtGui.QAction(self)
         seperator_1.setSeparator(True)
@@ -127,23 +135,37 @@ class ListView(QtGui.QListView):
                                          resource_filename('icons/exit.png'))), 
                                  'Quit', self)
 
-        self.addAction(apply_act)
-        self.addAction(preview_act)
-        self.addAction(delete_act)
-        self.addAction(seperator_2)
-        self.addAction(settings_act)
-        self.addAction(seperator_1)
-        self.addAction(exit_act)
+        # Add to menu
+        self.menu.addAction(self.apply_act)
+        self.menu.addAction(self.preview_act)
+        self.menu.addAction(self.save_act)
+        self.menu.addAction(self.delete_act)
+        self.menu.addAction(seperator_2)
+        self.menu.addAction(settings_act)
+        self.menu.addAction(seperator_1)
+        self.menu.addAction(exit_act)
 
-        self.connect(apply_act, QtCore.SIGNAL('triggered()'), 
+        # Connect signal for each action
+        self.menu.connect(self.apply_act, QtCore.SIGNAL('triggered()'), 
                      self._emit_set_clipboard)
-        self.connect(preview_act, QtCore.SIGNAL('triggered()'), 
+        self.menu.connect(self.preview_act, QtCore.SIGNAL('triggered()'), 
                      self._emit_open_preview)
-        self.connect(delete_act, QtCore.SIGNAL('triggered()'),
+        self.menu.connect(self.delete_act, QtCore.SIGNAL('triggered()'),
                      self._delete_rows)
-        self.connect(settings_act, QtCore.SIGNAL('triggered()'), 
+        self.menu.connect(settings_act, QtCore.SIGNAL('triggered()'), 
                      self._emit_open_settings)
-        self.connect(exit_act, QtCore.SIGNAL('triggered()'), self._exit)
+        self.menu.connect(exit_act, QtCore.SIGNAL('triggered()'), self._exit)
+
+    def contextMenuEvent(self, event):
+        """Subclass context menu.
+        """
+
+        # Get selected item
+        indexes = self.selectionModel().selectedIndexes()
+        # self.apply_act.setChecked(True)
+
+        # Open menu
+        self.menu.exec_(self.mapToGlobal(event.pos()))
 
     def keyPressEvent(self, event):
         """Set focus to search box if user starts typing text.
@@ -233,6 +255,7 @@ class ListView(QtGui.QListView):
 
                 delete_mime(parent_id)
                 self.model().removeRow(row)
+                self.model().sourceModel().submitAll()
             else:
                 pass
 

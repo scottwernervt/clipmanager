@@ -14,7 +14,8 @@ _tblMain = """CREATE TABLE IF NOT EXISTS Main(
     date            timestamp,
     titleshort      TEXT,
     titlefull       TEXT,
-    checksum        STRING
+    checksum        STRING,
+    save            INTEGER DEFAULT 0
 );"""
 
 _tblData = """CREATE TABLE IF NOT EXISTS Data(
@@ -23,6 +24,9 @@ _tblData = """CREATE TABLE IF NOT EXISTS Data(
     format      STRING,
     data        BLOB
 );"""
+
+# New column for > v0.2
+_tblMainSaveColumn = """ALTER TABLE Main ADD COLUMN save INTEGER DEFAULT 0;"""
 
 
 def create_connection(storage_path):
@@ -64,6 +68,10 @@ def create_tables():
     if query_main.lastError().isValid():
         logging.error(query_main.lastError().text())
         return False
+
+    query_main = QtSql.QSqlQuery()
+    query_main.exec_(_tblMainSaveColumn)
+    query_main.finish()
 
     query_data = QtSql.QSqlQuery()
     query_data.exec_(_tblData)
