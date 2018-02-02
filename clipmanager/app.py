@@ -68,7 +68,7 @@ class MainApp(QtGui.QApplication):
         Args:
             args (list): sys.argv
         """
-        # Prevent a dialog from exiting if main window not visisble
+        # Prevent a dialog from exiting if main window not visible
         self.setQuitOnLastWindowClosed(False)
 
         # Set application properties
