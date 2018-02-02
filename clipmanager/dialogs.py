@@ -5,11 +5,10 @@ import logging
 
 from PySide import QtCore
 from PySide import QtGui
+from PySide import QtWebKit
 
 from settings import settings
 from utils import resource_filename
-
-# from PySide import QtWebKit
 
 logging.getLogger(__name__)
 
@@ -66,13 +65,12 @@ class PreviewDialog(QtGui.QDialog):
 
         # Allow images to be loaded if html
         if mime_data.hasHtml():
-            pass
-            # self.doc = QtWebKit.QWebView(self)
-            # self.doc.settings().setAttribute(
-            #     QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-            # self.doc.settings().setAttribute(
-            #     QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
-            # self.doc.setHtml(mime_data.html())
+            self.doc = QtWebKit.QWebView(self)
+            self.doc.settings().setAttribute(
+                QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+            self.doc.settings().setAttribute(
+                QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
+            self.doc.setHtml(mime_data.html())
         else:
             self.doc = QtGui.QTextEdit(self)
 
