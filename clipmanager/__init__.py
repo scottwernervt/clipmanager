@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-VERSION = (0, 3,)
-__version__ = '%s.%s' % (VERSION[0], VERSION[1])
+__title__ = 'ClipManager'
+__version__ = '0.3'
+__author__ = 'Scott Werner'
+__license__ = 'BSD'
+__copyright__ = 'Copyright 2018 Scott Werner'
