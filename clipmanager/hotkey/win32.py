@@ -285,26 +285,6 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         GlobalHotkeyManagerBase.__init__(self)
 
     def _native_modifiers(self, modifiers):
-        # MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN
-        native = 0
-        if modifiers & Qt.ShiftModifier:
-            native |= MOD_SHIFT
-        if modifiers & Qt.ControlModifier:
-            native |= MOD_CONTROL
-        if modifiers & Qt.AltModifier:
-            native |= MOD_ALT
-        if modifiers & Qt.MetaModifier:
-            native |= MOD_WIN
-        return native
-
-    def _native_keycode(self, key):
-        if key in self._qt_key_to_vk:
-            return self._qt_key_to_vk[key]
-        elif key in self._qt_key_numbers:
-            return key
-        elif key in self._qt_key_letters:
-            return key
-        return 0  # MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN
         native = 0
         if modifiers & Qt.ShiftModifier:
             native |= MOD_SHIFT
@@ -318,6 +298,15 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         # if (modifiers & Qt.KeypadModifier)
         # if (modifiers & Qt.GroupSwitchModifier)
         return native
+
+    def _native_keycode(self, key):
+        if key in self._qt_key_to_vk:
+            return self._qt_key_to_vk[key]
+        elif key in self._qt_key_numbers:
+            return key
+        elif key in self._qt_key_letters:
+            return key
+        return 0  # MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN
 
     def _register_shortcut(self, receiver, native_key, native_mods, winid):
         """
@@ -349,11 +338,9 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         #     self._unwrap_window_id(window_id),
         #     int(native_mods) ^ int(native_key),
         #     native_mods, int(native_key))
-        logging.info('_register_shortcut', receiver, native_key, native_mods,
-                     winid)
 
         result = ctypes.windll.user32.RegisterHotKey(
-            winid,
+            None,
             int(native_mods) ^ int(native_key),
             native_mods,
             native_key)
@@ -390,7 +377,7 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         #     pass
         # return res
         result = ctypes.windll.user32.UnregisterHotKey(
-            winid,
+            None,
             int(native_mods) ^ int(native_key))
         logging.info('_unregister_shortcut', receiver, native_key, native_mods,
                      winid)
