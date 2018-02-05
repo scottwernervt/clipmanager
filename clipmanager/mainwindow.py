@@ -16,7 +16,7 @@ import searchbox
 import systemtray
 import utils
 import view
-
+from clipmanager import hotkey
 from defs import APP_NAME
 from defs import CHECKSUM
 from defs import DATE
@@ -29,10 +29,8 @@ from settings import settings
 # Platform dependent package.modules: paste and global hot key binder
 if sys.platform.startswith('win32'):
     import paste.win32 as paste
-    import hotkey.win32 as hotkey
 elif sys.platform.startswith('linux'):
     import paste.linux as paste
-    import hotkey.linux as hotkey
 else:
     logging.warn('Cannot paste to platform: %s' % sys.platform)
 
@@ -51,6 +49,7 @@ class MainWindow(QtGui.QMainWindow):
                       False, bring window to front.
         """
         super(MainWindow, self).__init__()
+
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(
             QtGui.QIcon(utils.resource_filename('icons/clipmanager.ico')))
@@ -79,8 +78,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tray_icon.show()
 
         # Return OS specific global hot key binder and set it
-        self.key_binder = hotkey.Binder(self)
-        self._set_hot_key()
+        self._hotkey = hotkey.initialize()
 
         # Toggle window from system tray right click menu
         self.connect(self.tray_icon, QtCore.SIGNAL('toggle-window()'),
@@ -96,6 +94,8 @@ class MainWindow(QtGui.QMainWindow):
         # Show window
         if not minimize:
             self._on_toggle_window()
+
+        self.register_hot_key()
 
     def closeEvent(self, event):
         """Capture close event and hide main window.
@@ -122,18 +122,15 @@ class MainWindow(QtGui.QMainWindow):
         save window position and size, submit all changes to model, and close 
         database connection.
         """
-        logging.debug('Unbinding global hot key.')
-        self.key_binder.unbind(settings.get_global_hot_key())
+        if self._hotkey:
+            self._hotkey.unregister(winid=self.winId())
+            self._hotkey.destroy()
 
-        logging.debug('Saving window size and position.')
         settings.set_window_pos(self.pos())
         settings.set_window_size(self.size())
         settings.sync()
 
-        logging.debug('Submitting changes to model.')
         self.main_widget.model_main.submitAll()
-
-        logging.debug('Closing model.')
         self.db.close()
 
     @QtCore.Slot(QtGui.QSystemTrayIcon.ActivationReason)
@@ -162,10 +159,7 @@ class MainWindow(QtGui.QMainWindow):
         """
         # Windows allow's the user to open extra settings dialogs from system
         # tray menu even though dialog is modal
-        try:
-            self.key_binder.unbind(settings.get_global_hot_key())
-        except AttributeError:
-            return None
+        self._hotkey.unregister(winid=self.winId())
 
         # PreviewDialog(self) so it opens at main window
         settings_dialog = dialogs.SettingsDialog(self)
@@ -174,7 +168,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setCursor(QtCore.Qt.BusyCursor)
 
         # Attempt to set new hot key
-        self._set_hot_key()
+        self.register_hot_key()
 
         # Update scroll bars and refresh view
         set_word_wrap = settings.get_word_wrap()
@@ -269,14 +263,18 @@ class MainWindow(QtGui.QMainWindow):
             self.activateWindow()  # Bring to front
             self.main_widget.check_selection()
 
-    def _set_hot_key(self):
+    def register_hot_key(self):
         """Helper function to bind global hot key to OS specific binder class.
 
         If binding fails then display a message in system tray notification 
         tray.
         """
-        hotkey = settings.get_global_hot_key()  # <CTRL><ALT>H
-        if not self.key_binder.bind(hotkey, self._on_toggle_window):
+        key_sequence = settings.get_global_hot_key()  # Ctrl+Shift+h
+        if key_sequence:
+            self._hotkey.unregister(winid=self.winId())
+            self._hotkey.register(key_sequence, self._on_toggle_window,
+                                  self.winId())
+        else:
             title = 'Global Hot Key'
             message = 'Failed to bind global hot key %s.' % hotkey
             self.tray_icon.showMessage(title, message,
@@ -285,8 +283,7 @@ class MainWindow(QtGui.QMainWindow):
 
 
 class MainWidget(QtGui.QWidget):
-    """Main widget container for main window.
-    """
+    """Main widget container for main window."""
 
     def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
