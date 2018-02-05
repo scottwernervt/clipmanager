@@ -343,7 +343,8 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
             None,
             int(native_mods) ^ int(native_key),
             native_mods,
-            native_key)
+            int(native_key)
+        )
         if result:
             self.shortcuts[(native_key, native_mods)] = receiver
 
@@ -378,9 +379,8 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         # return res
         result = ctypes.windll.user32.UnregisterHotKey(
             None,
-            int(native_mods) ^ int(native_key))
-        logging.info('_unregister_shortcut', receiver, native_key, native_mods,
-                     winid)
+            int(native_mods) ^ int(native_key)
+        )
 
         try:
             del self.shortcuts[(native_key, native_mods)]
