@@ -88,7 +88,7 @@ class Settings(QtCore.QObject):
             str: Global hot key combination.
                  Default value is '<CTRL><ALT>H'
         """
-        return str(self.q_settings.value('globalhotkey', '<CTRL><ALT>H'))
+        return str(self.q_settings.value('globalhotkey', 'Ctrl+Shift+H'))
 
     def set_global_hot_key(self, value):
         logging.debug(value)
