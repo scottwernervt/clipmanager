@@ -22,7 +22,7 @@ from PySide.QtGui import (
 )
 from PySide.QtWebKit import QWebSettings, QWebView
 
-from clipmanager import __license__
+from __init__ import __license__
 from settings import settings
 from utils import resource_filename
 
