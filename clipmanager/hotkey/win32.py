@@ -175,6 +175,17 @@ class GlobalHotkeyManagerWinBroken(GlobalHotkeyManagerBase):
         self.destroy()
 
     def _native_modifiers(self, modifiers):
+        # MOD_ALT, MOD_CONTROL, (MOD_KEYUP), MOD_SHIFT, MOD_WIN
+        native = 0
+        if modifiers & Qt.ShiftModifier:
+            native |= MOD_SHIFT
+        if modifiers & Qt.ControlModifier:
+            native |= MOD_CONTROL
+        if modifiers & Qt.AltModifier:
+            native |= MOD_ALT
+        if modifiers & Qt.MetaModifier:
+            native |= MOD_WIN
+        return native
 
     def _native_keycode(self, key):
         if key in self._qt_key_to_vk:
