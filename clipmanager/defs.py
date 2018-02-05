@@ -2,7 +2,7 @@ import sys
 
 from PySide import QtCore, QtGui
 
-from __init__ import __version__
+from clipmanager import __version__
 
 APP_ORG = 'Werner'
 APP_NAME = 'ClipManager'

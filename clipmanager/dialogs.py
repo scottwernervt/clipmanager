@@ -22,9 +22,9 @@ from PySide.QtGui import (
 )
 from PySide.QtWebKit import QWebSettings, QWebView
 
-from __init__ import __license__
-from settings import settings
-from utils import resource_filename
+from clipmanager import __license__
+from clipmanager.settings import settings
+from clipmanager.utils import resource_filename
 
 logging.getLogger(__name__)
 
