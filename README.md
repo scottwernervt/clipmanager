@@ -36,7 +36,10 @@ Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.o
 
 ### Windows
 
-* [pywin32](http://sourceforge.net/projects/pywin32/files/)
+* [pywin32](http://sourceforge.net/projects/pywin32/files/) - [#661 DLL load failed on Python 3.4b1](https://sourceforge.net/p/pywin32/bugs/661/)
+ 
+    `copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32`
+
 * [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
 * [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
 
