@@ -11,7 +11,7 @@ VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
 install_requires = ['PySide']
 
 if os.name == 'nt':
-    install_requires.append('win32process')
+    install_requires.append('pywin32')
 elif os.name == 'posix':
     install_requires.append('python-xlib')
 
