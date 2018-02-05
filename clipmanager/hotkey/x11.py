@@ -104,10 +104,6 @@ class GlobalHotkeyManagerX11(GlobalHotkeyManagerBase):
         self._poller.keyPressed.connect(self.x11_event)
         self._poller.start()
 
-        # Check if the extension is present
-        if not self._display.has_extension('RECORD'):
-            raise Exception('RECORD extension not found')
-
     def destroy(self):
         self._poller.destroy()
 
