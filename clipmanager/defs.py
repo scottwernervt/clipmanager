@@ -1,16 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import sys
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide import QtCore, QtGui
 
 from __init__ import __version__
 
 APP_ORG = 'Werner'
 APP_NAME = 'ClipManager'
-APP_DOMAIN = 'https://bitbucket.org/mercnet/clipmanager'
+APP_DOMAIN = 'https://github.com/scottwernervt/clipmanager/'
 APP_VERSION = __version__
 APP_AUTHOR = 'Scott Werner'
 APP_EMAIL = 'scott.werner.vt@gmail.com'
