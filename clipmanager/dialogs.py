@@ -374,10 +374,8 @@ class AboutDialog(QDialog):
         super(AboutDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(
-            QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('About')
-        self.resize(QSize(350, 200))
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.setup_ui()
@@ -421,6 +419,8 @@ class AboutDialog(QDialog):
 
         layout.addWidget(QLabel('Url:'), 4, 0)
         layout.addWidget(app_url, 4, 1)
+
+        layout.addWidget(button_box, 5, 0, 1, 4)
 
         self.setLayout(layout)
 
