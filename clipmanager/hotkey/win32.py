@@ -103,7 +103,7 @@ MOD_SHIFT = 0x0004
 MOD_WIN = 0x0008
 
 
-class GlobalHotkeyManagerWinBroken(GlobalHotkeyManagerBase):
+class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
     _TranslateMessage = ctypes.WINFUNCTYPE(BOOL, POINTER(MSG))
     _TranslateMessageReal = None
 
@@ -198,12 +198,19 @@ class GlobalHotkeyManagerWinBroken(GlobalHotkeyManagerBase):
 
     @staticmethod
     def _unwrap_window_id(window_id):
+        import ctypes
+        ctypes.pythonapi.PyCObject_AsVoidPtr.restype = ctypes.c_void_p
+        ctypes.pythonapi.PyCObject_AsVoidPtr.argtypes = [ctypes.py_object]
+
+
+
         try:
             return int(window_id)
         except:
             ctypes.pythonapi.PyCapsule_GetPointer.restype = ctypes.c_void_p
             ctypes.pythonapi.PyCapsule_GetPointer.argtypes = [ctypes.py_object]
-            return int(ctypes.pythonapi.PyCapsule_GetPointer(window_id, None))
+            int_hwnd = ctypes.pythonapi.PyCObject_AsVoidPtr(window_id)
+            return int(int_hwnd)
 
     def _register_shortcut(self, receiver, native_key, native_mods, window_id):
         res = ctypes.windll.user32.RegisterHotKey(
@@ -240,7 +247,7 @@ WIN_VIRTUAL_KEYS = {
 }
 
 
-class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
+class GlobalHotkeyManagerWinNew(GlobalHotkeyManagerBase):
     _qt_key_to_vk = {
         Qt.Key_Escape: VK_ESCAPE, Qt.Key_Tab: VK_TAB, Qt.Key_Backtab: VK_TAB,
         Qt.Key_Backspace: VK_BACK,
