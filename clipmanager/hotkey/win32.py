@@ -218,7 +218,6 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         result = ctypes.windll.user32.UnregisterHotKey(
             self._unwrap_window_id(window_id),
             int(native_mods) ^ int(native_key)
-
         )
         try:
             del self.shortcuts[(native_key, native_mods)]
