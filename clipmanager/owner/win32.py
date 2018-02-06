@@ -62,12 +62,10 @@ def get_win32_owner():
 
     EnumWindows(EnumWindowsProc(foreach_window), 0)
 
-    print(window_titles)
-
     for window_hwnd, window_title in window_titles:
-        logger.info(window_hwnd + '|' + window_title)
+        print(window_hwnd + '|' + window_title)
         if window_hwnd == owner_hwnd:
-            logger.info('we got a match')
+            print('we got a match')
 
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
