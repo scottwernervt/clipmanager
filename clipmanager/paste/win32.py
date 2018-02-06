@@ -62,7 +62,6 @@ def _release_key(hex_key_code):
 
 
 def send_event():
-    logging.info('Paste action sent.')
     _press_key(0x11)  # CTRL
     _press_key(0x56)  # V
     _release_key(0x56)
