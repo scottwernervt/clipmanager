@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import logging
 import logging.config
@@ -21,7 +21,7 @@ LOGGING_LEVELS = {
 
 
 def setup_logging(logging_level):
-    log_file_path = '%s/%s%s.log' % (QDir.tempPath(), APP_ORG, APP_NAME)
+    log_file_path = '%s/%s.log' % (QDir.tempPath(), APP_NAME)
     dict_log_config = {
         'version': 1,
         'handlers': {
@@ -41,7 +41,7 @@ def setup_logging(logging_level):
         'loggers': {
             '': {
                 'handlers': ['file_handler', 'stream_handler'],
-                'level': logging_level,  # INFO/DEBUG
+                'level': logging_level,
             }
         },
         'formatters': {
@@ -50,42 +50,38 @@ def setup_logging(logging_level):
             }
         }
     }
-
     logging.config.dictConfig(dict_log_config)
-    logging.info(log_file_path)
 
 
 class MainApp(QApplication):
-    """Application event loop thats spawns the main window.
-    """
+    """Application event loop which spawns the main window."""
 
     def __init__(self, args):
-        super(MainApp, self).__init__(args)
         """Initialize application properties and open main window.
 
-        Args:
-            args (list): sys.argv
+        :param args: sys.argv
+        :type args: list
         """
-        # Prevent a dialog from exiting if main window not visible
-        self.setQuitOnLastWindowClosed(False)
+        super(MainApp, self).__init__(args)
 
-        # Set application properties
         self.setApplicationName(APP_DOMAIN)
         self.setOrganizationName(APP_ORG)
         self.setApplicationName(APP_NAME)
         self.setApplicationVersion(APP_VERSION)
 
-        # Create main window
+        # do not exit if main window hidden
+        self.setQuitOnLastWindowClosed(False)
+
         if 'minimize' in args:
             self.mw = MainWindow(minimize=True)
         else:
             self.mw = MainWindow(minimize=False)
 
         # Perform clean up actions when quit message signaled
-        self.connect(self, SIGNAL('aboutToQuit()'), self._on_quit)
+        self.connect(self, SIGNAL('aboutToQuit()'), self.quit)
 
     @Slot()
-    def _on_quit(self):
+    def quit(self):
         """Cleanup application and copy clipboard data to OS clipboard.
 
         Makes a copy of the clipboard pointer data into the OS clipboard. The 
@@ -100,13 +96,13 @@ class MainApp(QApplication):
         Returns:
             None
         """
-        self.mw.clean_up()
+        self.mw.destroy()
 
         # Copy and remove pointer
         clipboard = QApplication.clipboard()
         event = QEvent(QEvent.Clipboard)
         QApplication.sendEvent(clipboard, event)
-        logging.debug('Exiting...')
+        logging.info('Exiting...')
 
 
 def main(argv):
@@ -134,7 +130,7 @@ def main(argv):
     app = MainApp(argv)
     run = app.exec_()
 
-    logging.debug('Exit code: %s' % run)
+    logging.info('Exit code: %s' % run)
     return run
 
 
