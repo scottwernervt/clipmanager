@@ -33,7 +33,6 @@ from clipmanager import (
     paste,
     searchbox,
     systemtray,
-    utils,
     view,
 )
 from clipmanager.defs import (
@@ -46,6 +45,13 @@ from clipmanager.defs import (
     TITLESHORT,
 )
 from clipmanager.settings import settings
+from clipmanager.utils import (
+    calculate_checksum,
+    clean_up_text,
+    create_full_title,
+    remove_extra_lines,
+    resource_filename,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +70,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(
-            QIcon(utils.resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(QIcon(resource_filename('icons/clipmanager.ico')))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(Qt.WindowStaysOnTopHint |
@@ -338,7 +343,7 @@ class MainWidget(QWidget):
         settings_button = QPushButton(self)
         settings_button.setIcon(QIcon.fromTheme('emblem-system',
                                                 QIcon(
-                                                    utils.resource_filename(
+                                                    resource_filename(
                                                         'icons/settings.png')
                                                 )))
         settings_button.setToolTip('Settings...')
@@ -474,21 +479,19 @@ class MainWidget(QWidget):
             logger.info('Ignoring copy action in application.')
             return None
 
-        logger.debug('Clipboard Formats: %s' % str(mime_data.formats()))
-
-        checksum = utils.calculate_checksum(mime_data)
+        checksum = calculate_checksum(mime_data)
         if checksum == None:
             return None
         elif self._duplicate(checksum):  # If duplicate found then exit function
             return None
 
-        text = utils.create_full_title(mime_data)
+        text = create_full_title(mime_data)
 
         # title_short used in list row view so clean it up by removing white
         # space, dedent, and striping unnecessary line breaks
-        title_short = utils.clean_up_text(text)
-        title_short = utils.remove_extra_lines(text=title_short,
-                                               line_count=settings.get_lines_to_display())
+        title_short = clean_up_text(text)
+        title_short = remove_extra_lines(text=title_short,
+                                         line_count=settings.get_lines_to_display())
 
         date = QDateTime.currentMSecsSinceEpoch()
 
