@@ -1,29 +1,27 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import logging
 import logging.config
 import optparse
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide.QtCore import QDir, QEvent, SIGNAL, Slot
+from PySide.QtGui import QApplication
 
-from defs import APP_DOMAIN
-from defs import APP_NAME
-from defs import APP_ORG
-from defs import APP_VERSION
-from mainwindow import MainWindow
-from singleinstance import SingleInstance
+from clipmanager.defs import APP_DOMAIN, APP_NAME, APP_ORG, APP_VERSION
+from clipmanager.mainwindow import MainWindow
+from clipmanager.singleinstance import SingleInstance
 
-LOGGING_LEVELS = {'critical': 'CRITICAL',
-                  'error': 'ERROR',
-                  'warning': 'WARNING',
-                  'info': 'INFO',
-                  'debug': 'DEBUG'}
+LOGGING_LEVELS = {
+    'critical': 'CRITICAL',
+    'error': 'ERROR',
+    'warning': 'WARNING',
+    'info': 'INFO',
+    'debug': 'DEBUG'
+}
 
 
 def setup_logging(logging_level):
-    log_file_path = '%s/%s%s.log' % (QtCore.QDir.tempPath(), APP_ORG, APP_NAME)
+    log_file_path = '%s/%s%s.log' % (QDir.tempPath(), APP_ORG, APP_NAME)
     dict_log_config = {
         'version': 1,
         'handlers': {
@@ -57,7 +55,7 @@ def setup_logging(logging_level):
     logging.info(log_file_path)
 
 
-class MainApp(QtGui.QApplication):
+class MainApp(QApplication):
     """Application event loop thats spawns the main window.
     """
 
@@ -84,9 +82,9 @@ class MainApp(QtGui.QApplication):
             self.mw = MainWindow(minimize=False)
 
         # Perform clean up actions when quit message signaled
-        self.connect(self, QtCore.SIGNAL('aboutToQuit()'), self._on_quit)
+        self.connect(self, SIGNAL('aboutToQuit()'), self._on_quit)
 
-    @QtCore.Slot()
+    @Slot()
     def _on_quit(self):
         """Cleanup application and copy clipboard data to OS clipboard.
 
@@ -105,9 +103,9 @@ class MainApp(QtGui.QApplication):
         self.mw.clean_up()
 
         # Copy and remove pointer
-        clipboard = QtGui.QApplication.clipboard()
-        event = QtCore.QEvent(QtCore.QEvent.Clipboard)
-        QtGui.QApplication.sendEvent(clipboard, event)
+        clipboard = QApplication.clipboard()
+        event = QEvent(QEvent.Clipboard)
+        QApplication.sendEvent(clipboard, event)
         logging.debug('Exiting...')
 
 

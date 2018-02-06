@@ -1,21 +1,29 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide.QtCore import QCoreApplication, QSize, Qt, SIGNAL, Slot
+from PySide.QtGui import (
+    QAbstractItemView,
+    QAction,
+    QIcon,
+    QKeySequence,
+    QListView,
+    QMenu,
+    QPen,
+    QStyle,
+    QStyledItemDelegate,
+    QTextDocument,
+    QTextOption,
+)
 
-from database import delete_mime
-from defs import ID
-from defs import TITLESHORT
-from settings import settings
-from utils import resource_filename
+from clipmanager.database import delete_mime
+from clipmanager.defs import ID, TITLESHORT
+from clipmanager.settings import settings
+from clipmanager.utils import resource_filename
 
 logging.getLogger(__name__)
 
 
-class ListView(QtGui.QListView):
+class ListView(QListView):
     """Clipboard history list.
 
     Todo:
@@ -28,14 +36,14 @@ class ListView(QtGui.QListView):
         self.parent = parent
 
         # Settings/design
-        self.setLayoutMode(QtGui.QListView.SinglePass)
-        self.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
-        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.setLayoutMode(QListView.SinglePass)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.setDragEnabled(False)
         self.setAcceptDrops(False)
         self.setAlternatingRowColors(True)
-        self.setViewMode(QtGui.QListView.ListMode)
-        self.setResizeMode(QtGui.QListView.Adjust)
+        self.setViewMode(QListView.ListMode)
+        self.setResizeMode(QListView.Adjust)
         self.setStyleSheet('QListView::item {padding:10px;}')
 
         # Toggle horizontal scroll bar on and off if word wrap enabled
@@ -59,15 +67,15 @@ class ListView(QtGui.QListView):
         """Reset view when user changes lines to display or word wrap settings.
 
         Args:
-            event: QtGui.QResizeEvent
+            event: QResizeEvent
 
         Returns:
             Allow QListView.resizeEvent() to process.
 
         """
-        self.emit(QtCore.SIGNAL('layoutChanged()'))
+        self.emit(SIGNAL('layoutChanged()'))
         self.reset()
-        return QtGui.QListView.resizeEvent(self, event)
+        return QListView.resizeEvent(self, event)
 
     def set_horiz_scrollbar(self, toggle):
         """Toggle horizontal scroll bar on and off.
@@ -76,69 +84,69 @@ class ListView(QtGui.QListView):
             toggle (int/bool): Turn on or off.
         """
         if toggle:
-            scroll_bar = QtCore.Qt.ScrollBarAlwaysOff
+            scroll_bar = Qt.ScrollBarAlwaysOff
         else:
-            scroll_bar = QtCore.Qt.ScrollBarAsNeeded
+            scroll_bar = Qt.ScrollBarAsNeeded
 
         self.setHorizontalScrollBarPolicy(scroll_bar)
 
     def _exit(self):
         """Tell the application to exit with return code 0 (success).
         """
-        QtCore.QCoreApplication.quit()
+        QCoreApplication.quit()
 
     def _build_menu(self):
         """Create right click menu.
         """
-        self.menu = QtGui.QMenu(self)
+        self.menu = QMenu(self)
 
         # Set item to clipboard
-        self.apply_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-add',
-                                                             QtGui.QIcon(
-                                                                 resource_filename(
-                                                                     'icons/add.png'))),
-                                       'Set to clipboard', self)
-        self.apply_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Return))
+        self.apply_act = QAction(QIcon.fromTheme('list-add',
+                                                 QIcon(
+                                                     resource_filename(
+                                                         'icons/add.png'))),
+                                 'Set to clipboard', self)
+        self.apply_act.setShortcut(QKeySequence(Qt.Key_Return))
 
         # Preview item's contents
-        self.preview_act = QtGui.QAction(QtGui.QIcon.fromTheme('document',
-                                                               QtGui.QIcon(
-                                                                   resource_filename(
-                                                                       'icons/document.png'))),
-                                         'Preview', self)
-        self.preview_act.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_F11))
+        self.preview_act = QAction(QIcon.fromTheme('document',
+                                                   QIcon(
+                                                       resource_filename(
+                                                           'icons/document.png'))),
+                                   'Preview', self)
+        self.preview_act.setShortcut(QKeySequence(Qt.Key_F11))
 
         # Prevent item from being deleted
-        self.save_act = QtGui.QAction('Never delete', self)
+        self.save_act = QAction('Never delete', self)
         self.save_act.setCheckable(True)
 
         # Delete item
-        self.delete_act = QtGui.QAction(QtGui.QIcon.fromTheme('list-remove',
-                                                              QtGui.QIcon(
-                                                                  resource_filename(
-                                                                      'icons/remove.png'))),
-                                        'Delete', self)
-        self.delete_act.setShortcut(QtGui.QKeySequence.Delete)
+        self.delete_act = QAction(QIcon.fromTheme('list-remove',
+                                                  QIcon(
+                                                      resource_filename(
+                                                          'icons/remove.png'))),
+                                  'Delete', self)
+        self.delete_act.setShortcut(QKeySequence.Delete)
 
-        seperator_1 = QtGui.QAction(self)
+        seperator_1 = QAction(self)
         seperator_1.setSeparator(True)
 
         # Open settings dialog
-        settings_act = QtGui.QAction(QtGui.QIcon.fromTheme('emblem-system',
-                                                           QtGui.QIcon(
-                                                               resource_filename(
-                                                                   'icons/settings.png'))),
-                                     'Settings', self)
+        settings_act = QAction(QIcon.fromTheme('emblem-system',
+                                               QIcon(
+                                                   resource_filename(
+                                                       'icons/settings.png'))),
+                               'Settings', self)
 
-        seperator_2 = QtGui.QAction(self)
+        seperator_2 = QAction(self)
         seperator_2.setSeparator(True)
 
         # Exit
-        exit_act = QtGui.QAction(QtGui.QIcon.fromTheme('application-exit',
-                                                       QtGui.QIcon(
-                                                           resource_filename(
-                                                               'icons/exit.png'))),
-                                 'Quit', self)
+        exit_act = QAction(QIcon.fromTheme('application-exit',
+                                           QIcon(
+                                               resource_filename(
+                                                   'icons/exit.png'))),
+                           'Quit', self)
 
         # Add to menu
         self.menu.addAction(self.apply_act)
@@ -151,15 +159,15 @@ class ListView(QtGui.QListView):
         self.menu.addAction(exit_act)
 
         # Connect signal for each action
-        self.menu.connect(self.apply_act, QtCore.SIGNAL('triggered()'),
+        self.menu.connect(self.apply_act, SIGNAL('triggered()'),
                           self._emit_set_clipboard)
-        self.menu.connect(self.preview_act, QtCore.SIGNAL('triggered()'),
+        self.menu.connect(self.preview_act, SIGNAL('triggered()'),
                           self._emit_open_preview)
-        self.menu.connect(self.delete_act, QtCore.SIGNAL('triggered()'),
+        self.menu.connect(self.delete_act, SIGNAL('triggered()'),
                           self._delete_rows)
-        self.menu.connect(settings_act, QtCore.SIGNAL('triggered()'),
+        self.menu.connect(settings_act, SIGNAL('triggered()'),
                           self._emit_open_settings)
-        self.menu.connect(exit_act, QtCore.SIGNAL('triggered()'), self._exit)
+        self.menu.connect(exit_act, SIGNAL('triggered()'), self._exit)
 
     def contextMenuEvent(self, event):
         """Subclass context menu.
@@ -176,23 +184,23 @@ class ListView(QtGui.QListView):
         """Set focus to search box if user starts typing text.
 
         Args: 
-            event: QtCore.QEvent
+            event: QEvent
 
         Returns:
             Allow QListView.keyPressEvent() to process.
         """
         # Catch select all <CTRL><A> on list
-        if (event.modifiers() == QtCore.Qt.ControlModifier) and \
-                (event.key() == QtCore.Qt.Key_A):
-            return QtGui.QListView.keyPressEvent(self, event)
+        if (event.modifiers() == Qt.ControlModifier) and \
+                (event.key() == Qt.Key_A):
+            return QListView.keyPressEvent(self, event)
 
         # Scroll list view to the right (word wrap disabled)
-        elif event.key() == QtCore.Qt.Key_Right:
+        elif event.key() == Qt.Key_Right:
             value = self.horizontalScrollBar().value()
             self.horizontalScrollBar().setValue(value + 10)
 
         # Scroll list view to the left (word wrap disabled)
-        elif event.key() == QtCore.Qt.Key_Left:
+        elif event.key() == Qt.Key_Left:
             value = self.horizontalScrollBar().value()
             self.horizontalScrollBar().setValue(value - 10)
 
@@ -200,24 +208,24 @@ class ListView(QtGui.QListView):
         elif event.text():
             self.parent.search_box.setText(self.parent.search_box.text() \
                                            + event.text())
-            self.parent.search_box.setFocus(QtCore.Qt.ActiveWindowFocusReason)
+            self.parent.search_box.setFocus(Qt.ActiveWindowFocusReason)
 
-        return QtGui.QListView.keyPressEvent(self, event)
+        return QListView.keyPressEvent(self, event)
 
-    @QtCore.Slot()
+    @Slot()
     def _emit_open_preview(self):
         """Emit signal with selected item's QModelIndex to open preview dialog.
         """
-        self.emit(QtCore.SIGNAL('open-preview(QModelIndex)'),
+        self.emit(SIGNAL('open-preview(QModelIndex)'),
                   self.currentIndex())
 
-    @QtCore.Slot()
+    @Slot()
     def _emit_open_settings(self):
         """Emit signal to open settings dialog.
         """
-        self.emit(QtCore.SIGNAL('open-settings()'))
+        self.emit(SIGNAL('open-settings()'))
 
-    @QtCore.Slot()
+    @Slot()
     def _emit_set_clipboard(self):
         """Emit signal to set clipboard contents.
 
@@ -227,9 +235,9 @@ class ListView(QtGui.QListView):
         """
         # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
         # for __ in indexes:
-        self.emit(QtCore.SIGNAL('set-clipboard()'))
+        self.emit(SIGNAL('set-clipboard()'))
 
-    @QtCore.Slot()
+    @Slot()
     def _delete_rows(self):
         """Delete selected indexes.
 
@@ -237,7 +245,7 @@ class ListView(QtGui.QListView):
         an item, it will still be deleted since the hidden column is still 
         selected. selectedRows(column=TITLE) wasn't working for QListView.
         """
-        self.setCursor(QtCore.Qt.BusyCursor)
+        self.setCursor(Qt.BusyCursor)
 
         selection_model = self.selectionModel()
         indexes = selection_model.selectedIndexes()
@@ -268,7 +276,7 @@ class ListView(QtGui.QListView):
         self.unsetCursor()
 
 
-class ItemDelegate(QtGui.QStyledItemDelegate):
+class ItemDelegate(QStyledItemDelegate):
     """Subclass paintnig and style of QListView items.
     """
 
@@ -280,37 +288,37 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
         """Subclass of paint function.
 
         Args:
-            painter: QtGui.QPainter
-            option: QtGui.QStyleOptionViewItem
-            index: QtCore.QModelIndex
+            painter: QPainter
+            option: QStyleOptionViewItem
+            index: QModelIndex
 
         Returns:
-            QtGui.QStyledItemDelegate.paint() if QModelIndex is not valid.
+            QStyledItemDelegate.paint() if QModelIndex is not valid.
 
         References:
             http://pydoc.net/Python/gayeogi/0.6/gayeogi.plugins.player/
         """
         if not index.isValid():
-            return QtGui.QStyledItemDelegate.paint(self, painter, option, index)
+            return QStyledItemDelegate.paint(self, painter, option, index)
 
         painter.save()
 
         # Draw selection highlight
-        if option.state & QtGui.QStyle.State_Selected:
-            painter.setPen(QtGui.QPen(option.palette.highlightedText(), 0))
+        if option.state & QStyle.State_Selected:
+            painter.setPen(QPen(option.palette.highlightedText(), 0))
             painter.fillRect(option.rect, option.palette.highlight())
 
         # if index.data() == 'application/x-qt-image':
-        #     parent_index = QtCore.QModelIndex(self.model().index(0, ID))
+        #     parent_index = QModelIndex(self.model().index(0, ID))
         #     print parent_index.column()
 
         # Set alignment and enable word wrap if applicable
-        text_option = QtGui.QTextOption()
-        text_option.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        text_option = QTextOption()
+        text_option.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         if settings.get_word_wrap():
-            text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
+            text_option.setWrapMode(QTextOption.WrapAnywhere)
         else:
-            text_option.setWrapMode(QtGui.QTextOption.NoWrap)
+            text_option.setWrapMode(QTextOption.NoWrap)
 
         # Add padding to left and right side of text
         text_rect = option.rect
@@ -325,11 +333,11 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
         text and determining the dimensions.
 
         Args:
-            option: QtGui.QStyleOptionViewItem
-            index: QtCore.QModelIndex
+            option: QStyleOptionViewItem
+            index: QModelIndex
 
         Returns:
-            QtGui.QStyledItemDelegate.sizeHint() if QModelIndex is invalid.
+            QStyledItemDelegate.sizeHint() if QModelIndex is invalid.
 
         References:
             http://qt-project.org/forums/viewthread/12186
@@ -339,53 +347,53 @@ class ItemDelegate(QtGui.QStyledItemDelegate):
             Handle lines to display in relation to word wrap.
         """
         if not index.isValid():
-            return QtGui.QStyledItemDelegate.sizeHint(self, option, index)
+            return QStyledItemDelegate.sizeHint(self, option, index)
 
-        doc = QtGui.QTextDocument()  # Inserting self creates a memory leak!
+        doc = QTextDocument()  # Inserting self creates a memory leak!
 
         # Set alignment and enable word wrap if applicable
-        text_option = QtGui.QTextOption()
-        text_option.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        text_option = QTextOption()
+        text_option.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         # Reimplement as lines to display canFetchMore be ignored if word wrap 
         # forces an extra line to be created
         if settings.get_word_wrap():
-            text_option.setWrapMode(QtGui.QTextOption.WrapAnywhere)
+            text_option.setWrapMode(QTextOption.WrapAnywhere)
         else:
-            text_option.setWrapMode(QtGui.QTextOption.NoWrap)
+            text_option.setWrapMode(QTextOption.NoWrap)
 
         doc.setDefaultTextOption(text_option)
         doc.setPlainText(index.data())
 
         # Add some padding to each item, + 10
-        return QtCore.QSize(doc.size().width(), doc.size().height() + 5)
+        return QSize(doc.size().width(), doc.size().height() + 5)
 
     # def sizeHint(self, option, index):
     #     if not index.isValid():
-    #         return QtGui.QStyledItemDelegate.sizeHint(self, option, index)
+    #         return QStyledItemDelegate.sizeHint(self, option, index)
 
     #     fake_text = 'Line1\nLine2\nLine3\n'
     #     fake_fm = option.fontMetrics
-    #     fake_font_rect = fake_fm.boundingRect(option.rect, QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop|QtCore.Qt.TextWordWrap, fake_text)
+    #     fake_font_rect = fake_fm.boundingRect(option.rect, Qt.AlignLeft|Qt.AlignTop|Qt.TextWordWrap, fake_text)
 
     #     real_text = index.data()
     #     real_fm = option.fontMetrics
-    #     real_font_rect = real_fm.boundingRect(option.rect, QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop|QtCore.Qt.TextWordWrap, real_text)
+    #     real_font_rect = real_fm.boundingRect(option.rect, Qt.AlignLeft|Qt.AlignTop|Qt.TextWordWrap, real_text)
 
     #     if real_font_rect.height() < fake_font_rect.height():
     #         height = real_font_rect.height()
     #     else:
     #         height = fake_font_rect.height()
 
-    #     return QtCore.QSize(real_font_rect.width(), height+10)
+    #     return QSize(real_font_rect.width(), height+10)
 
     # def flags(self, index):
     #     """Sublass of flags method.
 
     #     Args:
-    #         index: QtCore.QModelIndex
+    #         index: QModelIndex
     #     """
     #     if not index.isValid():
-    #         return QtCore.Qt.ItemFlags()
+    #         return Qt.ItemFlags()
 
-    #     return QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable)
+    #     return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)

@@ -1,29 +1,25 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide.QtCore import Qt, Slot
+from PySide.QtGui import QLineEdit, QSortFilterProxyModel
 
-from defs import TITLEFULL
-from defs import TITLESHORT
+from clipmanager.defs import TITLEFULL, TITLESHORT
 
 logging.getLogger(__name__)
 
 
-class SearchFilterProxyModel(QtGui.QSortFilterProxyModel):
+class SearchFilterProxyModel(QSortFilterProxyModel):
     """Search database using fixed string.
     """
 
     def __init__(self, parent=None):
         super(SearchFilterProxyModel, self).__init__()
+
         self.setFilterKeyColumn(TITLEFULL)
         self.setDynamicSortFilter(True)
-        self.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
-    QtCore.Slot(str)
-
+    @Slot(str)
     def setFilterFixedString(self, *args):
         """Fetch more rows from the source model before filtering the QListView.
         
@@ -34,10 +30,10 @@ class SearchFilterProxyModel(QtGui.QSortFilterProxyModel):
         # due to all records not being loaded until scrolled.
         # while self.sourceModel().canFetchMore():
         #     self.sourceModel().fetchMore()
-        QtGui.QSortFilterProxyModel.setFilterFixedString(self, args[0])
+        QSortFilterProxyModel.setFilterFixedString(self, args[0])
 
 
-class SearchBox(QtGui.QLineEdit):
+class SearchBox(QLineEdit):
     """Search box for history model.
 
     Todo:
@@ -47,8 +43,8 @@ class SearchBox(QtGui.QLineEdit):
 
     def __init__(self, view, proxy, parent=None):
         super(SearchBox, self).__init__(parent)
-        self.view = view  # QtGui.QListView
-        self.proxy = proxy  # QtGui.QSortFilterProxyModel
+        self.view = view  # QListView
+        self.proxy = proxy  # QSortFilterProxyModel
         self.parent = parent
 
         self.setPlaceholderText('Start typing to search history...')
@@ -66,8 +62,7 @@ class SearchBox(QtGui.QLineEdit):
             Allow other events to process after conditional checks.
         """
         # Change selected row by moving up
-        if event.key() == QtCore.Qt.Key_Up:
-
+        if event.key() == Qt.Key_Up:
             if self.view.currentIndex().row() >= 1:
                 current_row = self.view.currentIndex().row()
                 index = self.proxy.index(current_row - 1, TITLESHORT)
@@ -78,13 +73,13 @@ class SearchBox(QtGui.QLineEdit):
                 self.view.setCurrentIndex(index)
 
         # Change selected row by moving down
-        elif event.key() == QtCore.Qt.Key_Down:
+        elif event.key() == Qt.Key_Down:
             current_row = self.view.currentIndex().row()
             index = self.proxy.index(current_row + 1, TITLESHORT)
             self.view.setCurrentIndex(index)
 
         # Clear text
-        elif event.key() == QtCore.Qt.Key_Escape:
+        elif event.key() == Qt.Key_Escape:
             self.clear()
 
-        return QtGui.QLineEdit.keyPressEvent(self, event)
+        return QLineEdit.keyPressEvent(self, event)

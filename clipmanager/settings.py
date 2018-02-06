@@ -1,17 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 
-from PySide import QtCore
+from PySide.QtCore import QObject, QPoint, QSettings, QSize
 
-from defs import APP_NAME
-from defs import APP_ORG
+from clipmanager.defs import APP_NAME, APP_ORG
 
 logging.getLogger(__name__)
 
 
-class Settings(QtCore.QObject):
+class Settings(QObject):
     """Allows other modules to access application settings.
 
     Todo:
@@ -21,7 +17,7 @@ class Settings(QtCore.QObject):
 
     def __init__(self, parent=None):
         super(Settings, self).__init__(parent)
-        self.q_settings = QtCore.QSettings(APP_ORG, APP_NAME)
+        self.q_settings = QSettings(APP_ORG, APP_NAME)
 
     def sync(self):
         """Sync settings to storage method.
@@ -120,14 +116,14 @@ class Settings(QtCore.QObject):
         self.q_settings.setValue('windowpos', value)
 
     def get_window_pos(self):
-        return self.q_settings.value('windowpos', QtCore.QPoint(0, 0))
+        return self.q_settings.value('windowpos', QPoint(0, 0))
 
     def set_window_size(self, value):
         logging.debug(value)
         self.q_settings.setValue('windowsize', value)
 
     def get_window_size(self):
-        return self.q_settings.value('windowsize', QtCore.QSize(275, 230))
+        return self.q_settings.value('windowsize', QSize(275, 230))
 
     def get_word_wrap(self):
         return False

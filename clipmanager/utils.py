@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 import os
 import sys
@@ -8,7 +5,7 @@ import textwrap
 import zlib
 
 import pkg_resources
-from PySide import QtCore
+from PySide.QtCore import QTextCodec, QTextEncoder
 
 logging.getLogger(__name__)
 
@@ -77,10 +74,10 @@ def calculate_checksum(mime_data):
         checksum_str = str(mime_data.urls())
     # if mime_data.hasImage():
     #     image = mime_data.imageData()
-    #     ba = QtCore.QByteArray()
-    #     buff = QtCore.QBuffer(ba)
+    #     ba = QByteArray()
+    #     buff = QBuffer(ba)
     #     image.save(buff, 'PNG')
-    #     byte_array = QtCore.QByteArray(buff.buffer())
+    #     byte_array = QByteArray(buff.buffer())
     #     buff.close()
     #     checksum_string = str(byte_array.toBase64())
 
@@ -92,8 +89,8 @@ def calculate_checksum(mime_data):
         logging.debug('checksum_str=%s' % checksum_str)
 
     # CRASH FIX: Handle unicode characters for calculating checksum
-    codec = QtCore.QTextCodec.codecForName('UTF-8')
-    encoder = QtCore.QTextEncoder(codec)
+    codec = QTextCodec.codecForName('UTF-8')
+    encoder = QTextEncoder(codec)
     bytes = encoder.fromUnicode(checksum_str)  # QByteArray
 
     # Calculate checksum with crc32 method (quick)
@@ -172,5 +169,5 @@ def resource_filename(file_name):
             return path
 
     # Return to resource path
-    logging.debug('Using resouce filename.')
+    logging.debug('Using resource filename.')
     return pkg_resources.resource_filename('clipmanager', file_name)

@@ -1,21 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 
-from PySide import QtCore
-from PySide import QtSql
+from PySide.QtCore import QDateTime, Qt
+from PySide.QtSql import QSqlTableModel
 
-from defs import CHECKSUM
-from defs import DATE
-from defs import ID
-from defs import TITLEFULL
-from defs import TITLESHORT
+from clipmanager.defs import CHECKSUM, DATE, ID, TITLEFULL, TITLESHORT
 
 logging.getLogger(__name__)
 
 
-class MainSqlTableModel(QtSql.QSqlTableModel):
+class MainSqlTableModel(QSqlTableModel):
     """Main table model that has children in Data table.
     
     Todo:
@@ -34,18 +27,18 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
 
         # Call submitAll() to submit changes and update QListView
         # Necessary for handling max num of entries and date check
-        self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
+        self.setEditStrategy(QSqlTableModel.OnManualSubmit)
 
         # Model view is only for Main table, not Data
         self.setTable('Main')
-        self.setSort(DATE, QtCore.Qt.DescendingOrder)  # Sort by Date
+        self.setSort(DATE, Qt.DescendingOrder)  # Sort by Date
 
         # Create header data
-        self.setHeaderData(ID, QtCore.Qt.Horizontal, 'ID')
-        self.setHeaderData(DATE, QtCore.Qt.Horizontal, 'DATE')
-        self.setHeaderData(TITLESHORT, QtCore.Qt.Horizontal, 'TITLESHORT')
-        self.setHeaderData(TITLEFULL, QtCore.Qt.Horizontal, 'TITLEFULL')
-        self.setHeaderData(CHECKSUM, QtCore.Qt.Horizontal, 'CHECKSUM')
+        self.setHeaderData(ID, Qt.Horizontal, 'ID')
+        self.setHeaderData(DATE, Qt.Horizontal, 'DATE')
+        self.setHeaderData(TITLESHORT, Qt.Horizontal, 'TITLESHORT')
+        self.setHeaderData(TITLEFULL, Qt.Horizontal, 'TITLEFULL')
+        self.setHeaderData(CHECKSUM, Qt.Horizontal, 'CHECKSUM')
 
         self.select()
 
@@ -67,7 +60,7 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
 
         return status
 
-    def data(self, index, role=QtCore.Qt.DisplayRole):
+    def data(self, index, role=Qt.DisplayRole):
         """Subclass of data.
 
         Args:
@@ -85,32 +78,33 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
         row = index.row()
         column = index.column()
 
-        if role == QtCore.Qt.DisplayRole and column == ID:
-            return int(QtSql.QSqlTableModel.data(self, index))
+        if role == Qt.DisplayRole and column == ID:
+            return int(QSqlTableModel.data(self, index))
 
-        if role == QtCore.Qt.DisplayRole and column == TITLESHORT:
-            return unicode(QtSql.QSqlTableModel.data(self, index))
+        if role == Qt.DisplayRole and column == TITLESHORT:
+            return unicode(QSqlTableModel.data(self, index))
 
-        if role == QtCore.Qt.DisplayRole and column == TITLEFULL:
-            return unicode(QtSql.QSqlTableModel.data(self, index))
+        if role == Qt.DisplayRole and column == TITLEFULL:
+            return unicode(QSqlTableModel.data(self, index))
 
-        if role == QtCore.Qt.DisplayRole and column == DATE:
-            return int(QtSql.QSqlTableModel.data(self, index))
+        if role == Qt.DisplayRole and column == DATE:
+            return int(QSqlTableModel.data(self, index))
 
-        if role == QtCore.Qt.DisplayRole and column == CHECKSUM:
-            return unicode(QtSql.QSqlTableModel.data(self, index))
+        if role == Qt.DisplayRole and column == CHECKSUM:
+            return unicode(QSqlTableModel.data(self, index))
 
-        if role == QtCore.Qt.ToolTipRole and column == TITLESHORT:
+        if role == Qt.ToolTipRole and column == TITLESHORT:
             date_index = self.index(row, DATE)
 
-            time_stamp = QtCore.QDateTime()
-            time_stamp.setMSecsSinceEpoch(QtSql.QSqlTableModel.data(self,
-                                                                    date_index))
-            date_string = time_stamp.toString(QtCore.Qt.SystemLocaleShortDate)
+            time_stamp = QDateTime()
+            time_stamp.setMSecsSinceEpoch(
+                QSqlTableModel.data(self, date_index)
+            )
+            date_string = time_stamp.toString(Qt.SystemLocaleShortDate)
             return 'Last used: %s' % date_string
 
         # Used to display icons
-        if role == QtCore.Qt.DecorationRole:
+        if role == Qt.DecorationRole:
             return None
 
         return None
@@ -128,7 +122,6 @@ class MainSqlTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags
         """
         if not index.isValid():
-            return QtCore.Qt.ItemFlags()
+            return Qt.ItemFlags()
 
-        return QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEnabled |
-                                   QtCore.Qt.ItemIsSelectable)
+        return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)

@@ -1,14 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# TEST LINUX:
+# TODO:
 # https://github.com/josephturnerjr/boatshoes/blob/master/boatshoes/SingleInstance.py
 # https://github.com/csuarez/emesene-1.6.3-fixed/blob/master/SingleInstance.py
-
 import logging
-import sys
+import os
 
-if sys.platform.startswith('win32'):
+if os.name == 'nt':
     from win32event import CreateMutex
     from win32api import CloseHandle, GetLastError
     from winerror import ERROR_ALREADY_EXISTS
@@ -16,8 +12,7 @@ else:
     import commands
     import os
 
-from defs import APP_ORG
-from defs import APP_NAME
+from clipmanager.defs import APP_ORG, APP_NAME
 
 logging.getLogger(__name__)
 
@@ -29,7 +24,7 @@ class SingleInstance(object):
     def __init__(self):
         self.last_error = False
 
-        if sys.platform.startswith('win32'):
+        if os.name == 'nt':
             # HANDLE WINAPI CreateMutex(
             #   _In_opt_  LPSECURITY_ATTRIBUTES lpMutexAttributes,
             #   _In_      BOOL bInitialOwner,
@@ -60,11 +55,11 @@ class SingleInstance(object):
         Returns:
             True/False (bool): Instance of app is or is not running
         """
-        if sys.platform.startswith('win32'):
+        if os.name == 'nt':
             # ERROR_ALREADY_EXISTS
             # 183 (0xB7)
             # Cannot create a file when that file already exists.
-            return (self.last_error == ERROR_ALREADY_EXISTS)
+            return self.last_error == ERROR_ALREADY_EXISTS
         else:
             return self.last_error
 
@@ -72,7 +67,7 @@ class SingleInstance(object):
         """Close out mutex handle on exit. Note, handle automatically closed if
         process is terminated.
         """
-        if sys.platform.startswith('win32'):
+        if os.name == 'nt':
             if self.mutex:
                 # BOOL WINAPI CloseHandle(
                 #   _In_  HANDLE hObject

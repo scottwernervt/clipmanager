@@ -1,16 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 import os
 
-from PySide import QtSql
+from PySide.QtSql import QSqlDatabase, QSqlQuery
 
 logging.getLogger(__name__)
 
 _tblMain = """CREATE TABLE IF NOT EXISTS Main(
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    date            timestamp,
+    date            TIMESTAMP,
     titleshort      TEXT,
     titlefull       TEXT,
     checksum        STRING,
@@ -40,7 +37,7 @@ def create_connection(storage_path):
                permissions on storage path.
 
     """
-    db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+    db = QSqlDatabase.addDatabase('QSQLITE')
 
     db_path = os.path.join(storage_path, 'contents.db')
     logging.info(db_path)
@@ -61,18 +58,18 @@ def create_tables():
     setting. TITLEFULL is the entire string used during proxy filter search.
     CHECKSUM is the cyclic redundancy check of the mime data QByteArray.
     """
-    query_main = QtSql.QSqlQuery()
+    query_main = QSqlQuery()
     query_main.exec_(_tblMain)
     query_main.finish()
     if query_main.lastError().isValid():
         logging.error(query_main.lastError().text())
         return False
 
-    query_main = QtSql.QSqlQuery()
+    query_main = QSqlQuery()
     query_main.exec_(_tblMainSaveColumn)
     query_main.finish()
 
-    query_data = QtSql.QSqlQuery()
+    query_data = QSqlQuery()
     query_data.exec_(_tblData)
     query_data.finish()
     if query_data.lastError().isValid():
@@ -83,7 +80,7 @@ def create_tables():
 
 
 # def count_main():
-#     query = QtSql.QSqlQuery()
+#     query = QSqlQuery()
 #     query.prepare('SELECT Count(*) FROM Main')
 
 #     query.exec_()
@@ -111,7 +108,7 @@ def insert_main(date, titleshort, titlefull, checksum):
         row_id (int): Row ID from SQL INSERT.
         None: Insert failed, see query.lastError().
     """
-    query = QtSql.QSqlQuery()
+    query = QSqlQuery()
     query.prepare('INSERT OR FAIL INTO Main (date, titleshort, titlefull, '
                   'checksum) VALUES (:date, :titleshort, :titlefull, '
                   ':checksum)')
@@ -147,7 +144,7 @@ def insert_mime(parent_id, format, byte_data):
     Returns:
         row_id (int): Row ID from SQL INSERT.
     """
-    query = QtSql.QSqlQuery()
+    query = QSqlQuery()
     query.prepare('INSERT OR FAIL INTO Data '
                   'VALUES (Null, :parentid, :format, :data)')
     query.bindValue(':parentid', parent_id)
@@ -174,7 +171,7 @@ def delete_main(row_id):
     Args:
         row_id (int): Row id in Main table.
     """
-    query = QtSql.QSqlQuery()
+    query = QSqlQuery()
     query.prepare('DELETE FROM Main WHERE ID=:rowid')
     query.bindValue(':rowid', row_id)
     query.exec_()
@@ -201,7 +198,7 @@ def delete_mime(parent_id):
     Args:
         parent_id (int): Main table row ID.
     """
-    query = QtSql.QSqlQuery()
+    query = QSqlQuery()
     query.prepare('DELETE FROM Data WHERE parentid=:parentid')
     query.bindValue(':parentid', parent_id)
     query.exec_()
@@ -235,7 +232,7 @@ def get_mime(parent_id):
     """
     logging.info('ID: %s' % parent_id)
 
-    query = QtSql.QSqlQuery()
+    query = QSqlQuery()
     query.prepare('SELECT * FROM Data WHERE parentid=:parentid')
     query.bindValue(':parentid', parent_id)
     query.exec_()

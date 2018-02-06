@@ -1,18 +1,14 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 import os
 import subprocess
-import sys
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide.QtCore import QObject, SIGNAL
+from PySide.QtGui import QApplication, QClipboard
 
-from settings import settings
+from clipmanager.settings import settings
 
 # Windows API to get clipboard owner process name
-if sys.platform.startswith('win32'):
+if os.name == 'nt':
     from ctypes import c_char
     from ctypes import windll
     from win32process import GetWindowThreadProcessId
@@ -25,7 +21,7 @@ PROCESS_TERMINATE = 0x0001
 PROCESS_QUERY_INFORMATION = 0x0400
 
 
-class ClipBoards(QtCore.QObject):
+class ClipBoards(QObject):
     """Handles communication between all clipboards and main window.
 
     Source:
@@ -37,7 +33,7 @@ class ClipBoards(QtCore.QObject):
         self.parent = None
         logging.debug('test')
 
-        # QApplication = QtCore.QCoreApplication.instance() # Access QApplication
+        # QApplication = QCoreApplication.instance() # Access QApplication
 
         # TODO: Add Selection and Find Buffer clipboards
         # for Linux and OSX
@@ -49,9 +45,9 @@ class ClipBoards(QtCore.QObject):
         #       , self.emit_new_item)
 
         # Primary clip board
-        self.clip_board_global = ClipBoard(QtGui.QApplication.clipboard(),
+        self.clip_board_global = ClipBoard(QApplication.clipboard(),
                                            self.emit_new_item,
-                                           QtGui.QClipboard.Clipboard, self)
+                                           QClipboard.Clipboard, self)
 
     def clear(self):
         self.clip_board_global.clear()
@@ -63,7 +59,7 @@ class ClipBoards(QtCore.QObject):
         """Sets user select contents to all clipboards.
 
         Args:
-            mime_data: QtCore.QMimeData
+            mime_data: QMimeData
         """
         self.clip_board_global.set_data(mime_data)
 
@@ -71,12 +67,12 @@ class ClipBoards(QtCore.QObject):
         """Emits new lipboard contents to main window.
 
         Args:
-           mime_data: QtCore.QMimeData
+           mime_data: QMimeData
         """
-        self.emit(QtCore.SIGNAL('new-item(QMimeData)'), mime_data)
+        self.emit(SIGNAL('new-item(QMimeData)'), mime_data)
 
 
-class ClipBoard(QtCore.QObject):
+class ClipBoard(QObject):
     """Handles monitoring each clipboard and perfoming actions on it.
     
     Todo:
@@ -94,10 +90,10 @@ class ClipBoard(QtCore.QObject):
 
         self.clipboard_contents = None
 
-        self.connect(self.clip_board, QtCore.SIGNAL('dataChanged()'),
+        self.connect(self.clip_board, SIGNAL('dataChanged()'),
                      self.on_data_changed)
 
-        self.connect(self.clip_board, QtCore.SIGNAL('ownerDestroyed()'),
+        self.connect(self.clip_board, SIGNAL('ownerDestroyed()'),
                      self.on_owner_destroyed)
 
     def clear(self):
@@ -111,7 +107,7 @@ class ClipBoard(QtCore.QObject):
         """Set mime_data to clipboard.
         
         Args:
-            mime_data: QtCore.QMimeData 
+            mime_data: QMimeData 
         """
         if not settings.get_disconnect():
             logging.debug(str(self.mode))

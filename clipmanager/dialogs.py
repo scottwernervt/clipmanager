@@ -38,10 +38,7 @@ def _check_state(state):
     Returns:
         Qt.Checked/Qt.Unchecked
     """
-    if state:
-        return Qt.Checked
-    else:
-        return Qt.Unchecked
+    return Qt.Checked if state else Qt.Unchecked
 
 
 class PreviewDialog(QDialog):

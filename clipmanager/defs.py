@@ -1,6 +1,7 @@
-import sys
+import os
 
-from PySide import QtCore, QtGui
+from PySide.QtCore import QCoreApplication, QDir, QFile
+from PySide.QtGui import QDesktopServices
 
 from clipmanager import __version__
 
@@ -12,22 +13,22 @@ APP_AUTHOR = 'Scott Werner'
 APP_EMAIL = 'scott.werner.vt@gmail.com'
 APP_DESCRIPTION = """Manage the system's clipboard history."""
 
-QtCore.QCoreApplication.setOrganizationName(APP_ORG)
-QtCore.QCoreApplication.setApplicationName(APP_NAME)
-QtCore.QCoreApplication.setApplicationVersion(APP_VERSION)
-QtCore.QCoreApplication.setOrganizationDomain(APP_DOMAIN)
+QCoreApplication.setOrganizationName(APP_ORG)
+QCoreApplication.setApplicationName(APP_NAME)
+QCoreApplication.setApplicationVersion(APP_VERSION)
+QCoreApplication.setOrganizationDomain(APP_DOMAIN)
 
 # Create storage directory based on OS
 # Windows
 #   XP: C:\Documents and Settings\<username>\Local Settings\Application Data\
 #   7/8: C:\Users\<username>\AppData\Local\Werner\ClipManager
 # Linux: /home/<username>/.local/share/data/Werner/ClipManager
-STORAGE_PATH = QtGui.QDesktopServices.storageLocation(
-    QtGui.QDesktopServices.DataLocation)
+STORAGE_PATH = QDesktopServices.storageLocation(QDesktopServices.DataLocation)
 if not STORAGE_PATH:
-    STORAGE_PATH = QtCore.QDir.homePath() + '/.' + QtCore.QCoreApplication.applicationName()
-if not QtCore.QFile.exists(STORAGE_PATH):
-    directory = QtCore.QDir()
+    STORAGE_PATH = QDir.homePath() + '/.' + QCoreApplication.applicationName()
+
+if not QFile.exists(STORAGE_PATH):
+    directory = QDir()
     directory.mkpath(STORAGE_PATH)
 
 # Database columns set as integers
@@ -46,5 +47,5 @@ MIME_REFERENCES = [
     # 'application/x-qt-image'
 ]
 
-if sys.platform.startswith('linux'):
+if os.name == 'posix':
     MIME_REFERENCES.extend(['x-special/gnome-copied-files'])
