@@ -64,8 +64,8 @@ def get_win32_owner():
 
     for window_hwnd, window_title in window_titles:
         print(window_hwnd + '|' + window_title)
-        if window_hwnd == owner_hwnd:
-            print('we got a match')
+        # if window_hwnd == owner_hwnd:
+        #     print('we got a match')
 
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
