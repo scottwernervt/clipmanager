@@ -97,7 +97,7 @@ def get_x11_owner():
     window_name = window.get('name', '')
     if window_name:
         application_name = window_name.split('-')[-1].strip()
-        owner_names.append(application_name)
+        owner_names.extend([window_name, application_name])
 
     binary_path = readlink_binary(window['pid'])
     binary_name = os.path.basename(binary_path.strip())
