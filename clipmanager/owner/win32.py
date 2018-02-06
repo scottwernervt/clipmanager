@@ -26,12 +26,12 @@ def get_win32_owner():
     owner_names = []
 
     # HWND WINAPI GetClipboardOwner(void);
-    owner_handle = windll.user32.GetClipboardOwner()
+    owner_hwnd = windll.user32.GetClipboardOwner()
 
     # int WINAPI GetWindowTextLength(
     #   _In_ HWND hWnd
     # );
-    length = windll.user32.GetWindowTextLengthW(owner_handle)
+    length = windll.user32.GetWindowTextLengthW(owner_hwnd)
     buff = create_unicode_buffer(length + 1)
 
     # int WINAPI GetWindowText(
@@ -39,28 +39,27 @@ def get_win32_owner():
     #   _Out_ LPTSTR lpString,
     #   _In_  int    nMaxCount
     # );
-    windll.user32.GetWindowTextW(owner_handle, buff, length + 1)
+    windll.user32.GetWindowTextW(owner_hwnd, buff, length + 1)
 
     # Get window title
-    logger.info(buff.value)
     if buff.value:
         window_title = buff.value.split('-')[-1].strip()
-        owner_names.append(window_title)
+        owner_names.extend([buff.value, window_title])
 
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
     #   _Out_opt_  LPDWORD lpdwProcessId
     # );
-    _, owner_pid = GetWindowThreadProcessId(owner_handle)
+    _, owner_process_id = GetWindowThreadProcessId(owner_hwnd)
 
     # HANDLE WINAPI OpenProcess(
     #   _In_  DWORD dwDesiredAccess,
     #   _In_  BOOL bInheritHandle,
     #   _In_  DWORD dwProcessId
     # );
-    pid_handle = windll.kernel32.OpenProcess(PROCESS_TERMINATE |
-                                             PROCESS_QUERY_INFORMATION, False,
-                                             owner_pid)
+    h_process = windll.kernel32.OpenProcess(PROCESS_TERMINATE |
+                                            PROCESS_QUERY_INFORMATION, False,
+                                            owner_process_id)
 
     ImageFileName = (c_char * MAX_PATH)()
 
@@ -70,7 +69,7 @@ def get_win32_owner():
         #   _Out_  LPTSTR lpImageFileName,
         #   _In_   DWORD nSize
         # );
-        if windll.psapi.GetProcessImageFileNameA(pid_handle, ImageFileName,
+        if windll.psapi.GetProcessImageFileNameA(h_process, ImageFileName,
                                                  MAX_PATH) > 0:
             binary_name = os.path.basename(ImageFileName.value)
             if binary_name:
@@ -81,6 +80,6 @@ def get_win32_owner():
     # BOOL WINAPI CloseHandle(
     #   _In_  HANDLE hObject
     # );
-    windll.kernel32.CloseHandle(pid_handle)
+    windll.kernel32.CloseHandle(h_process)
 
     return owner_names
