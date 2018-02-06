@@ -43,41 +43,31 @@ def get_win32_owner():
 
     window_titles = []
 
-    titles = []
-
     def foreach_window(hwnd, lParam):
+        # int WINAPI GetWindowTextLength(
+        #   _In_ HWND hWnd
+        # );
         length = GetWindowTextLength(hwnd)
         buff = create_unicode_buffer(length + 1)
+
+        # int WINAPI GetWindowText(
+        #   _In_  HWND   hWnd,
+        #   _Out_ LPTSTR lpString,
+        #   _In_  int    nMaxCount
+        # );
         GetWindowText(hwnd, buff, length + 1)
-        titles.append(buff.value)
+
+        if buff.value:
+            window_titles.append((hwnd, buff.value))
 
     EnumWindows(EnumWindowsProc(foreach_window), 0)
 
-    print(titles)
+    print(window_titles)
 
-    # def foreach_window(hwnd, lParam):
-    #     # int WINAPI GetWindowTextLength(
-    #     #   _In_ HWND hWnd
-    #     # );
-    #     length = GetWindowTextLength(hwnd)
-    #     buff = create_unicode_buffer(length + 1)
-    #
-    #     # int WINAPI GetWindowText(
-    #     #   _In_  HWND   hWnd,
-    #     #   _Out_ LPTSTR lpString,
-    #     #   _In_  int    nMaxCount
-    #     # );
-    #     GetWindowText(hwnd, buff, length + 1)
-    #
-    #     if buff.value:
-    #         owner_names.append((hwnd, buff.value))
-    #
-    # EnumWindows(EnumWindowsProc(foreach_window), 0)
-    #
-    # for window_hwnd, window_title in window_titles:
-    #     logger.info(window_hwnd + '|' + window_title)
-    #     if window_hwnd == owner_hwnd:
-    #         logger.info('we got a match')
+    for window_hwnd, window_title in window_titles:
+        logger.info(window_hwnd + '|' + window_title)
+        if window_hwnd == owner_hwnd:
+            logger.info('we got a match')
 
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
