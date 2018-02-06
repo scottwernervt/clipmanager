@@ -1,43 +1,56 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import datetime
 import logging
 import sys
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide.QtCore import (
+    QByteArray,
+    QDateTime,
+    QMimeData,
+    QModelIndex,
+    Qt,
+    SIGNAL,
+    Slot,
+)
+from PySide.QtGui import (
+    QCursor,
+    QDesktopWidget,
+    QGridLayout,
+    QIcon,
+    QItemSelectionModel,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QSystemTrayIcon,
+    QWidget,
+)
 
-import clipboards
-import database
-import dialogs
-import model
-import searchbox
-import systemtray
-import utils
-import view
-from clipmanager import hotkey
-from defs import APP_NAME
-from defs import CHECKSUM
-from defs import DATE
-from defs import ID
-from defs import MIME_REFERENCES
-from defs import STORAGE_PATH
-from defs import TITLESHORT
-from settings import settings
-
-# Platform dependent package.modules: paste and global hot key binder
-if sys.platform.startswith('win32'):
-    import paste.win32 as paste
-elif sys.platform.startswith('linux'):
-    import paste.linux as paste
-else:
-    logging.warn('Cannot paste to platform: %s' % sys.platform)
+from clipmanager import (
+    clipboards,
+    database,
+    dialogs,
+    hotkey,
+    model,
+    paste,
+    searchbox,
+    systemtray,
+    utils,
+    view,
+)
+from clipmanager.defs import (
+    APP_NAME,
+    CHECKSUM,
+    DATE,
+    ID,
+    MIME_REFERENCES,
+    STORAGE_PATH,
+    TITLESHORT,
+)
+from clipmanager.settings import settings
 
 logging.getLogger(__name__)
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QMainWindow):
     """Main window container for main widget.
     """
 
@@ -52,12 +65,12 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(
-            QtGui.QIcon(utils.resource_filename('icons/clipmanager.ico')))
+            QIcon(utils.resource_filename('icons/clipmanager.ico')))
 
         # Remove minimize and maximize buttons from window title
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint |
-                            QtCore.Qt.CustomizeWindowHint |
-                            QtCore.Qt.WindowCloseButtonHint)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint |
+                            Qt.CustomizeWindowHint |
+                            Qt.WindowCloseButtonHint)
 
         # Connect to database and create tables
         self.db = database.create_connection(STORAGE_PATH)
@@ -68,10 +81,10 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.main_widget)
 
         # Create system tray icon
-        if not QtGui.QSystemTrayIcon.isSystemTrayAvailable():
+        if not QSystemTrayIcon.isSystemTrayAvailable():
             logging.warn('cannot find a system tray.')
-            QtGui.QMessageBox.warning(self, 'System Tray',
-                                      'Cannot find a system tray.')
+            QMessageBox.warning(self, 'System Tray',
+                                'Cannot find a system tray.')
 
         self.tray_icon = systemtray.SystemTrayIcon(self)
         self.tray_icon.activated.connect(self._on_icon_activated)
@@ -79,17 +92,21 @@ class MainWindow(QtGui.QMainWindow):
 
         # Return OS specific global hot key binder and set it
         self._hotkey = hotkey.initialize()
+        self._paste = paste.initialize()
 
         # Toggle window from system tray right click menu
-        self.connect(self.tray_icon, QtCore.SIGNAL('toggle-window()'),
+        self.connect(self.tray_icon, SIGNAL('toggle-window()'),
                      self._on_toggle_window)
 
         # Open settings dialog from right click menu on system tray and view
-        self.connect(self.tray_icon, QtCore.SIGNAL('open-settings()'),
+        self.connect(self.tray_icon, SIGNAL('open-settings()'),
                      self._on_open_settings)
 
-        self.connect(self.main_widget, QtCore.SIGNAL('open-settings()'),
+        self.connect(self.main_widget, SIGNAL('open-settings()'),
                      self._on_open_settings)
+
+        self.connect(self.main_widget, SIGNAL('pasteAction()'),
+                     self._paste)
 
         # Show window
         if not minimize:
@@ -104,7 +121,7 @@ class MainWindow(QtGui.QMainWindow):
         click menu on system tray icon or view widget.
 
         Args:
-            event (QtGui.QCloseEvent): Close event from OS requested exit like 
+            event (QCloseEvent): Close event from OS requested exit like 
                 ALT+F4, clicking X on window title bar, etc. 
         """
         event.ignore()
@@ -133,7 +150,7 @@ class MainWindow(QtGui.QMainWindow):
         self.main_widget.model_main.submitAll()
         self.db.close()
 
-    @QtCore.Slot(QtGui.QSystemTrayIcon.ActivationReason)
+    @Slot(QSystemTrayIcon.ActivationReason)
     def _on_icon_activated(self, reason):
         """Bring main window to front if system tray clicked.
    
@@ -141,15 +158,15 @@ class MainWindow(QtGui.QMainWindow):
             reason (QSystemTrayIcon.ActivationReason.Trigger): Clicked and 
                 double clicked.
         """
-        if reason in (QtGui.QSystemTrayIcon.Trigger,
-                      QtGui.QSystemTrayIcon.DoubleClick):
+        if reason in (QSystemTrayIcon.Trigger,
+                      QSystemTrayIcon.DoubleClick):
             if self.isVisible():
                 self.show()  # Open window
                 self.activateWindow()  # Bring to front
             else:
                 self._on_toggle_window()
 
-    @QtCore.Slot()
+    @Slot()
     def _on_open_settings(self):
         """Open settings dialog.
 
@@ -165,7 +182,7 @@ class MainWindow(QtGui.QMainWindow):
         settings_dialog = dialogs.SettingsDialog(self)
         settings_dialog.exec_()
 
-        self.setCursor(QtCore.Qt.BusyCursor)
+        self.setCursor(Qt.BusyCursor)
 
         # Attempt to set new hot key
         self.register_hot_key()
@@ -177,7 +194,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.unsetCursor()
 
-    @QtCore.Slot()
+    @Slot()
     def _on_toggle_window(self):
         """Toggle the main window visibility.
 
@@ -199,8 +216,8 @@ class MainWindow(QtGui.QMainWindow):
             self.hide()
         else:
             # Desktop number based on cursor
-            desktop = QtGui.QDesktopWidget()
-            current_screen = desktop.screenNumber(QtGui.QCursor().pos())
+            desktop = QDesktopWidget()
+            current_screen = desktop.screenNumber(QCursor().pos())
             logging.debug('Screen #=%s' % current_screen)
 
             # Determine global coordinates by summing screen(s) coordinates
@@ -232,8 +249,8 @@ class MainWindow(QtGui.QMainWindow):
 
             # 0: At mouse cursor
             else:
-                x = QtGui.QCursor().pos().x()
-                y = QtGui.QCursor().pos().y()
+                x = QCursor().pos().x()
+                y = QCursor().pos().y()
                 logging.debug('CursorCoords=(%d,%d)' % (x, y))
 
             # Readjust window's position if it will be off screen
@@ -263,6 +280,10 @@ class MainWindow(QtGui.QMainWindow):
             self.activateWindow()  # Bring to front
             self.main_widget.check_selection()
 
+    @Slot()
+    def paste_action(self):
+        self._paste()
+
     def register_hot_key(self):
         """Helper function to bind global hot key to OS specific binder class.
 
@@ -278,11 +299,11 @@ class MainWindow(QtGui.QMainWindow):
             title = 'Global Hot Key'
             message = 'Failed to bind global hot key %s.' % hotkey
             self.tray_icon.showMessage(title, message,
-                                       icon=QtGui.QSystemTrayIcon.Warning,
+                                       icon=QSystemTrayIcon.Warning,
                                        msecs=10000)
 
 
-class MainWidget(QtGui.QWidget):
+class MainWidget(QWidget):
     """Main widget container for main window."""
 
     def __init__(self, parent=None):
@@ -302,11 +323,11 @@ class MainWidget(QtGui.QWidget):
         self.proxy_main = searchbox.SearchFilterProxyModel(self)
         self.proxy_main.setSourceModel(self.model_main)
 
-        # self.proxy_main = QtGui.QSortFilterProxyModel(self)
+        # self.proxy_main = QSortFilterProxyModel(self)
         # self.proxy_main.setFilterKeyColumn(TITLEFULL)
         # self.proxy_main.setSourceModel(self.model_main)
         # self.proxy_main.setDynamicSortFilter(True)
-        # self.proxy_main.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        # self.proxy_main.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
         self.view_main.setModel(self.proxy_main)
         self.view_main.setModelColumn(TITLESHORT)
@@ -314,55 +335,55 @@ class MainWidget(QtGui.QWidget):
         # Pass view and proxy pointers to search box class
         self.search_box = searchbox.SearchBox(self.view_main, self.proxy_main)
 
-        settings_button = QtGui.QPushButton(self)
-        settings_button.setIcon(QtGui.QIcon.fromTheme('emblem-system',
-                                                      QtGui.QIcon(
-                                                          utils.resource_filename(
-                                                              'icons/settings.png')
-                                                      )))
+        settings_button = QPushButton(self)
+        settings_button.setIcon(QIcon.fromTheme('emblem-system',
+                                                QIcon(
+                                                    utils.resource_filename(
+                                                        'icons/settings.png')
+                                                )))
         settings_button.setToolTip('Settings...')
 
         # Create layout
-        layout = QtGui.QGridLayout(self)
+        layout = QGridLayout(self)
         layout.addWidget(self.search_box, 0, 0)
         layout.addWidget(settings_button, 0, 1)
         layout.addWidget(self.view_main, 1, 0, 1, 2)
         self.setLayout(layout)
 
         # Set clipboard contents if return pressed or from right click menu
-        self.connect(self.search_box, QtCore.SIGNAL('returnPressed()'),
+        self.connect(self.search_box, SIGNAL('returnPressed()'),
                      self.on_set_clipboard)
 
         # Search proxy model
-        self.connect(self.search_box, QtCore.SIGNAL('textChanged(QString)'),
+        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
                      self.proxy_main.setFilterFixedString)
 
         # Check selection in view during search
-        self.connect(self.search_box, QtCore.SIGNAL('textChanged(QString)'),
+        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
                      self.check_selection)
 
         # Set clipboard data from signal by view
-        self.connect(self.view_main, QtCore.SIGNAL('set-clipboard()'),
+        self.connect(self.view_main, SIGNAL('set-clipboard()'),
                      self.on_set_clipboard)
 
         # Open settings dialog from button next to search box
-        self.connect(settings_button, QtCore.SIGNAL('clicked()'),
+        self.connect(settings_button, SIGNAL('clicked()'),
                      self._emit_open_settings)
 
         # Open settings dialog from right click menu of the view
-        self.connect(self.view_main, QtCore.SIGNAL('open-settings()'),
+        self.connect(self.view_main, SIGNAL('open-settings()'),
                      self._emit_open_settings)
 
         # Show preview of selected item in view
         self.connect(self.view_main,
-                     QtCore.SIGNAL('open-preview(QModelIndex)'),
+                     SIGNAL('open-preview(QModelIndex)'),
                      self._on_open_preview)
 
         # Clipboard dataChanged() emits to append new item to model->view
         self.connect(self.clipboard_monitor,
-                     QtCore.SIGNAL('new-item(QMimeData)'), self._on_new_item)
+                     SIGNAL('new-item(QMimeData)'), self._on_new_item)
 
-    @QtCore.Slot(str)
+    @Slot(str)
     def check_selection(self, text=None):
         """Prevents selection from disappearing during proxy filter.
 
@@ -374,15 +395,15 @@ class MainWidget(QtGui.QWidget):
 
         if not indexes:
             index = self.proxy_main.index(0, TITLESHORT)
-            selection_model.select(index, QtGui.QItemSelectionModel.Select)
+            selection_model.select(index, QItemSelectionModel.Select)
             selection_model.setCurrentIndex(index,
-                                            QtGui.QItemSelectionModel.Select)
+                                            QItemSelectionModel.Select)
 
-    @QtCore.Slot()
+    @Slot()
     def _emit_open_settings(self):
         """Emit signal to open settings dialog.
         """
-        self.emit(QtCore.SIGNAL('open-settings()'))
+        self.emit(SIGNAL('open-settings()'))
 
     def _duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
@@ -410,7 +431,7 @@ class MainWidget(QtGui.QWidget):
                 logging.debug('%s == %s' % (checksum, checksum_source))
 
                 self.model_main.setData(self.model_main.index(row, DATE),
-                                        QtCore.QDateTime.currentMSecsSinceEpoch())
+                                        QDateTime.currentMSecsSinceEpoch())
                 self.model_main.submitAll()
                 logging.info(True)
                 return True
@@ -419,7 +440,7 @@ class MainWidget(QtGui.QWidget):
 
         return False
 
-    @QtCore.Slot(QtCore.QMimeData)
+    @Slot(QMimeData)
     def _on_new_item(self, mime_data):
         """Append new clipboard contents to database.
 
@@ -478,7 +499,7 @@ class MainWidget(QtGui.QWidget):
         title_short = utils.remove_extra_lines(text=title_short,
                                                line_count=settings.get_lines_to_display())
 
-        date = QtCore.QDateTime.currentMSecsSinceEpoch()
+        date = QDateTime.currentMSecsSinceEpoch()
 
         parent_id = database.insert_main(date=date,
                                          titleshort=title_short,
@@ -492,14 +513,14 @@ class MainWidget(QtGui.QWidget):
 
         # Highlight top item and then insert mime data
         self.model_main.select()  # Update view
-        index = QtCore.QModelIndex(self.view_main.model().index(0, TITLESHORT))
+        index = QModelIndex(self.view_main.model().index(0, TITLESHORT))
         self.view_main.setCurrentIndex(index)
 
         # Convert mime data based on format to ByteArray
         data_insert = []
         for format in MIME_REFERENCES:
             if mime_data.hasFormat(format):
-                byte_data = QtCore.QByteArray(mime_data.data(format))
+                byte_data = QByteArray(mime_data.data(format))
                 data_insert.append([format, byte_data])
 
         for format, __ in data_insert:
@@ -586,7 +607,7 @@ class MainWidget(QtGui.QWidget):
 
             self.model_main.submitAll()
 
-    @QtCore.Slot(QtCore.QModelIndex)
+    @Slot(QModelIndex)
     def _on_open_preview(self, index):
         """Open preview dialog of selected item.
 
@@ -608,7 +629,7 @@ class MainWidget(QtGui.QWidget):
         mime_list = database.get_mime(parent_id)
 
         # Create QMimeData object based on formats and byte data
-        mime_data = QtCore.QMimeData()
+        mime_data = QMimeData()
         for format, byte_data in mime_list:
             mime_data.setData(format, byte_data)
 
@@ -617,7 +638,7 @@ class MainWidget(QtGui.QWidget):
         preview_dialog.setup_ui(mime_data)
         preview_dialog.exec_()
 
-    @QtCore.Slot()
+    @Slot()
     def on_set_clipboard(self):
         """Set clipboard contents from list selection.
         
@@ -642,13 +663,12 @@ class MainWidget(QtGui.QWidget):
         # Get parent ID by creating a new index for data
         model_index = self.model_main.index(source_index.row(), ID)
         parent_id = self.model_main.data(model_index)
-        logging.debug('ParentID: %s' % parent_id)
 
         # Find all childs relating to parent_id
         mime_list = database.get_mime(parent_id)
 
         # Create QMimeData object based on formats and byte data
-        mime_data = QtCore.QMimeData()
+        mime_data = QMimeData()
         for format, byte_data in mime_list:
             mime_data.setData(format, byte_data)
 
@@ -657,9 +677,9 @@ class MainWidget(QtGui.QWidget):
 
         # Send Ctrl+V key stroke (paste) to foreground window
         if settings.get_send_paste():
-            paste.send_event()
+            self.emit(SIGNAL('pasteAction()'))
 
         # Update the date column in source
         self.model_main.setData(self.model_main.index(model_index.row(), DATE),
-                                QtCore.QDateTime.currentMSecsSinceEpoch())
+                                QDateTime.currentMSecsSinceEpoch())
         self.model_main.submitAll()
