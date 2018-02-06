@@ -7,9 +7,8 @@ from PySide.QtGui import QApplication
 import qspysignal
 from clipmanager.clipboards import (
     ClipboardManager,
-    win32_owner,
-    x11_owner,
 )
+from clipmanager import owner
 
 try:
     app = QApplication(sys.argv)
@@ -91,11 +90,6 @@ class TestClipBoardManager(object):
 
     def test_clipboard_owner(self):
         """Can we find the owner of the clipboard?"""
-        if os.name == 'nt':
-            proc_name = win32_owner()
-        elif os.name == 'posix':
-            proc_name = x11_owner()
-        else:
-            proc_name = None
-
-        assert len(proc_name) > 0
+        window_owner = owner.initialize()
+        window_names = window_owner()
+        assert len(window_names) > 0
