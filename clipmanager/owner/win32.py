@@ -1,6 +1,6 @@
 import logging
 import os
-from ctypes import c_char, windll
+from ctypes import c_char, create_unicode_buffer, windll
 
 from win32process import GetWindowThreadProcessId
 
@@ -12,22 +12,40 @@ PROCESS_QUERY_INFORMATION = 0x0400
 
 
 def get_win32_owner():
-    """Return the clipboard owner process name.
+    """Get clipboard owner window details.
 
-    Determines the process exe by determining the PID of the Window's Clipboard
-    owner.
+    Sources:
+    https://sjohannes.wordpress.com/2012/03/23/win32-python-getting-all-window-titles/
+    http://nullege.com/codes/show/src%40w%40i%40winappdbg-1.4%40winappdbg%40system.py/5058/win32.GetProcessImageFileName/python
+    http://stackoverflow.com/questions/6980246/how-can-i-find-a-process-by-name-and-kill-using-ctypes
+    http://msdn.microsoft.com/en-us/library/windows/desktop/ms648709(v=vs.85).aspx
 
-    Returns:
-        name (str): process name, i.e. KeyPass.exe
-        name (None): no process owner found
-
-    Source:
-        http://nullege.com/codes/show/src%40w%40i%40winappdbg-1.4%40winappdbg%40system.py/5058/win32.GetProcessImageFileName/python
-        http://stackoverflow.com/questions/6980246/how-can-i-find-a-process-by-name-and-kill-using-ctypes
-        http://msdn.microsoft.com/en-us/library/windows/desktop/ms648709(v=vs.85).aspx
+    :return: List of clipboard owner's binary name and window titles/classes.
+    :rtype: list[str]
     """
+    owner_names = []
+
     # HWND WINAPI GetClipboardOwner(void);
     owner_handle = windll.user32.GetClipboardOwner()
+
+    # int WINAPI GetWindowTextLength(
+    #   _In_ HWND hWnd
+    # );
+    length = windll.user32.GetWindowTextLengthW(owner_handle)
+    buff = create_unicode_buffer(length + 1)
+
+    # int WINAPI GetWindowText(
+    #   _In_  HWND   hWnd,
+    #   _Out_ LPTSTR lpString,
+    #   _In_  int    nMaxCount
+    # );
+    windll.user32.GetWindowTextW(owner_handle, buff, length + 1)
+
+    # Get window title
+    logger.info(buff.value)
+    if buff.value:
+        window_title = buff.value.split('-')[-1].strip()
+        owner_names.append(window_title)
 
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
@@ -45,6 +63,7 @@ def get_win32_owner():
                                              owner_pid)
 
     ImageFileName = (c_char * MAX_PATH)()
+
     try:
         # DWORD WINAPI GetProcessImageFileName(
         #   _In_   HANDLE hProcess,
@@ -53,17 +72,15 @@ def get_win32_owner():
         # );
         if windll.psapi.GetProcessImageFileNameA(pid_handle, ImageFileName,
                                                  MAX_PATH) > 0:
-            name = os.path.basename(ImageFileName.value)
-        else:
-            name = None
+            binary_name = os.path.basename(ImageFileName.value)
+            if binary_name:
+                owner_names.append(binary_name)
     except (AttributeError, WindowsError) as err:
         logger.exception(err)
-        name = None
 
     # BOOL WINAPI CloseHandle(
     #   _In_  HANDLE hObject
     # );
     windll.kernel32.CloseHandle(pid_handle)
 
-    logger.debug(name)
-    return name
+    return owner_names
