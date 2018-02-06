@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
 
         self.hide()
 
-    def clean_up(self):
+    def destroy(self):
         """Perform actions before exiting the application.
 
         Following actions are performed before exit: unbind global hot key, 
