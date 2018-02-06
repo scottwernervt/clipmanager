@@ -24,7 +24,7 @@ from PySide.QtGui import (
 )
 
 from clipmanager import (
-    clipboards,
+    clipboard,
     database,
     dialogs,
     hotkey,
@@ -318,7 +318,7 @@ class MainWidget(QWidget):
         # Ignore clipboard change when user sets item to clipboard
         self.ignore_created = False
 
-        self.clipboard_manager = clipboards.ClipboardManager(self)
+        self.clipboard_manager = clipboard.ClipboardManager(self)
         self.window_owner = owner.initialize()
 
         # Create view, model, and proxy

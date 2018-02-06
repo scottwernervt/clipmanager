@@ -5,7 +5,7 @@ from PySide.QtCore import QMimeData, SIGNAL
 from PySide.QtGui import QApplication
 
 import qspysignal
-from clipmanager.clipboards import (
+from clipmanager.clipboard import (
     ClipboardManager,
 )
 from clipmanager import owner
