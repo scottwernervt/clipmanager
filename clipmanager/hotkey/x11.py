@@ -5,8 +5,7 @@ License: GNU General Public License v3.0
 
 from PySide.QtCore import QObject, QThread, QTimer, Qt, Signal
 from PySide.QtGui import QApplication, QKeySequence
-from Xlib import X
-from Xlib import XK
+from Xlib import X, XK
 from Xlib.display import Display
 from Xlib.ext import record
 from Xlib.protocol import rq
@@ -118,7 +117,8 @@ class GlobalHotkeyManagerX11(GlobalHotkeyManagerBase):
         return False
 
     def _native_modifiers(self, modifiers):
-        # ShiftMask, LockMask, ControlMask, Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, and Mod5Mask
+        # ShiftMask, LockMask, ControlMask, Mod1Mask, Mod2Mask, Mod3Mask,
+        # Mod4Mask, and Mod5Mask
         native = 0
         modifiers = int(modifiers)
 
