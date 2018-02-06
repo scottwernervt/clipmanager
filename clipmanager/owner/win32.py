@@ -1,6 +1,14 @@
 import logging
 import os
-from ctypes import c_char, create_unicode_buffer, windll
+from ctypes import (
+    POINTER,
+    WINFUNCTYPE,
+    c_bool,
+    c_char,
+    c_int,
+    create_unicode_buffer,
+    windll,
+)
 
 from win32process import GetWindowThreadProcessId
 
@@ -9,6 +17,11 @@ logger = logging.getLogger(__name__)
 MAX_PATH = 260
 PROCESS_TERMINATE = 0x0001
 PROCESS_QUERY_INFORMATION = 0x0400
+
+EnumWindows = windll.user32.EnumWindows
+EnumWindowsProc = WINFUNCTYPE(c_bool, POINTER(c_int), POINTER(c_int))
+GetWindowText = windll.user32.GetWindowTextW
+GetWindowTextLength = windll.user32.GetWindowTextLengthW
 
 
 def get_win32_owner():
@@ -28,23 +41,31 @@ def get_win32_owner():
     # HWND WINAPI GetClipboardOwner(void);
     owner_hwnd = windll.user32.GetClipboardOwner()
 
-    # int WINAPI GetWindowTextLength(
-    #   _In_ HWND hWnd
-    # );
-    length = windll.user32.GetWindowTextLengthW(owner_hwnd)
-    buff = create_unicode_buffer(length + 1)
+    window_titles = []
 
-    # int WINAPI GetWindowText(
-    #   _In_  HWND   hWnd,
-    #   _Out_ LPTSTR lpString,
-    #   _In_  int    nMaxCount
-    # );
-    windll.user32.GetWindowTextW(owner_hwnd, buff, length + 1)
+    def foreach_window(hwnd, lParam):
+        # int WINAPI GetWindowTextLength(
+        #   _In_ HWND hWnd
+        # );
+        length = GetWindowTextLength(hwnd)
+        buff = create_unicode_buffer(length + 1)
 
-    # Get window title
-    if buff.value:
-        window_title = buff.value.split('-')[-1].strip()
-        owner_names.extend([buff.value, window_title])
+        # int WINAPI GetWindowText(
+        #   _In_  HWND   hWnd,
+        #   _Out_ LPTSTR lpString,
+        #   _In_  int    nMaxCount
+        # );
+        GetWindowText(hwnd, buff, length + 1)
+
+        if buff.value:
+            owner_names.append((hwnd, buff.value))
+
+    EnumWindows(EnumWindowsProc(foreach_window), 0)
+
+    for window_hwnd, window_title in window_titles:
+        logging.info(window_hwnd + '|' + window_title)
+        if window_hwnd == owner_hwnd:
+            logging.info('we got a match')
 
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
