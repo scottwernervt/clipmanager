@@ -202,9 +202,6 @@ class Clipboard(QObject):
 
     :param mode:
     :type mode: QClipboard.Mode.Clipboard
-
-    :param parent: Clipboard manager.
-    :type parent: ClipboardManager
     """
 
     def __init__(self, clipboard, new_item_callback, mode):
