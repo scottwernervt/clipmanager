@@ -1,86 +1,101 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os
-import pytest
 import sys
-from PySide import QtCore
-from PySide import QtGui
-from PySide import QtTest
 
-sys.path.append('..')
-from clipmanager import clipboards
+from PySide.QtCore import QMimeData, SIGNAL
+from PySide.QtGui import QApplication
+
 import qspysignal
+from clipmanager.clipboards import (
+    ClipboardManager,
+    win32_owner,
+    x11_owner,
+)
 
-# Initialize qApp
 try:
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
 except RuntimeError:
     pass
 
 
-class TestClipBoards(object):
+def text_mime_data():
+    data = QMimeData()
+    data.setText('text')
+    return data
+
+
+def html_mime_data():
+    data = QMimeData()
+    data.setHtml('<h1>text</h1>')
+    return data
+
+
+class TestClipBoardManager(object):
 
     def setup_class(self):
-        self.cb = clipboards.ClipBoards()
-
-        self.mime_data = QtCore.QMimeData()
-        self.text = 'hi'
-        self.mime_data = QtCore.QMimeData()
-        self.mime_data.setHtml('<b>' + self.text + '</b>')
-        self.mime_data.setText('hi')
-
+        self.clipboard_manager = ClipboardManager()
         self.connection_box = qspysignal.ConnectionBox()
 
-    def test_emit_set_new_item(self):
-        self.connection_box.connect(self.cb,
-                                    QtCore.SIGNAL('new-item(QMimeData)'),
+        self.html_data = QMimeData()
+        self.html_data.setHtml('<h1>text</h1>')
+
+    def test_emit_new_item(self):
+        self.connection_box.connect(self.clipboard_manager,
+                                    SIGNAL('newItem(QMimeData)'),
                                     self.connection_box.slotSlot)
-        self.cb.emit_new_item(self.mime_data)
+        self.clipboard_manager.emit_new_item(text_mime_data())
 
-        self.connection_box.assertSignalArrived('new-item(QMimeData)')
+        self.connection_box.assertSignalArrived('newItem(QMimeData)')
         self.connection_box.assertNumberOfArguments(1)
-        self.connection_box.assertArgumentTypes(QtCore.QMimeData)
+        self.connection_box.assertArgumentTypes(QMimeData)
 
-    def _set_data(self):
-        """Set QMimeData to clipboard."""
-        self.cb.set_data(self.mime_data)
-
-    def test_get_data(self):
+    def test_set_text(self):
         """Is the data set the same clipboard contents?"""
-        self._set_data()
-        assert self.cb.get_global_clipboard_data() == self.mime_data
+        text = text_mime_data()
+        self.clipboard_manager.set_text(text)
+        mime_data = self.clipboard_manager.get_primary_clipboard_text()
+        assert mime_data.text() == text.text()
 
-    def test_get_data_has_formats(self):
+    def test_set_html(self):
+        """Is the data set the same clipboard contents?"""
+        html = html_mime_data()
+        self.clipboard_manager.set_text(html)
+        mime_data = self.clipboard_manager.get_primary_clipboard_text()
+        assert mime_data.html() == html.html()
+
+    def test_get_text_has_formats(self):
         """Does the clipboard have format(s)?"""
-        mime_data = self.cb.get_global_clipboard_data()
+        text = text_mime_data()
+        self.clipboard_manager.set_text(text)
+        mime_data = self.clipboard_manager.get_primary_clipboard_text()
         assert mime_data.formats()
-    
-    def test_get_data_has_text(self):
+
+    def test_get_text_has_text(self):
         """Does the clipboard have plain text?"""
-        mime_data = self.cb.get_global_clipboard_data()
+        text = text_mime_data()
+        self.clipboard_manager.set_text(text)
+        mime_data = self.clipboard_manager.get_primary_clipboard_text()
         assert mime_data.hasText()
 
-    def test_get_data_has_html(self):
+    def test_get_text_has_html(self):
         """Does the clipboard have html text?"""
-        mime_data = self.cb.get_global_clipboard_data()
+        html = html_mime_data()
+        self.clipboard_manager.set_text(self.html_data)
+        mime_data = self.clipboard_manager.get_primary_clipboard_text()
         assert mime_data.hasHtml()
 
-    def test_get_owner(self):
-        """Is python the owner of the clipboard?"""
-        if sys.platform.startswith('win32'):
-            proc_name = clipboards.get_win32_owner()
-        elif sys.platform.startswith('linux'):
-            proc_name = clipboards.get_x11_owner()
+    def test_clear_text(self):
+        """Does the clipboard contents get deleted?"""
+        self.clipboard_manager.clear_text()
+        mime_data = self.clipboard_manager.get_primary_clipboard_text()
+        assert mime_data.text() == ''
+
+    def test_clipboard_owner(self):
+        """Can we find the owner of the clipboard?"""
+        if os.name == 'nt':
+            proc_name = win32_owner()
+        elif os.name == 'posix':
+            proc_name = x11_owner()
+        else:
+            proc_name = None
 
         assert len(proc_name) > 0
-
-    def test_clear(self):
-        """Does the clipboard contents get deleted?"""
-        self.cb.clear()
-        formats = self.cb.get_global_clipboard_data().formats()
-        assert len(formats) == 0
-
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-vs'])

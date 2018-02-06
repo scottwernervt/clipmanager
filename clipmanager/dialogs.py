@@ -292,7 +292,7 @@ class HotKeyEdit(QLineEdit):
         QLineEdit.__init__(self, *args, **kwargs)
 
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.setToolTip('Press ESC to clear.')
+        self.setToolTip('Press ESC to clear_text.')
 
     def keyPressEvent(self, event):
         """Capture key and modifer presses and insert them as plain text.

@@ -314,7 +314,7 @@ class MainWidget(QWidget):
         self.ignore_created = False
 
         # Monitor clipboards
-        self.clipboard_monitor = clipboards.ClipBoards(self)
+        self.clipboard_manager = clipboards.ClipboardManager(self)
 
         # Create view, model, and proxy
         self.view_main = view.ListView(self)
@@ -380,8 +380,8 @@ class MainWidget(QWidget):
                      self._on_open_preview)
 
         # Clipboard dataChanged() emits to append new item to model->view
-        self.connect(self.clipboard_monitor,
-                     SIGNAL('new-item(QMimeData)'), self._on_new_item)
+        self.connect(self.clipboard_manager,
+                     SIGNAL('newItem(QMimeData)'), self._on_new_item)
 
     @Slot(str)
     def check_selection(self, text=None):
@@ -470,9 +470,9 @@ class MainWidget(QWidget):
         # Check if process that set clipboard is on exclude list
         # TODO: Make class that handles platform dependency
         if sys.platform.startswith('win32'):
-            proc_name = clipboards.get_win32_owner()
+            proc_name = clipboards.win32_owner()
         elif sys.platform.startswith('linux'):
-            proc_name = clipboards.get_x11_owner()
+            proc_name = clipboards.x11_owner()
         else:
             proc_name = None
 
@@ -673,7 +673,7 @@ class MainWidget(QWidget):
             mime_data.setData(format, byte_data)
 
         # Set to clipboard
-        self.clipboard_monitor.set_data(mime_data)
+        self.clipboard_manager.set_text(mime_data)
 
         # Send Ctrl+V key stroke (paste) to foreground window
         if settings.get_send_paste():

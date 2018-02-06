@@ -23,7 +23,7 @@ class TestSettingsDialog(object):
 
     def setup_class(self):
         self.dialog = dialogs.SettingsDialog()
-        self.dialog.key_combo_edit.clear()
+        self.dialog.key_combo_edit.clear_text()
         self.dialog.super_check.setCheckState(QtCore.Qt.Unchecked)
 
     def test_key_combo_edit(self):
@@ -60,7 +60,7 @@ class TestSettingsDialog(object):
         assert (self.dialog.line_count_spin.value() == maximum)
 
     def test_super_checkbox(self):
-        self.dialog.key_combo_edit.clear()
+        self.dialog.key_combo_edit.clear_text()
 
         # Check <SUPER> is appended to 
         self.dialog.super_check.setCheckState(QtCore.Qt.Checked)
@@ -69,20 +69,6 @@ class TestSettingsDialog(object):
         # If unchecked return to stored hot key combo
         self.dialog.super_check.setCheckState(QtCore.Qt.Unchecked)
         assert (self.dialog.key_combo_edit.text() != '')
-
-
-class TestAboutDialog(object):
-
-    def setup_class(self):
-        # self.app = QtGui.QApplication(sys.argv)
-        self.dialog = dialogs.AboutDialog()
-
-    def test_licese_file_exits(self):
-        assert os.path.exists('../clipmanager/license.txt')
-
-    def test_license_textedit(self):
-        assert (len(self.dialog.about_doc.toPlainText()) > 0)
-
 
 class TestPreviewDialog(object):
 
