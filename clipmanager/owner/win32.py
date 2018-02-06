@@ -62,16 +62,19 @@ def get_win32_owner():
 
     EnumWindows(EnumWindowsProc(foreach_window), 0)
 
-    for window_hwnd, window_title in window_titles:
-        print(window_hwnd, window_title)
-        if window_hwnd == owner_hwnd:
-            print('we got a match')
-
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
     #   _Out_opt_  LPDWORD lpdwProcessId
     # );
     _, owner_process_id = GetWindowThreadProcessId(owner_hwnd)
+
+    for window_hwnd, window_title in window_titles:
+        _, window_process_id = GetWindowThreadProcessId(window_hwnd)
+        print(window_process_id, owner_process_id, window_process_id == owner_process_id)
+        if window_process_id == owner_hwnd:
+            print('we got a match')
+
+
 
     # HANDLE WINAPI OpenProcess(
     #   _In_  DWORD dwDesiredAccess,
