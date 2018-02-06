@@ -1,6 +1,5 @@
 import datetime
 import logging
-import sys
 
 from PySide.QtCore import (
     QByteArray,
@@ -30,6 +29,7 @@ from clipmanager import (
     dialogs,
     hotkey,
     model,
+    owner,
     paste,
     searchbox,
     systemtray,
@@ -47,7 +47,7 @@ from clipmanager.defs import (
 )
 from clipmanager.settings import settings
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
 
         # Create system tray icon
         if not QSystemTrayIcon.isSystemTrayAvailable():
-            logging.warn('cannot find a system tray.')
+            logger.warn('cannot find a system tray.')
             QMessageBox.warning(self, 'System Tray',
                                 'Cannot find a system tray.')
 
@@ -218,7 +218,7 @@ class MainWindow(QMainWindow):
             # Desktop number based on cursor
             desktop = QDesktopWidget()
             current_screen = desktop.screenNumber(QCursor().pos())
-            logging.debug('Screen #=%s' % current_screen)
+            logger.debug('Screen #=%s' % current_screen)
 
             # Determine global coordinates by summing screen(s) coordinates
             x_max = 0
@@ -232,26 +232,26 @@ class MainWindow(QMainWindow):
 
             # Minimum x and y screen coordinates
             x_min, y_min, __, __ = desktop.availableGeometry().getCoords()
-            logging.debug('GlobalScreenRect=(%d,%d,%d,%d)' % (x_min, y_min,
-                                                              x_max, y_max))
+            logger.debug('GlobalScreenRect=(%d,%d,%d,%d)' % (x_min, y_min,
+                                                             x_max, y_max))
 
             # 2: System tray
             if settings.get_open_window_at() == 2:
                 x = self.tray_icon.geometry().x()
                 y = self.tray_icon.geometry().y()
-                logging.debug('SystemTrayCoords=(%d,%d)' % (x, y))
+                logger.debug('SystemTrayCoords=(%d,%d)' % (x, y))
 
             # 1: Last position
             elif settings.get_open_window_at() == 1:
                 x = settings.get_window_pos().x()
                 y = settings.get_window_pos().y()
-                logging.debug('LastPositionCoords=(%d,%d)' % (x, y))
+                logger.debug('LastPositionCoords=(%d,%d)' % (x, y))
 
             # 0: At mouse cursor
             else:
                 x = QCursor().pos().x()
                 y = QCursor().pos().y()
-                logging.debug('CursorCoords=(%d,%d)' % (x, y))
+                logger.debug('CursorCoords=(%d,%d)' % (x, y))
 
             # Readjust window's position if it will be off screen
             if x < x_min:
@@ -268,9 +268,9 @@ class MainWindow(QMainWindow):
             if len(self.main_widget.search_box.text()) != 0:
                 self.main_widget.search_box.clear()
 
-            logging.debug('MainWindowCoords=(%d,%d)' % (x, y))
-            logging.debug('MainWindowSize=(%d,%d)' % (win_size.width(),
-                                                      win_size.height()))
+            logger.debug('MainWindowCoords=(%d,%d)' % (x, y))
+            logger.debug('MainWindowSize=(%d,%d)' % (win_size.width(),
+                                                     win_size.height()))
 
             # Reposition and resize the main window
             self.move(x, y)
@@ -313,8 +313,8 @@ class MainWidget(QWidget):
         # Ignore clipboard change when user sets item to clipboard
         self.ignore_created = False
 
-        # Monitor clipboards
         self.clipboard_manager = clipboards.ClipboardManager(self)
+        self.window_owner = owner.initialize()
 
         # Create view, model, and proxy
         self.view_main = view.ListView(self)
@@ -428,15 +428,15 @@ class MainWidget(QWidget):
 
             # Update DATE column if checksums match
             if str(checksum) == str(checksum_source):
-                logging.debug('%s == %s' % (checksum, checksum_source))
+                logger.debug('%s == %s' % (checksum, checksum_source))
 
                 self.model_main.setData(self.model_main.index(row, DATE),
                                         QDateTime.currentMSecsSinceEpoch())
                 self.model_main.submitAll()
-                logging.info(True)
+                logger.info(True)
                 return True
 
-        logging.info(False)
+        logger.info(False)
 
         return False
 
@@ -468,22 +468,13 @@ class MainWidget(QWidget):
             return None
 
         # Check if process that set clipboard is on exclude list
-        # TODO: Make class that handles platform dependency
-        if sys.platform.startswith('win32'):
-            proc_name = clipboards.win32_owner()
-        elif sys.platform.startswith('linux'):
-            proc_name = clipboards.x11_owner()
-        else:
-            proc_name = None
+        window_names = self.window_owner()
+        ignore_list = settings.get_exclude().lower().split(';')
+        if any(i in window_names for i in ignore_list):
+            logger.info('Ignoring copy action in application.')
+            return None
 
-        # Make user entered apps lowercase and into a list
-        if proc_name is not None:
-            ignore_list = settings.get_exclude().lower().split(';')
-            if proc_name.lower() in ignore_list:
-                logging.info('Ignoring clipboard change by %s.' % proc_name)
-                return None
-
-        logging.debug('Clipboard Formats: %s' % str(mime_data.formats()))
+        logger.debug('Clipboard Formats: %s' % str(mime_data.formats()))
 
         checksum = utils.calculate_checksum(mime_data)
         if checksum == None:
@@ -494,7 +485,7 @@ class MainWidget(QWidget):
         text = utils.create_full_title(mime_data)
 
         # title_short used in list row view so clean it up by removing white
-        # space, dedent, and striping uncessary line breaks
+        # space, dedent, and striping unnecessary line breaks
         title_short = utils.clean_up_text(text)
         title_short = utils.remove_extra_lines(text=title_short,
                                                line_count=settings.get_lines_to_display())
@@ -508,7 +499,7 @@ class MainWidget(QWidget):
 
         # Store mime data into database
         if not parent_id:
-            logging.error('Failed to create entry in database.')
+            logger.error('Failed to create entry in database.')
             return None
 
         # Highlight top item and then insert mime data
@@ -524,7 +515,7 @@ class MainWidget(QWidget):
                 data_insert.append([format, byte_data])
 
         for format, __ in data_insert:
-            logging.debug('Format Saved: %s' % format)
+            logger.debug('Format Saved: %s' % format)
 
         # Insert mime data into database
         for format, byte_data in data_insert:
@@ -554,13 +545,13 @@ class MainWidget(QWidget):
         entries.reverse()  # Start from bottom of QListView
 
         for row in entries:
-            logging.debug('Row: %d' % row)
+            logger.debug('Row: %d' % row)
             index = self.model_main.index(row, DATE)
             date = self.model_main.data(index)
-            logging.debug('Date: %s' % date)
+            logger.debug('Date: %s' % date)
 
             if not date:
-                logging.warn('History is empty or date is missing from db!')
+                logger.warn('History is empty or date is missing from db!')
                 break
 
             # Convert from ms to s
@@ -568,7 +559,7 @@ class MainWidget(QWidget):
             today = datetime.datetime.today()
             delta = today - time
 
-            logging.debug('Delta: %d days' % delta.days)
+            logger.debug('Delta: %d days' % delta.days)
             if delta.days > settings.get_expire_value():
                 index = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index)
@@ -576,7 +567,7 @@ class MainWidget(QWidget):
                 database.delete_mime(parent_id)
                 self.model_main.removeRow(row)
             else:
-                logging.debug('Last row not expired, breaking!')
+                logger.debug('Last row not expired, breaking!')
                 break
 
         self.model_main.submitAll()
@@ -590,14 +581,14 @@ class MainWidget(QWidget):
         row_count = self.model_main.rowCount()
         max_entries = settings.get_max_entries_value()
 
-        logging.debug('Row count: %s' % row_count)
-        logging.debug('Max entries: %s' % max_entries)
+        logger.debug('Row count: %s' % row_count)
+        logger.debug('Max entries: %s' % max_entries)
 
         if row_count > max_entries:
             # Delete extra rows
             # self.model_main.removeRows(max_entries, row_count-max_entries)
             for row in range(max_entries, row_count):
-                logging.debug('Row: %d' % row)
+                logger.debug('Row: %d' % row)
 
                 index_id = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index_id)
@@ -623,7 +614,7 @@ class MainWidget(QWidget):
             return None
 
         parent_id = self.model_main.data(index_id)
-        logging.debug('ID: %s' % parent_id)
+        logger.debug('ID: %s' % parent_id)
 
         # Find all childs relating to parent_id
         mime_list = database.get_mime(parent_id)
@@ -669,8 +660,8 @@ class MainWidget(QWidget):
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
-        for format, byte_data in mime_list:
-            mime_data.setData(format, byte_data)
+        for mime_type, byte_data in mime_list:
+            mime_data.setData(mime_type, byte_data)
 
         # Set to clipboard
         self.clipboard_manager.set_text(mime_data)
