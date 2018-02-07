@@ -100,17 +100,17 @@ class MainWindow(QMainWindow):
         self._paste = paste.initialize()
 
         # Toggle window from system tray right click menu
-        self.connect(self.tray_icon, SIGNAL('toggle-window()'),
+        self.connect(self.tray_icon, SIGNAL('toggleWindow()'),
                      self._on_toggle_window)
 
         # Open settings dialog from right click menu on system tray and view
-        self.connect(self.tray_icon, SIGNAL('open-settings()'),
+        self.connect(self.tray_icon, SIGNAL('openSettings()'),
                      self._on_open_settings)
 
-        self.connect(self.main_widget, SIGNAL('open-settings()'),
+        self.connect(self.main_widget, SIGNAL('openSettings()'),
                      self._on_open_settings)
 
-        self.connect(self.main_widget, SIGNAL('pasteAction()'),
+        self.connect(self.main_widget, SIGNAL('pasteClipboard()'),
                      self._paste)
 
         # Show window
@@ -368,7 +368,7 @@ class MainWidget(QWidget):
                      self.check_selection)
 
         # Set clipboard data from signal by view
-        self.connect(self.view_main, SIGNAL('set-clipboard()'),
+        self.connect(self.view_main, SIGNAL('setClipboard()'),
                      self.on_set_clipboard)
 
         # Open settings dialog from button next to search box
@@ -376,12 +376,12 @@ class MainWidget(QWidget):
                      self._emit_open_settings)
 
         # Open settings dialog from right click menu of the view
-        self.connect(self.view_main, SIGNAL('open-settings()'),
+        self.connect(self.view_main, SIGNAL('openSettings()'),
                      self._emit_open_settings)
 
         # Show preview of selected item in view
         self.connect(self.view_main,
-                     SIGNAL('open-preview(QModelIndex)'),
+                     SIGNAL('openPreview(QModelIndex)'),
                      self._on_open_preview)
 
         # Clipboard dataChanged() emits to append new item to model->view
@@ -408,7 +408,7 @@ class MainWidget(QWidget):
     def _emit_open_settings(self):
         """Emit signal to open settings dialog.
         """
-        self.emit(SIGNAL('open-settings()'))
+        self.emit(SIGNAL('openSettings()'))
 
     def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
@@ -651,7 +651,7 @@ class MainWidget(QWidget):
 
         # Send Ctrl+V key stroke (paste) to foreground window
         if settings.get_send_paste():
-            self.emit(SIGNAL('pasteAction()'))
+            self.emit(SIGNAL('pasteClipboard()'))
 
         # Update the date column in source
         self.model_main.setData(

@@ -100,12 +100,12 @@ class SystemTrayIcon(QSystemTrayIcon):
     def _emit_toggle_window(self):
         """Emit signal to toggle the main window.
         """
-        self.emit(SIGNAL('toggle-window()'))
+        self.emit(SIGNAL('toggleWindow()'))
 
     def _emit_open_settings(self):
         """Emit signal to open the settings dialog.
         """
-        self.emit(SIGNAL('open-settings()'))
+        self.emit(SIGNAL('openSettings()'))
 
     def _disconnect(self):
         """Save and change icon for disconnecting from clipboard.

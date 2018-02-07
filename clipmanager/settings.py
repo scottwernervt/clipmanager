@@ -16,7 +16,8 @@ class Settings(QObject):
     """
 
     def __init__(self, parent=None):
-        super(Settings, self).__init__(parent)
+        super(QObject, self).__init__(parent)
+
         self.q_settings = QSettings(APP_ORG, APP_NAME)
 
     def sync(self):
@@ -148,5 +149,4 @@ class Settings(QObject):
         self.q_settings.setValue('expirevalue', int(value))
 
 
-# Return a reference to the class for other modules to use
 settings = Settings()

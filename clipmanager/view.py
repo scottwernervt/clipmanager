@@ -119,7 +119,7 @@ class HistoryListView(QListView):
         :return: None
         :rtype: None
         """
-        self.emit(SIGNAL('open-preview(QModelIndex)'), self.currentIndex())
+        self.emit(SIGNAL('openPreview(QModelIndex)'), self.currentIndex())
 
     @Slot()
     def _emit_open_settings(self):
@@ -128,7 +128,7 @@ class HistoryListView(QListView):
         :return: None
         :rtype: None
         """
-        self.emit(SIGNAL('open-settings()'))
+        self.emit(SIGNAL('openSettings()'))
 
     @Slot()
     def _emit_set_clipboard(self):
@@ -143,7 +143,7 @@ class HistoryListView(QListView):
         """
         # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
         # for __ in indexes:
-        self.emit(SIGNAL('set-clipboard()'))
+        self.emit(SIGNAL('setClipboard()'))
 
     @Slot()
     def _delete_rows(self):
