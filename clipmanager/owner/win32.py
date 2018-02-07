@@ -10,7 +10,7 @@ from ctypes import (
     windll,
 )
 
-from win32gui import GetWindowText
+from win32gui import GetWindowText, EnumWindows
 from win32process import GetWindowThreadProcessId
 
 logger = logging.getLogger(__name__)
@@ -19,10 +19,10 @@ MAX_PATH = 260
 PROCESS_TERMINATE = 0x0001
 PROCESS_QUERY_INFORMATION = 0x0400
 
-EnumWindows = windll.user32.EnumWindows
-EnumWindowsProc = WINFUNCTYPE(c_bool, POINTER(c_int), POINTER(c_int))
-GetWindowText = windll.user32.GetWindowTextW
-GetWindowTextLength = windll.user32.GetWindowTextLengthW
+# EnumWindows = windll.user32.EnumWindows
+# EnumWindowsProc = WINFUNCTYPE(c_bool, POINTER(c_int), POINTER(c_int))
+# GetWindowText = windll.user32.GetWindowTextW
+# GetWindowTextLength = windll.user32.GetWindowTextLengthW
 
 
 def get_hwnds_for_pid(pid):
