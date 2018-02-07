@@ -33,10 +33,10 @@ if not QFile.exists(STORAGE_PATH):
 
 # Database columns set as integers
 ID, TITLE, TITLE_SHORT, CHECKSUM, KEEP, CREATED_AT = range(6)
-ID, PARENT_ID, MIME_FORMAT, DATA = range(4)
+ID, PARENT_ID, MIME_FORMAT, BYTE_DATA = range(4)
 
 # Formats to check and save with from OS clipboard
-MIME_REFERENCES = [
+MIME_SUPPORTED = [
     'text/html',
     'text/html;charset=utf-8',
     'text/plain',
@@ -48,4 +48,4 @@ MIME_REFERENCES = [
 ]
 
 if os.name == 'posix':
-    MIME_REFERENCES.extend(['x-special/gnome-copied-files'])
+    MIME_SUPPORTED.append('x-special/gnome-copied-files')
