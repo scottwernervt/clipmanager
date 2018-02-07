@@ -4,7 +4,7 @@
 import ctypes
 import logging
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # SOURCE: http://stackoverflow.com/questions/13289777/how-can-i-send-keyboard-commands-hold-release-simultanous-with-a-python-script
 SendInput = ctypes.windll.user32.SendInput

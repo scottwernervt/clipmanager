@@ -8,7 +8,7 @@ from clipmanager.dialogs import AboutDialog
 from clipmanager.settings import settings
 from clipmanager.utils import resource_filename
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _disconnect_icon():

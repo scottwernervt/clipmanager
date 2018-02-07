@@ -5,7 +5,7 @@ from PySide.QtSql import QSqlTableModel
 
 from clipmanager.defs import CHECKSUM, DATE, ID, TITLEFULL, TITLESHORT
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MainSqlTableModel(QSqlTableModel):

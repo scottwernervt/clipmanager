@@ -3,7 +3,7 @@ import os
 
 from PySide.QtSql import QSqlDatabase, QSqlQuery
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 _tblMain = """CREATE TABLE IF NOT EXISTS Main(
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,11 +40,11 @@ def create_connection(storage_path):
     db = QSqlDatabase.addDatabase('QSQLITE')
 
     db_path = os.path.join(storage_path, 'contents.db')
-    logging.info(db_path)
+    logger.info(db_path)
     db.setDatabaseName(db_path)
 
     if not db.open():
-        logging.error(db.lastError())
+        logger.error(db.lastError())
         return False
 
     return db
@@ -62,7 +62,7 @@ def create_tables():
     query_main.exec_(_tblMain)
     query_main.finish()
     if query_main.lastError().isValid():
-        logging.error(query_main.lastError().text())
+        logger.error(query_main.lastError().text())
         return False
 
     query_main = QSqlQuery()
@@ -73,7 +73,7 @@ def create_tables():
     query_data.exec_(_tblData)
     query_data.finish()
     if query_data.lastError().isValid():
-        logging.error(query_data.lastError().text())
+        logger.error(query_data.lastError().text())
         return False
 
     return True
@@ -88,7 +88,7 @@ def create_tables():
 
 #     count = query.value(0)
 #     if query.lastError().isValid():
-#         logging.error(query.lastError().text())
+#         logger.error(query.lastError().text())
 #         count = 0
 
 #     return count
@@ -119,10 +119,10 @@ def insert_main(date, titleshort, titlefull, checksum):
     query.exec_()
 
     if query.lastError().isValid():
-        logging.error(query.lastError().text())
+        logger.error(query.lastError().text())
 
     row_id = query.lastInsertId()  # If failed: None
-    logging.info('ID: %s' % row_id)
+    logger.info('ID: %s' % row_id)
 
     query.finish()
 
@@ -153,10 +153,10 @@ def insert_mime(parent_id, format, byte_data):
     query.exec_()
 
     if query.lastError().isValid():
-        logging.error(query.lastError().text())
+        logger.error(query.lastError().text())
 
     row_id = query.lastInsertId()  # If failed: None
-    logging.info('ParentID-ChildID: %s-%s' % (parent_id, row_id))
+    logger.info('ParentID-ChildID: %s-%s' % (parent_id, row_id))
 
     query.finish()
 
@@ -177,14 +177,14 @@ def delete_main(row_id):
     query.exec_()
 
     if query.lastError().isValid():
-        logging.error(query.lastError().text())
+        logger.error(query.lastError().text())
         return False
 
     rows_affected = query.numRowsAffected()
     query.finish()
 
-    logging.info('ID: %s' % row_id)
-    logging.info('Rows: %s' % rows_affected)
+    logger.info('ID: %s' % row_id)
+    logger.info('Rows: %s' % rows_affected)
 
     if rows_affected != 0:
         return True
@@ -204,13 +204,13 @@ def delete_mime(parent_id):
     query.exec_()
 
     if query.lastError().isValid():
-        logging.error(query.lastError().text())
+        logger.error(query.lastError().text())
 
     rows_affected = query.numRowsAffected()
     query.finish()
 
-    logging.info('ID: %s' % parent_id)
-    logging.info('Rows: %s' % rows_affected)
+    logger.info('ID: %s' % parent_id)
+    logger.info('Rows: %s' % rows_affected)
 
     if rows_affected != 0:
         return True
@@ -230,7 +230,7 @@ def get_mime(parent_id):
     Returns:
         mime_list (list): [['text/html','blob'],['text/plain','bytes']]
     """
-    logging.info('ID: %s' % parent_id)
+    logger.info('ID: %s' % parent_id)
 
     query = QSqlQuery()
     query.prepare('SELECT * FROM Data WHERE parentid=:parentid')
@@ -244,7 +244,7 @@ def get_mime(parent_id):
         mime_list.append([mime_format, byte_data])
 
         if query.lastError().isValid():
-            logging.error(query.lastError().text())
+            logger.error(query.lastError().text())
             return None
 
     query.finish()

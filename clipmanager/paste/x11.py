@@ -7,7 +7,7 @@
 import logging
 import subprocess
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def send_event():
@@ -20,8 +20,8 @@ def send_event():
     """
     cmd = "/bin/sh -c 'xdotool key --delay 100 ctrl+v'"
 
-    logging.info('Paste action sent.')
-    logging.debug('cmd: %s' % cmd)
+    logger.info('Paste action sent.')
+    logger.debug('cmd: %s', cmd)
 
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -31,9 +31,9 @@ def send_event():
     errcode = process.returncode
 
     if errcode != 0:
-        logging.warn('std.out: %s' % out)
-        logging.warn('std.err: %s' % err)
-        logging.warn('Exit code: %s' % errcode)
+        logger.warn('std.out: %s' % out)
+        logger.warn('std.err: %s' % err)
+        logger.warn('Exit code: %s' % errcode)
 
         return False
     else:

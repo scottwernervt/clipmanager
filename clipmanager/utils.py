@@ -7,7 +7,7 @@ import zlib
 import pkg_resources
 from PySide.QtCore import QTextCodec, QTextEncoder
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def create_full_title(mime_data):
@@ -47,7 +47,7 @@ def create_full_title(mime_data):
     if mime_data.hasHtml() and text == None:
         text = mime_data.html()
 
-    logging.debug(text)
+    logger.debug(text)
     return text
 
 
@@ -83,10 +83,10 @@ def calculate_checksum(mime_data):
 
     # Ignore content that does not have text, html, or image
     if not checksum_str:
-        logging.warn('Mime Data does not have text, html, or urls.')
+        logger.warn('Mime Data does not have text, html, or urls.')
         return None
     else:
-        logging.debug('checksum_str=%s' % checksum_str)
+        logger.debug('checksum_str=%s' % checksum_str)
 
     # CRASH FIX: Handle unicode characters for calculating checksum
     codec = QTextCodec.codecForName('UTF-8')
@@ -95,7 +95,7 @@ def calculate_checksum(mime_data):
 
     # Calculate checksum with crc32 method (quick)
     checksum = zlib.crc32(bytes)
-    logging.debug('checksum=%s' % checksum)
+    logger.debug('checksum=%s' % checksum)
 
     return checksum
 
@@ -131,7 +131,7 @@ def remove_extra_lines(text, line_count):
         # Remove empty line breaks as we want to capture text not white space
         text = os.linesep.join([s for s in text.splitlines() if s])
     except AttributeError as err:
-        logging.exception(err)
+        logger.exception(err)
         return text
 
     # Split text by line breaks
@@ -165,9 +165,9 @@ def resource_filename(file_name):
     # Return physical path to file if exists
     for path in paths:
         if os.path.isfile(path):
-            logging.debug(path)
+            logger.debug(path)
             return path
 
     # Return to resource path
-    logging.debug('Using resource filename.')
+    logger.debug('Using resource filename.')
     return pkg_resources.resource_filename('clipmanager', file_name)

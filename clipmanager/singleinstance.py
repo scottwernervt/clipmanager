@@ -14,7 +14,7 @@ else:
 
 from clipmanager.defs import APP_ORG, APP_NAME
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class SingleInstance(object):
@@ -78,4 +78,4 @@ class SingleInstance(object):
                 try:
                     os.unlink(self.pid_path)
                 except OSError as err:
-                    logging.error(err)
+                    logger.error(err)

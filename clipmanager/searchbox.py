@@ -5,7 +5,7 @@ from PySide.QtGui import QLineEdit, QSortFilterProxyModel
 
 from clipmanager.defs import TITLEFULL, TITLESHORT
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class SearchFilterProxyModel(QSortFilterProxyModel):

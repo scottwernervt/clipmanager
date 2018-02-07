@@ -104,8 +104,6 @@ def main(argv):
     parser = optparse.OptionParser()
     parser.add_option('-l', '--logging-level', help='Logging level')
     (options, args) = parser.parse_args()
-    logging.debug(options)
-    logging.debug(args)
 
     if options.logging_level:
         logging_level = options.logging_level.upper()
@@ -116,7 +114,6 @@ def main(argv):
 
     single_instance = SingleInstance()
     if single_instance.is_running():
-        logging.warn('Application already running!')
         return -1
 
     app = MainApp(argv)

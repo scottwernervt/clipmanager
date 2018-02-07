@@ -20,7 +20,7 @@ from clipmanager.defs import ID, TITLESHORT
 from clipmanager.settings import settings
 from clipmanager.utils import resource_filename
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ListView(QListView):
@@ -249,7 +249,7 @@ class ListView(QListView):
 
         selection_model = self.selectionModel()
         indexes = selection_model.selectedIndexes()
-        logging.debug('Items selected: %d' % len(indexes))
+        logger.debug('Items selected: %d' % len(indexes))
 
         def get_row_id(index):
             """Sort by row number
@@ -260,7 +260,7 @@ class ListView(QListView):
         for index in sorted(indexes, key=get_row_id, reverse=True):
             if index.column() == TITLESHORT:
                 row = index.row()
-                logging.debug('ID: %d' % row)
+                logger.debug('ID: %d' % row)
 
                 # Get model index
                 model_index = self.model().index(row, ID)

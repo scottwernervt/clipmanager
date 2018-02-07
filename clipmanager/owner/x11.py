@@ -1,7 +1,10 @@
 """Source: https://github.com/ActivityWatch/aw-watcher-x11/blob/master/aw_watcher_x11/xprop.py"""
+import logging
 import os
 import re
 import subprocess
+
+logger = logging.getLogger(__name__)
 
 
 def readlink_binary(pid):

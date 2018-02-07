@@ -13,7 +13,7 @@ from PySide.QtCore import QTimer, Qt
 from clipmanager.hotkey.base import GlobalHotkeyManagerBase
 from clipmanager.hotkey.hook import hotpatch, unhotpatch
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 VK_LBUTTON = 0x01  # Left mouse button
 VK_RBUTTON = 0x02  # Right mouse button
