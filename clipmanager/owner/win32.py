@@ -1,16 +1,8 @@
 import logging
 import os
-from ctypes import (
-    POINTER,
-    WINFUNCTYPE,
-    c_bool,
-    c_char,
-    c_int,
-    create_unicode_buffer,
-    windll,
-)
+from ctypes import c_char, windll
 
-from win32gui import GetWindowText, EnumWindows
+from win32gui import EnumWindows, GetWindowText
 from win32process import GetWindowThreadProcessId
 
 logger = logging.getLogger(__name__)
@@ -19,13 +11,20 @@ MAX_PATH = 260
 PROCESS_TERMINATE = 0x0001
 PROCESS_QUERY_INFORMATION = 0x0400
 
-# EnumWindows = windll.user32.EnumWindows
-# EnumWindowsProc = WINFUNCTYPE(c_bool, POINTER(c_int), POINTER(c_int))
-# GetWindowText = windll.user32.GetWindowTextW
-# GetWindowTextLength = windll.user32.GetWindowTextLengthW
-
 
 def get_hwnds_for_pid(pid):
+    """Get HWND's for particular PID.
+
+    Source:
+    http://timgolden.me.uk/python/win32_how_do_i/find-the-window-for-my-subprocess.html
+
+    :param pid: Process identifier to look up.
+    :type pid: int
+
+    :return: List of window handles
+    :rtype: list
+    """
+
     def callback(hwnd, hwnds):
         _, found_pid = GetWindowThreadProcessId(hwnd)
         if found_pid == pid:
@@ -60,38 +59,11 @@ def get_win32_owner():
     # );
     _, owner_process_id = GetWindowThreadProcessId(owner_hwnd)
 
-    window_titles = []
-
     for hwnd in get_hwnds_for_pid(owner_process_id):
-        print hwnd, "=>", GetWindowText(hwnd)
-
-    # def foreach_window(hwnd, lParam):
-    #     # int WINAPI GetWindowTextLength(
-    #     #   _In_ HWND hWnd
-    #     # );
-    #     length = GetWindowTextLength(hwnd)
-    #     buff = create_unicode_buffer(length + 1)
-    #
-    #     # int WINAPI GetWindowText(
-    #     #   _In_  HWND   hWnd,
-    #     #   _Out_ LPTSTR lpString,
-    #     #   _In_  int    nMaxCount
-    #     # );
-    #     GetWindowText(hwnd, buff, length + 1)
-    #
-    #     if buff.value:
-    #         window_titles.append((hwnd, buff.value))
-    #
-    # EnumWindows(EnumWindowsProc(foreach_window), 0)
-
-
-    # for window_hwnd, window_title in window_titles:
-    #     _, window_process_id = GetWindowThreadProcessId(window_hwnd)
-    #     print(window_process_id, owner_process_id, window_process_id == owner_process_id)
-    #     if window_process_id == owner_hwnd:
-    #         print('we got a match')
-
-
+        window_text = GetWindowText(hwnd)
+        if window_text:
+            window_title = window_text.split('-')[-1].strip()
+            owner_names.extend([window_text, window_title])
 
     # HANDLE WINAPI OpenProcess(
     #   _In_  DWORD dwDesiredAccess,
