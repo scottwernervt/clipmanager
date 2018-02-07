@@ -163,7 +163,7 @@ def delete_main(row_id):
         row_id (int): Row id in Main table.
     """
     query = QSqlQuery()
-    query.prepare('DELETE FROM Main WHERE ID=:rowid')
+    query.prepare('DELETE FROM main WHERE id=:rowid')
     query.bindValue(':rowid', row_id)
     query.exec_()
 
@@ -190,7 +190,7 @@ def delete_mime(parent_id):
         parent_id (int): Main table row ID.
     """
     query = QSqlQuery()
-    query.prepare('DELETE FROM Data WHERE parent_id=:parent_id')
+    query.prepare('DELETE FROM data WHERE parent_id=:parent_id')
     query.bindValue(':parent_id', parent_id)
     query.exec_()
 
