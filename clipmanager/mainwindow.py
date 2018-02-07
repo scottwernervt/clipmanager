@@ -40,15 +40,15 @@ from clipmanager.defs import (
     CHECKSUM,
     CREATED_AT,
     ID,
-    MIME_REFERENCES,
+    MIME_SUPPORTED,
     STORAGE_PATH,
     TITLE_SHORT,
 )
 from clipmanager.settings import settings
 from clipmanager.utils import (
     calculate_checksum,
-    clean_up_text,
     create_full_title,
+    format_title,
     remove_extra_lines,
     resource_filename,
 )
@@ -386,7 +386,7 @@ class MainWidget(QWidget):
 
         # Clipboard dataChanged() emits to append new item to model->view
         self.connect(self.clipboard_manager,
-                     SIGNAL('newItem(QMimeData)'), self._on_new_item)
+                     SIGNAL('newItem(QMimeData)'), self.on_new_item)
 
     @Slot(str)
     def check_selection(self, text=None):
@@ -410,7 +410,7 @@ class MainWidget(QWidget):
         """
         self.emit(SIGNAL('open-settings()'))
 
-    def _duplicate(self, checksum):
+    def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
 
         Searches entire model for a duplicate checksum on new item that 
@@ -446,7 +446,7 @@ class MainWidget(QWidget):
         return False
 
     @Slot(QMimeData)
-    def _on_new_item(self, mime_data):
+    def on_new_item(self, mime_data):
         """Append new clipboard contents to database.
 
         Performs checksum for new data vs database. If duplicate found, then 
@@ -475,60 +475,44 @@ class MainWidget(QWidget):
         # Check if process that set clipboard is on exclude list
         window_names = self.window_owner()
         ignore_list = settings.get_exclude().lower().split(';')
-        if any(i in window_names for i in ignore_list):
-            logger.info('Ignoring copy action in application.')
+        if any(str(i) in window_names for i in ignore_list):
+            logger.info('Ignoring copy action from application.')
             return None
+
+        title = create_full_title(mime_data)
+        title_short = format_title(title)
+        title_short = remove_extra_lines(title_short,
+                                         settings.get_lines_to_display())
+        created_at = QDateTime.currentMSecsSinceEpoch()
 
         checksum = calculate_checksum(mime_data)
-        if checksum == None:
+        if checksum and self.find_duplicate(checksum):
+            # TODO: Update created_at date for duplicate
             return None
-        elif self._duplicate(checksum):  # If duplicate found then exit function
-            return None
 
-        text = create_full_title(mime_data)
-
-        # title_short used in list row view so clean it up by removing white
-        # space, dedent, and striping unnecessary line breaks
-        title_short = clean_up_text(text)
-        title_short = remove_extra_lines(text=title_short,
-                                         line_count=settings.get_lines_to_display())
-
-        created_at = QDateTime.currentMSecsSinceEpoch()
-        parent_id = database.insert_main(title=text,
+        parent_id = database.insert_main(title=title,
                                          title_short=title_short,
                                          checksum=checksum,
                                          created_at=created_at)
+
+        # Save each mime format as QByteArray to data table.
+        for mime_format in MIME_SUPPORTED:
+            if mime_data.hasFormat(mime_format):
+                byte_data = QByteArray(mime_data.data(mime_format))
+                logger.debug('Mime format: %s', mime_format)
+                database.insert_data(parent_id, mime_format, byte_data)
+
+        self.purge_max_entries()
+        self.purge_expired_entries()
 
         # Highlight top item and then insert mime data
         self.model_main.select()  # Update view
         index = QModelIndex(self.view_main.model().index(0, TITLE_SHORT))
         self.view_main.setCurrentIndex(index)
 
-        # Convert mime data based on format to ByteArray
-        data_insert = []
-        for mime_format in MIME_REFERENCES:
-            if mime_data.hasFormat(mime_format):
-                byte_data = QByteArray(mime_data.data(mime_format))
-                data_insert.append([mime_format, byte_data])
-
-        for mime_format, __ in data_insert:
-            logger.debug('Mime format: %s' % mime_format)
-
-        # Insert mime data into database
-        for mime_format, byte_data in data_insert:
-            database.insert_mime(parent_id, mime_format, byte_data)
-
-        # Maintain maximum number of entries
-        if int(settings.get_max_entries_value()) != 0:
-            self._check_max_entries()
-
-        # Check expiration of entries
-        if int(settings.get_expire_value()) != 0:
-            self._check_expired_entries()
-
         return True
 
-    def _check_expired_entries(self):
+    def purge_expired_entries(self):
         """Remove entries that have expired.
 
         Starting at the bottom of the list, compare each item's date to user 
@@ -537,8 +521,11 @@ class MainWidget(QWidget):
         """
         # Work in reverse and break when row date is less than
         # expiration date
-        max_entries = settings.get_max_entries_value()
-        entries = range(0, self.model_main.rowCount())
+        expire_at = settings.get_expire_value()
+        if int(expire_at) == 0:
+            return
+
+        entries = range(0, self.model_main.rowCount() + 1)
         entries.reverse()  # Start from bottom of QListView
 
         for row in entries:
@@ -553,7 +540,7 @@ class MainWidget(QWidget):
             delta = today - time
 
             logger.debug('Delta: %d days' % delta.days)
-            if delta.days > settings.get_expire_value():
+            if delta.days > expire_at:
                 index = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index)
 
@@ -565,14 +552,17 @@ class MainWidget(QWidget):
 
         self.model_main.submitAll()
 
-    def _check_max_entries(self):
+    def purge_max_entries(self):
         """Remove extra entries.
 
         Count total number of items in history, and if greater than user
         setting for maximum entries, delete them.
         """
-        row_count = self.model_main.rowCount()
         max_entries = settings.get_max_entries_value()
+        if max_entries == 0:
+            return
+
+        row_count = self.model_main.rowCount() + 1
 
         logger.debug('Row count: %s' % row_count)
         logger.debug('Max entries: %s' % max_entries)
@@ -580,7 +570,7 @@ class MainWidget(QWidget):
         if row_count > max_entries:
             # Delete extra rows
             # self.model_main.removeRows(max_entries, row_count-max_entries)
-            for row in range(max_entries, row_count):
+            for row in range(max_entries - 1, row_count):
                 logger.debug('Row: %d' % row)
 
                 index_id = self.model_main.index(row, ID)
@@ -589,7 +579,7 @@ class MainWidget(QWidget):
                 database.delete_mime(parent_id)
                 self.model_main.removeRow(row)
 
-            self.model_main.submitAll()
+        self.model_main.submitAll()
 
     @Slot(QModelIndex)
     def _on_open_preview(self, index):
