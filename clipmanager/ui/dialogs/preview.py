@@ -68,7 +68,7 @@ class PreviewDialog(QDialog):
                 self.doc.insertFromMimeData(mime_data)
 
             else:
-                self.doc.setPlainText(('Unknown error has occured.\n'
+                self.doc.setPlainText(('Unknown error has occurred.\n'
                                        'Formats: %s' % mime_data.formats()))
 
             # Move cursor to top causing scrollbar to move to top

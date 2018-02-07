@@ -47,7 +47,7 @@ class Settings(QObject):
         """Application exclude list.
 
         Returns:
-            str: String list seperated by a semicolon, KeePass.exe;chromium
+            str: String list separated by a semicolon, KeePass.exe;chromium
                  Default value is empty string.
         """
         return self.q_settings.value('exclude', str(''))
@@ -56,10 +56,10 @@ class Settings(QObject):
         """Save application exclude string list.
 
         Clean up user input by eliminating spaces between ; and if they used
-        a comma as a seperator then replace it with semicolons.
+        a comma as a separator then replace it with semicolons.
 
         Args:
-            value (str): String list seperated by a semicolon, 
+            value (str): String list separated by a semicolon,
                          KeePass.exe;chromium
         """
         logger.debug(value)

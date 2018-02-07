@@ -28,9 +28,9 @@ def create_full_title(mime_data):
         text = 'Copied File(s): '
         seperator = '\n'
         # if settings.get_word_wrap():
-        #     seperator = ', '
+        #     separator = ', '
         # else:
-        #     seperator = '\n'
+        #     separator = '\n'
         for url in mime_data.urls():
             # '' means url is a web address so we don't want Copied File(s)
             if url.toLocalFile() == '':
@@ -102,7 +102,7 @@ def format_title(text):
     """Dedent text and replace tab's with spaces.
 
     Args:
-        text (unicode): Single or multline text with or without indentation.
+        text (unicode): Single or multi-line text with or without indentation.
 
     Returns:
         unicode: Input text dedented and tab's replaced by spaces.

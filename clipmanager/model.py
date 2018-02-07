@@ -113,7 +113,7 @@ class MainSqlTableModel(QSqlTableModel):
         """Return Qt flags for model.
         
         Called by the view to check the state of the items. Flags function 
-        overides default from QAbstractListModel. How should we treat the items?
+        overrides default from QAbstractListModel. How should we treat the items?
 
         Args:
             index (QModelIndex): Row and column of data entry.

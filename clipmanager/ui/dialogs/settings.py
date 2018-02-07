@@ -47,8 +47,7 @@ class SettingsDialog(QDialog):
     def setup_ui(self):
         """Display each setting widget with saved values from registry/ini.
 
-        Todo:
-            Renable word_wrap widget when QDelegate Sizing issue fixed.
+        TODO: Re-enable word_wrap widget when QDelegate Sizing issue fixed.
         """
         # Global hot key
         self.key_combo_edit = HotKeyEdit(self)
@@ -111,7 +110,7 @@ class SettingsDialog(QDialog):
         self.exclude_list.setPlaceholderText('KeePass.exe;binaryname')
         self.exclude_list.setText(settings.get_exclude())
 
-        # Create seperate layout for ignore applications
+        # Create separate layout for ignore applications
         ignore_layout = QVBoxLayout()
         ignore_layout.addWidget(self.exclude_list)
         ignore_box.setLayout(ignore_layout)
@@ -202,7 +201,7 @@ class HotKeyEdit(QLineEdit):
         self.setToolTip('Press ESC to clear_text.')
 
     def keyPressEvent(self, event):
-        """Capture key and modifer presses and insert them as plain text.
+        """Capture key and modifier presses and insert them as plain text.
 
         Example, user presses CTRL+ALT+H, then QLineEdit will display
         <CTRL><ALT>H.

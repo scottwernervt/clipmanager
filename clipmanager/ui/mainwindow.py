@@ -454,7 +454,7 @@ class MainWidget(QWidget):
         """Append new clipboard contents to database.
 
         Performs checksum for new data vs database. If duplicate found, then 
-        the time is updated in a seperate function. Once parent data is 
+        the time is updated in a separate function. Once parent data is
         created, the mime data is converted to QByteArray and stored in data 
         table as a blob.
 
@@ -464,7 +464,7 @@ class MainWidget(QWidget):
         Returns: 
             True (bool): Successfully added data to model.
             None: User just set new clipboard data trigger dataChanged() to be
-                emited. Data does not have any text. Duplicate found. Storing 
+                emitted. Data does not have any text. Duplicate found. Storing
                 data in database fails.
 
         TODO: Clean up this function as there are too many random returns. 
@@ -603,7 +603,7 @@ class MainWidget(QWidget):
         parent_id = self.model_main.data(index_id)
         logger.debug('ID: %s' % parent_id)
 
-        # Find all childs relating to parent_id
+        # Find all children relating to parent_id
         mime_list = get_mime(parent_id)
 
         # Create QMimeData object based on formats and byte data

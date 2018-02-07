@@ -52,7 +52,7 @@ class SearchBox(QLineEdit):
     def keyPressEvent(self, event):
         """Allow up and down navigation on list from search box.
 
-        Sub class to enable list navigiation when searching in the text box.
+        Sub class to enable list navigation when searching in the text box.
         Must return False at end of all events will be blocked.
 
         Args:
