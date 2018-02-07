@@ -9,7 +9,7 @@ _main_table_sql = """CREATE TABLE IF NOT EXISTS main(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 title TEXT,
 title_short TEXT,
-checksum STRING,
+checksum TEXT,
 keep INTEGER DEFAULT 0,
 created_at TIMESTAMP
 );"""
@@ -17,8 +17,9 @@ created_at TIMESTAMP
 _data_table_sql = """CREATE TABLE IF NOT EXISTS data(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 parent_id INTEGER,
-mime_format STRING,
-data BLOB
+mime_format TEXT,
+byte_data BLOB,
+FOREIGN KEY(parent_id) REFERENCES main(id)
 );"""
 
 
@@ -67,19 +68,20 @@ def create_tables():
 
     return True
 
-    # def count_main():
-    #     query = QSqlQuery()
-    #     query.prepare('SELECT Count(*) FROM Main')
 
-    #     query.exec_()
-    #     query.next()
+# def count_main():
+#     query = QSqlQuery()
+#     query.prepare('SELECT Count(*) FROM Main')
 
-    #     count = query.value(0)
-    #     if query.lastError().isValid():
-    #         logger.error(query.lastError().text())
-    #         count = 0
+#     query.exec_()
+#     query.next()
 
-    #     return count
+#     count = query.value(0)
+#     if query.lastError().isValid():
+#         logger.error(query.lastError().text())
+#         count = 0
+
+#     return count
 
 
 def insert_main(title, title_short, checksum, created_at):
@@ -91,7 +93,7 @@ def insert_main(title, title_short, checksum, created_at):
     :param title_short: Shorten title for truncating.
     :type title_short: str
 
-    :param checksum: Checksum from CRC32.
+    :param checksum: CRC32 checksum of entity.
     :type checksum: str
 
     :param created_at: UTC in milliseconds.
@@ -101,10 +103,9 @@ def insert_main(title, title_short, checksum, created_at):
     :rtype: int
     """
     insert_query = QSqlQuery()
-    insert_query.prepare(
-        'INSERT OR FAIL INTO main (title, title_short, checksum, '
-        'created_at) VALUES (:created_at, :title, :title_short, '
-        ':checksum)')
+    insert_query.prepare('INSERT OR FAIL INTO main (title, title_short, '
+                         'checksum, created_at) VALUES (:title, :title_short, '
+                         ':checksum, :created_at)')
     insert_query.bindValue(':title', title)
     insert_query.bindValue(':title_short', title_short)
     insert_query.bindValue(':checksum', checksum)
@@ -120,7 +121,7 @@ def insert_main(title, title_short, checksum, created_at):
     return row_id
 
 
-def insert_mime(parent_id, mime_format, byte_data):
+def insert_data(parent_id, mime_format, byte_data):
     """Insert mime data into Data table.
 
     Stores Main table's parent id, mime format type, and mime blob into Data
@@ -136,10 +137,10 @@ def insert_mime(parent_id, mime_format, byte_data):
         row_id (int): Row ID from SQL INSERT.
     """
     query = QSqlQuery()
-    query.prepare('INSERT OR FAIL INTO data VALUES (Null, :parent_id, :mime_format, :data)')
+    query.prepare('INSERT OR FAIL INTO data VALUES (NULL, :parent_id, :mime_format, :byte_data)')
     query.bindValue(':parent_id', parent_id)
     query.bindValue(':mime_format', mime_format)
-    query.bindValue(':data', byte_data)
+    query.bindValue(':byte_data', byte_data)
     query.exec_()
 
     if query.lastError().isValid():
