@@ -15,7 +15,7 @@ from PySide.QtGui import (
     QTextOption,
 )
 
-from clipmanager.database import delete_mime
+# from clipmanager.database import delete_mime
 from clipmanager.defs import ID, TITLE_SHORT
 from clipmanager.settings import settings
 from clipmanager.utils import resource_filename
@@ -44,7 +44,7 @@ class HistoryListView(QListView):
 
         self.toggle_horizontal_scrollbar(settings.get_word_wrap())
 
-        self._build_menu()
+        self.build_menu()
         self.addAction(self.apply_action)
         self.addAction(self.preview_action)
         self.addAction(self.delete_action)
@@ -113,40 +113,7 @@ class HistoryListView(QListView):
         return QListView.keyPressEvent(self, event)
 
     @Slot()
-    def _emit_open_preview(self):
-        """Send open preview signal with selection index.
-
-        :return: None
-        :rtype: None
-        """
-        self.emit(SIGNAL('openPreview(QModelIndex)'), self.currentIndex())
-
-    @Slot()
-    def _emit_open_settings(self):
-        """Send open settings dialog signal.
-
-        :return: None
-        :rtype: None
-        """
-        self.emit(SIGNAL('openSettings()'))
-
-    @Slot()
-    def _emit_set_clipboard(self):
-        """Send set clipboard signal.
-
-        Todo:
-        * Send list of selected indexes instead of just emitting a signal
-        * and having main window grab the selection.
-
-        :return: None
-        :rtype: None
-        """
-        # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
-        # for __ in indexes:
-        self.emit(SIGNAL('setClipboard()'))
-
-    @Slot()
-    def _delete_rows(self):
+    def delete_rows(self):
         """Delete selected rows.
 
         CTRL+A on list view selects hidden columns. So even if user deselects
@@ -181,7 +148,7 @@ class HistoryListView(QListView):
                 model_index = self.model().index(row, ID)
                 parent_id = self.model().data(model_index)
 
-                delete_mime(parent_id)
+                self._emit_delete_data(parent_id)
                 self.model().removeRow(row)
                 self.model().sourceModel().submitAll()
             else:
@@ -190,7 +157,7 @@ class HistoryListView(QListView):
         self.model().submit()
         self.unsetCursor()
 
-    def _build_menu(self):
+    def build_menu(self):
         """Create right click menu and actions."
 
         :return: None
@@ -280,7 +247,7 @@ class HistoryListView(QListView):
                           self._emit_open_preview)
         self.menu.connect(self.delete_action,
                           SIGNAL('triggered()'),
-                          self._delete_rows)
+                          self.delete_rows)
         self.menu.connect(settings_act,
                           SIGNAL('triggered()'),
                           self._emit_open_settings)
@@ -299,6 +266,43 @@ class HistoryListView(QListView):
         """
         policy = Qt.ScrollBarAlwaysOff if toggle else Qt.ScrollBarAsNeeded
         self.setHorizontalScrollBarPolicy(policy)
+
+    @Slot()
+    def _emit_open_preview(self):
+        """Send open preview signal with selection index.
+
+        :return: None
+        :rtype: None
+        """
+        self.emit(SIGNAL('openPreview(QModelIndex)'), self.currentIndex())
+
+    @Slot()
+    def _emit_open_settings(self):
+        """Send open settings dialog signal.
+
+        :return: None
+        :rtype: None
+        """
+        self.emit(SIGNAL('openSettings()'))
+
+    @Slot()
+    def _emit_set_clipboard(self):
+        """Send set clipboard signal.
+
+        Todo:
+        * Send list of selected indexes instead of just emitting a signal
+        * and having main window grab the selection.
+
+        :return: None
+        :rtype: None
+        """
+        # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
+        # for __ in indexes:
+        self.emit(SIGNAL('setClipboard()'))
+
+    @Slot(int)
+    def _emit_delete_data(self, parent_id):
+        self.emit(SIGNAL('deleteData(int)'), parent_id)
 
 
 class HistoryListItemDelegate(QStyledItemDelegate):

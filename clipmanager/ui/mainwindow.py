@@ -25,14 +25,7 @@ from PySide.QtGui import (
 
 from clipmanager import hotkey, owner, paste
 from clipmanager.clipboard import ClipboardManager
-from clipmanager.database import (
-    create_connection,
-    create_tables,
-    delete_mime,
-    get_mime,
-    insert_data,
-    insert_main,
-)
+from clipmanager.database import Database
 from clipmanager.defs import (
     APP_NAME,
     CHECKSUM,
@@ -62,15 +55,12 @@ logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
     """Main window container for main widget.
+
+    :param minimize: True, minimize to system tray, False, bring to front.
+    :type minimize: bool
     """
 
     def __init__(self, minimize=False):
-        """Initialize main window, systemtray, global hotkey, and signals.
-
-        Args:
-            minimize: True, minimize to system tray.
-                      False, bring window to front.
-        """
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(APP_NAME)
@@ -81,9 +71,8 @@ class MainWindow(QMainWindow):
                             Qt.CustomizeWindowHint |
                             Qt.WindowCloseButtonHint)
 
-        # Connect to database and create tables
-        self.db = create_connection(STORAGE_PATH)
-        create_tables()
+        self.db = Database(STORAGE_PATH)
+        self.db.create_tables()
 
         # Create main widget that holds contents of clipboard history
         self.main_widget = MainWidget(self)
@@ -361,7 +350,7 @@ class MainWidget(QWidget):
 
         # Set clipboard contents if return pressed or from right click menu
         self.connect(self.search_box, SIGNAL('returnPressed()'),
-                     self.on_set_clipboard)
+                     self.set_clipboard)
 
         # Search proxy model
         self.connect(self.search_box, SIGNAL('textChanged(QString)'),
@@ -373,7 +362,7 @@ class MainWidget(QWidget):
 
         # Set clipboard data from signal by view
         self.connect(self.view_main, SIGNAL('setClipboard()'),
-                     self.on_set_clipboard)
+                     self.set_clipboard)
 
         # Open settings dialog from button next to search box
         self.connect(settings_button, SIGNAL('clicked()'),
@@ -386,33 +375,14 @@ class MainWidget(QWidget):
         # Show preview of selected item in view
         self.connect(self.view_main,
                      SIGNAL('openPreview(QModelIndex)'),
-                     self._on_open_preview)
+                     self.open_preview_dialog)
 
         # Clipboard dataChanged() emits to append new item to model->view
         self.connect(self.clipboard_manager,
                      SIGNAL('newItem(QMimeData)'), self.on_new_item)
 
-    @Slot(str)
-    def check_selection(self, text=None):
-        """Prevents selection from disappearing during proxy filter.
-
-        Args:
-            text (str): Ignored parameter as the signal emits it.
-        """
-        selection_model = self.view_main.selectionModel()
-        indexes = selection_model.selectedIndexes()
-
-        if not indexes:
-            index = self.proxy_main.index(0, TITLE_SHORT)
-            selection_model.select(index, QItemSelectionModel.Select)
-            selection_model.setCurrentIndex(index,
-                                            QItemSelectionModel.Select)
-
-    @Slot()
-    def _emit_open_settings(self):
-        """Emit signal to open settings dialog.
-        """
-        self.emit(SIGNAL('openSettings()'))
+        self.connect(self.view_main, SIGNAL('deleteData(int)'),
+                     self.parent.db.delete_data)
 
     def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
@@ -449,73 +419,6 @@ class MainWidget(QWidget):
 
         return False
 
-    @Slot(QMimeData)
-    def on_new_item(self, mime_data):
-        """Append new clipboard contents to database.
-
-        Performs checksum for new data vs database. If duplicate found, then 
-        the time is updated in a separate function. Once parent data is
-        created, the mime data is converted to QByteArray and stored in data 
-        table as a blob.
-
-        Args:
-            mime_data (QMimeData): clipboard contents mime data
-
-        Returns: 
-            True (bool): Successfully added data to model.
-            None: User just set new clipboard data trigger dataChanged() to be
-                emitted. Data does not have any text. Duplicate found. Storing
-                data in database fails.
-
-        TODO: Clean up this function as there are too many random returns. 
-            Store images.
-        """
-        # Do not perform the new item process because user just set clipboard 
-        # contents
-        if self.ignore_created:
-            self.ignore_created = False
-            return None
-
-        # Check if process that set clipboard is on exclude list
-        window_names = self.window_owner()
-        ignore_list = settings.get_exclude().lower().split(';')
-        if any(str(i) in window_names for i in ignore_list):
-            logger.info('Ignoring copy action from application.')
-            return None
-
-        title = create_full_title(mime_data)
-        title_short = format_title(title)
-        title_short = remove_extra_lines(title_short,
-                                         settings.get_lines_to_display())
-        created_at = QDateTime.currentMSecsSinceEpoch()
-
-        checksum = calculate_checksum(mime_data)
-        if checksum and self.find_duplicate(checksum):
-            # TODO: Update created_at date for duplicate
-            return None
-
-        parent_id = insert_main(title=title,
-                                title_short=title_short,
-                                checksum=checksum,
-                                created_at=created_at)
-
-        # Save each mime format as QByteArray to data table.
-        for mime_format in MIME_SUPPORTED:
-            if mime_data.hasFormat(mime_format):
-                byte_data = QByteArray(mime_data.data(mime_format))
-                logger.debug('Mime format: %s', mime_format)
-                insert_data(parent_id, mime_format, byte_data)
-
-        self.purge_max_entries()
-        self.purge_expired_entries()
-
-        # Highlight top item and then insert mime data
-        self.model_main.select()  # Update view
-        index = QModelIndex(self.view_main.model().index(0, TITLE_SHORT))
-        self.view_main.setCurrentIndex(index)
-
-        return True
-
     def purge_expired_entries(self):
         """Remove entries that have expired.
 
@@ -548,7 +451,7 @@ class MainWidget(QWidget):
                 index = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index)
 
-                delete_mime(parent_id)
+                self.db.delete_mime(parent_id)
                 self.model_main.removeRow(row)
             else:
                 logger.debug('Last row not expired, breaking!')
@@ -580,13 +483,102 @@ class MainWidget(QWidget):
                 index_id = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index_id)
 
-                delete_mime(parent_id)
+                self.db.delete_data(parent_id)
                 self.model_main.removeRow(row)
 
         self.model_main.submitAll()
 
+    @Slot()
+    def _emit_open_settings(self):
+        """Emit signal to open settings dialog.
+        """
+        self.emit(SIGNAL('openSettings()'))
+
+    @Slot(str)
+    def check_selection(self, text=None):
+        """Prevents selection from disappearing during proxy filter.
+
+        Args:
+            text (str): Ignored parameter as the signal emits it.
+        """
+        selection_model = self.view_main.selectionModel()
+        indexes = selection_model.selectedIndexes()
+
+        if not indexes:
+            index = self.proxy_main.index(0, TITLE_SHORT)
+            selection_model.select(index, QItemSelectionModel.Select)
+            selection_model.setCurrentIndex(index,
+                                            QItemSelectionModel.Select)
+
+    @Slot(QMimeData)
+    def on_new_item(self, mime_data):
+        """Append new clipboard contents to database.
+
+        Performs checksum for new data vs database. If duplicate found, then
+        the time is updated in a separate function. Once parent data is
+        created, the mime data is converted to QByteArray and stored in data
+        table as a blob.
+
+        Args:
+            mime_data (QMimeData): clipboard contents mime data
+
+        Returns:
+            True (bool): Successfully added data to model.
+            None: User just set new clipboard data trigger dataChanged() to be
+                emitted. Data does not have any text. Duplicate found. Storing
+                data in database fails.
+
+        TODO: Clean up this function as there are too many random returns.
+            Store images.
+        """
+        # Do not perform the new item process because user just set clipboard
+        # contents
+        if self.ignore_created:
+            self.ignore_created = False
+            return None
+
+        # Check if process that set clipboard is on exclude list
+        window_names = self.window_owner()
+        ignore_list = settings.get_exclude().lower().split(';')
+        if any(str(i) in window_names for i in ignore_list):
+            logger.info('Ignoring copy action from application.')
+            return None
+
+        title = create_full_title(mime_data)
+        title_short = format_title(title)
+        title_short = remove_extra_lines(title_short,
+                                         settings.get_lines_to_display())
+        created_at = QDateTime.currentMSecsSinceEpoch()
+
+        checksum = calculate_checksum(mime_data)
+        if checksum and self.find_duplicate(checksum):
+            # TODO: Update created_at date for duplicate
+            return None
+
+        parent_id = self.db.insert_main(title=title,
+                                        title_short=title_short,
+                                        checksum=checksum,
+                                        created_at=created_at)
+
+        # Save each mime format as QByteArray to data table.
+        for mime_format in MIME_SUPPORTED:
+            if mime_data.hasFormat(mime_format):
+                byte_data = QByteArray(mime_data.data(mime_format))
+                logger.debug('Mime format: %s', mime_format)
+                self.db.insert_data(parent_id, mime_format, byte_data)
+
+        self.purge_max_entries()
+        self.purge_expired_entries()
+
+        # Highlight top item and then insert mime data
+        self.model_main.select()  # Update view
+        index = QModelIndex(self.view_main.model().index(0, TITLE_SHORT))
+        self.view_main.setCurrentIndex(index)
+
+        return True
+
     @Slot(QModelIndex)
-    def _on_open_preview(self, index):
+    def open_preview_dialog(self, index):
         """Open preview dialog of selected item.
 
         Args:
@@ -604,7 +596,7 @@ class MainWidget(QWidget):
         logger.debug('ID: %s' % parent_id)
 
         # Find all children relating to parent_id
-        mime_list = get_mime(parent_id)
+        mime_list = self.db.get_data(parent_id)
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
@@ -617,7 +609,7 @@ class MainWidget(QWidget):
         preview_dialog.exec_()
 
     @Slot()
-    def on_set_clipboard(self):
+    def set_clipboard(self):
         """Set clipboard contents from list selection.
         
         Parent ID is retrieved from user selection and mime data is compiled 
@@ -643,7 +635,7 @@ class MainWidget(QWidget):
         parent_id = self.model_main.data(model_index)
 
         # Find all childs relating to parent_id
-        mime_list = get_mime(parent_id)
+        mime_list = self.db.get_data(parent_id)
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
