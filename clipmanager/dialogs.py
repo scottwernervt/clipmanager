@@ -18,7 +18,6 @@ from PySide.QtGui import (
     QTextCursor,
     QTextEdit,
     QVBoxLayout,
-    QValidator,
 )
 from PySide.QtWebKit import QWebSettings, QWebView
 
@@ -340,27 +339,6 @@ class HotKeyEdit(QLineEdit):
 
         self.setText(QKeySequence(key_sequence).toString(
             QKeySequence.NativeText))
-
-
-class ConvertUpperCase(QValidator):
-    """Convert text to upper case.
-    """
-
-    def __init__(self, parent=None):
-        super(ConvertUpperCase, self).__init__(parent)
-
-    def validate(self, text, pos):
-        """Change input text to upper case.
-
-        Args:
-            text (unicode): Character or unicode.
-            pos (int): Character position in QLineEdit.
-
-        Returns:
-            tuple (QValidator.State, str, int)
-        """
-        text = text.upper()
-        return (QValidator.Intermediate, text, pos)
 
 
 class AboutDialog(QDialog):
