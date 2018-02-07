@@ -42,7 +42,7 @@ from clipmanager.defs import (
     ID,
     MIME_REFERENCES,
     STORAGE_PATH,
-    TITLESHORT,
+    TITLE_SHORT,
 )
 from clipmanager.settings import settings
 from clipmanager.utils import (
@@ -329,13 +329,13 @@ class MainWidget(QWidget):
         self.proxy_main.setSourceModel(self.model_main)
 
         # self.proxy_main = QSortFilterProxyModel(self)
-        # self.proxy_main.setFilterKeyColumn(TITLEFULL)
+        # self.proxy_main.setFilterKeyColumn(TITLE_FULL)
         # self.proxy_main.setSourceModel(self.model_main)
         # self.proxy_main.setDynamicSortFilter(True)
         # self.proxy_main.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
         self.view_main.setModel(self.proxy_main)
-        self.view_main.setModelColumn(TITLESHORT)
+        self.view_main.setModelColumn(TITLE_SHORT)
 
         # Pass view and proxy pointers to search box class
         self.search_box = searchbox.SearchBox(self.view_main, self.proxy_main)
@@ -399,7 +399,7 @@ class MainWidget(QWidget):
         indexes = selection_model.selectedIndexes()
 
         if not indexes:
-            index = self.proxy_main.index(0, TITLESHORT)
+            index = self.proxy_main.index(0, TITLE_SHORT)
             selection_model.select(index, QItemSelectionModel.Select)
             selection_model.setCurrentIndex(index,
                                             QItemSelectionModel.Select)
@@ -496,8 +496,8 @@ class MainWidget(QWidget):
         date = QDateTime.currentMSecsSinceEpoch()
 
         parent_id = database.insert_main(date=date,
-                                         titleshort=title_short,
-                                         titlefull=text,
+                                         title_short=title_short,
+                                         title_full=text,
                                          checksum=checksum)
 
         # Store mime data into database
@@ -507,7 +507,7 @@ class MainWidget(QWidget):
 
         # Highlight top item and then insert mime data
         self.model_main.select()  # Update view
-        index = QModelIndex(self.view_main.model().index(0, TITLESHORT))
+        index = QModelIndex(self.view_main.model().index(0, TITLE_SHORT))
         self.view_main.setCurrentIndex(index)
 
         # Convert mime data based on format to ByteArray

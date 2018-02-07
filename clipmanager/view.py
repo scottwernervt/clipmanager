@@ -16,7 +16,7 @@ from PySide.QtGui import (
 )
 
 from clipmanager.database import delete_mime
-from clipmanager.defs import ID, TITLESHORT
+from clipmanager.defs import ID, TITLE_SHORT
 from clipmanager.settings import settings
 from clipmanager.utils import resource_filename
 
@@ -258,7 +258,7 @@ class ListView(QListView):
 
         # Sort indexes by row number and delete each row and child mime data
         for index in sorted(indexes, key=get_row_id, reverse=True):
-            if index.column() == TITLESHORT:
+            if index.column() == TITLE_SHORT:
                 row = index.row()
                 logger.debug('ID: %d' % row)
 

@@ -3,7 +3,7 @@ import logging
 from PySide.QtCore import QDateTime, Qt
 from PySide.QtSql import QSqlTableModel
 
-from clipmanager.defs import CHECKSUM, DATE, ID, TITLEFULL, TITLESHORT
+from clipmanager.defs import CHECKSUM, DATE, ID, TITLE_FULL, TITLE_SHORT
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +36,8 @@ class MainSqlTableModel(QSqlTableModel):
         # Create header data
         self.setHeaderData(ID, Qt.Horizontal, 'ID')
         self.setHeaderData(DATE, Qt.Horizontal, 'DATE')
-        self.setHeaderData(TITLESHORT, Qt.Horizontal, 'TITLESHORT')
-        self.setHeaderData(TITLEFULL, Qt.Horizontal, 'TITLEFULL')
+        self.setHeaderData(TITLE_SHORT, Qt.Horizontal, 'TITLE_SHORT')
+        self.setHeaderData(TITLE_FULL, Qt.Horizontal, 'TITLE_FULL')
         self.setHeaderData(CHECKSUM, Qt.Horizontal, 'CHECKSUM')
 
         self.select()
@@ -81,10 +81,10 @@ class MainSqlTableModel(QSqlTableModel):
         if role == Qt.DisplayRole and column == ID:
             return int(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLESHORT:
+        if role == Qt.DisplayRole and column == TITLE_SHORT:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLEFULL:
+        if role == Qt.DisplayRole and column == TITLE_FULL:
             return unicode(QSqlTableModel.data(self, index))
 
         if role == Qt.DisplayRole and column == DATE:
@@ -93,7 +93,7 @@ class MainSqlTableModel(QSqlTableModel):
         if role == Qt.DisplayRole and column == CHECKSUM:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.ToolTipRole and column == TITLESHORT:
+        if role == Qt.ToolTipRole and column == TITLE_SHORT:
             date_index = self.index(row, DATE)
 
             time_stamp = QDateTime()

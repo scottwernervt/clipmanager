@@ -3,7 +3,7 @@ import logging
 from PySide.QtCore import Qt, Slot
 from PySide.QtGui import QLineEdit, QSortFilterProxyModel
 
-from clipmanager.defs import TITLEFULL, TITLESHORT
+from clipmanager.defs import TITLE_FULL, TITLE_SHORT
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class SearchFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
         super(SearchFilterProxyModel, self).__init__()
 
-        self.setFilterKeyColumn(TITLEFULL)
+        self.setFilterKeyColumn(TITLE_FULL)
         self.setDynamicSortFilter(True)
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
@@ -65,17 +65,17 @@ class SearchBox(QLineEdit):
         if event.key() == Qt.Key_Up:
             if self.view.currentIndex().row() >= 1:
                 current_row = self.view.currentIndex().row()
-                index = self.proxy.index(current_row - 1, TITLESHORT)
+                index = self.proxy.index(current_row - 1, TITLE_SHORT)
                 self.view.setCurrentIndex(index)
             else:
                 # Prevent user from going off list (keep them at top)
-                index = self.proxy.index(0, TITLESHORT)
+                index = self.proxy.index(0, TITLE_SHORT)
                 self.view.setCurrentIndex(index)
 
         # Change selected row by moving down
         elif event.key() == Qt.Key_Down:
             current_row = self.view.currentIndex().row()
-            index = self.proxy.index(current_row + 1, TITLESHORT)
+            index = self.proxy.index(current_row + 1, TITLE_SHORT)
             self.view.setCurrentIndex(index)
 
         # Clear text
