@@ -71,8 +71,8 @@ class MainWindow(QMainWindow):
                             Qt.CustomizeWindowHint |
                             Qt.WindowCloseButtonHint)
 
-        self.db = Database(STORAGE_PATH)
-        self.db.create_tables()
+        self.database = Database(STORAGE_PATH)
+        self.database.create_tables()
 
         # Create main widget that holds contents of clipboard history
         self.main_widget = MainWidget(self)
@@ -80,33 +80,32 @@ class MainWindow(QMainWindow):
 
         # Create system tray icon
         if not QSystemTrayIcon.isSystemTrayAvailable():
-            logger.warn('cannot find a system tray.')
-            QMessageBox.warning(self, 'System Tray',
+            QMessageBox.warning(self,
+                                'System Tray',
                                 'Cannot find a system tray.')
-
-        self.tray_icon = SystemTrayIcon(self)
-        self.tray_icon.activated.connect(self._on_icon_activated)
-        self.tray_icon.show()
+        else:
+            self.system_tray = SystemTrayIcon(self)
+            self.system_tray.activated.connect(self._on_system_tray_clicked)
+            self.system_tray.show()
 
         # Return OS specific global hot key binder and set it
-        self._hotkey = hotkey.initialize()
-        self._paste = paste.initialize()
+        self.hotkey = hotkey.initialize()
+        self.paste = paste.initialize()
 
         # Toggle window from system tray right click menu
-        self.connect(self.tray_icon, SIGNAL('toggleWindow()'),
+        self.connect(self.system_tray, SIGNAL('toggleWindow()'),
                      self._on_toggle_window)
 
         # Open settings dialog from right click menu on system tray and view
-        self.connect(self.tray_icon, SIGNAL('openSettings()'),
+        self.connect(self.system_tray, SIGNAL('openSettings()'),
                      self._on_open_settings)
 
         self.connect(self.main_widget, SIGNAL('openSettings()'),
                      self._on_open_settings)
 
         self.connect(self.main_widget, SIGNAL('pasteClipboard()'),
-                     self._paste)
+                     self.paste)
 
-        # Show window
         if not minimize:
             self._on_toggle_window()
 
@@ -115,41 +114,41 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """Capture close event and hide main window.
 
-        Hide main window instead of exiting. Only method to quit is from right 
+        Hide main window instead of exiting. Only method to quit is from right
         click menu on system tray icon or view widget.
 
-        Args:
-            event (QCloseEvent): Close event from OS requested exit like 
-                ALT+F4, clicking X on window title bar, etc. 
+        :param event: Exit event signal from user clicking "close".
+        :type event: QCloseEvent
+
+        :return: None
+        :rtype: None
         """
         event.ignore()
 
-        # Store window position and size
         settings.set_window_pos(self.pos())
         settings.set_window_size(self.size())
 
         self.hide()
 
     def destroy(self):
-        """Perform actions before exiting the application.
+        """Perform cleanup before exiting the application.
 
-        Following actions are performed before exit: unbind global hot key, 
-        save window position and size, submit all changes to model, and close 
-        database connection.
+        :return: None
+        :rtype: None
         """
-        if self._hotkey:
-            self._hotkey.unregister(winid=self.winId())
-            self._hotkey.destroy()
+        self.main_widget.destroy()
+        self.database.close()
+
+        if self.hotkey:
+            self.hotkey.unregister(winid=self.winId())
+            self.hotkey.destroy()
 
         settings.set_window_pos(self.pos())
         settings.set_window_size(self.size())
         settings.sync()
 
-        self.main_widget.model_main.submitAll()
-        self.db.close()
-
     @Slot(QSystemTrayIcon.ActivationReason)
-    def _on_icon_activated(self, reason):
+    def _on_system_tray_clicked(self, reason):
         """Bring main window to front if system tray clicked.
    
         Args:
@@ -174,7 +173,7 @@ class MainWindow(QMainWindow):
         """
         # Windows allow's the user to open extra settings dialogs from system
         # tray menu even though dialog is modal
-        self._hotkey.unregister(winid=self.winId())
+        self.hotkey.unregister(winid=self.winId())
 
         # PreviewDialog(self) so it opens at main window
         settings_dialog = SettingsDialog(self)
@@ -235,8 +234,8 @@ class MainWindow(QMainWindow):
 
             # 2: System tray
             if settings.get_open_window_at() == 2:
-                x = self.tray_icon.geometry().x()
-                y = self.tray_icon.geometry().y()
+                x = self.system_tray.geometry().x()
+                y = self.system_tray.geometry().y()
                 logger.debug('SystemTrayCoords=(%d,%d)' % (x, y))
 
             # 1: Last position
@@ -280,7 +279,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def paste_action(self):
-        self._paste()
+        self.paste()
 
     def register_hot_key(self):
         """Helper function to bind global hot key to OS specific binder class.
@@ -290,15 +289,15 @@ class MainWindow(QMainWindow):
         """
         key_sequence = settings.get_global_hot_key()  # Ctrl+Shift+h
         if key_sequence:
-            self._hotkey.unregister(winid=self.winId())
-            self._hotkey.register(key_sequence, self._on_toggle_window,
-                                  self.winId())
+            self.hotkey.unregister(winid=self.winId())
+            self.hotkey.register(key_sequence, self._on_toggle_window,
+                                 self.winId())
         else:
             title = 'Global Hot Key'
             message = 'Failed to bind global hot key %s.' % hotkey
-            self.tray_icon.showMessage(title, message,
-                                       icon=QSystemTrayIcon.Warning,
-                                       msecs=10000)
+            self.system_tray.showMessage(title, message,
+                                         icon=QSystemTrayIcon.Warning,
+                                         msecs=10000)
 
 
 class MainWidget(QWidget):
@@ -306,6 +305,7 @@ class MainWidget(QWidget):
 
     def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
+
         self.parent = parent
 
         # Ignore clipboard change when user sets item to clipboard
@@ -383,6 +383,9 @@ class MainWidget(QWidget):
 
         self.connect(self.view_main, SIGNAL('deleteData(int)'),
                      self.parent.db.delete_data)
+
+    def destroy(self):
+        self.model_main.submitAll()
 
     def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
