@@ -5,25 +5,21 @@ from PySide.QtSql import QSqlDatabase, QSqlQuery
 
 logger = logging.getLogger(__name__)
 
-_main_table_sql = """CREATE TABLE IF NOT EXISTS Main(
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    date            TIMESTAMP,
-    title_short      TEXT,
-    title_full       TEXT,
-    checksum        STRING,
-    save            INTEGER DEFAULT 0
+_main_table_sql = """CREATE TABLE IF NOT EXISTS main(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+title TEXT,
+title_short TEXT,
+checksum STRING,
+keep INTEGER DEFAULT 0,
+created_at TIMESTAMP
 );"""
 
-_data_table_sql = """CREATE TABLE IF NOT EXISTS Data(
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    parent_id    INTEGER,
-    format      STRING,
-    data        BLOB
+_data_table_sql = """CREATE TABLE IF NOT EXISTS data(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+parent_id INTEGER,
+mime_format STRING,
+data BLOB
 );"""
-
-_main_table_alter_v3_sql = """
-ALTER TABLE Main ADD COLUMN save INTEGER DEFAULT 0;
-"""
 
 
 def create_connection(storage_path):
@@ -45,7 +41,6 @@ def create_connection(storage_path):
 
     if not db.open():
         logger.error(db.lastError())
-        return False
 
     return db
 
@@ -53,9 +48,9 @@ def create_connection(storage_path):
 def create_tables():
     """Create the tables: main and mime data.
 
-    Main table has the following colums: ID, DATE, TITLE_SHORT, TITLE_FULL,
+    Main table has the following colums: ID, CREATED_AT, TITLE_SHORT, TITLE,
     and CHECKSUM. TITELSHORT is a truncated string based on lines to display
-    setting. TITLE_FULL is the entire string used during proxy filter search.
+    setting. TITLE is the entire string used during proxy filter search.
     CHECKSUM is the cyclic redundancy check of the mime data QByteArray.
     """
     query_main = QSqlQuery()
@@ -63,59 +58,56 @@ def create_tables():
     query_main.finish()
     if query_main.lastError().isValid():
         logger.error(query_main.lastError().text())
-        return False
-
-    query_main = QSqlQuery()
-    query_main.exec_(_main_table_alter_v3_sql)
-    query_main.finish()
 
     query_data = QSqlQuery()
     query_data.exec_(_data_table_sql)
     query_data.finish()
     if query_data.lastError().isValid():
         logger.error(query_data.lastError().text())
-        return False
 
     return True
 
+    # def count_main():
+    #     query = QSqlQuery()
+    #     query.prepare('SELECT Count(*) FROM Main')
 
-# def count_main():
-#     query = QSqlQuery()
-#     query.prepare('SELECT Count(*) FROM Main')
+    #     query.exec_()
+    #     query.next()
 
-#     query.exec_()
-#     query.next()
+    #     count = query.value(0)
+    #     if query.lastError().isValid():
+    #         logger.error(query.lastError().text())
+    #         count = 0
 
-#     count = query.value(0)
-#     if query.lastError().isValid():
-#         logger.error(query.lastError().text())
-#         count = 0
-
-#     return count
+    #     return count
 
 
-def insert_main(date, title_short, title_full, checksum):
-    """Insert new row into Main table.
+def insert_main(title, title_short, checksum, created_at):
+    """Insert new row in main table.
 
-    Args:
-        date (long): The number of milliseconds since 1970-01-01T00:00:00 UTC.
-        title_short (str): Truncated plain text based on number of lines to
-            display.
-        title_full (str): Entire plain text string.
-        checksum (str): Checksum from CRC32.
+    :param title: Full title of clipboard contents.
+    :type title: str
 
-    Returns:
-        row_id (int): Row ID from SQL INSERT.
-        None: Insert failed, see query.lastError().
+    :param title_short: Shorten title for truncating.
+    :type title_short: str
+
+    :param checksum: Checksum from CRC32.
+    :type checksum: str
+
+    :param created_at: UTC in milliseconds.
+    :type created_at: float
+
+    :return: Row id from SQL INSERT.
+    :rtype: int
     """
     query = QSqlQuery()
-    query.prepare('INSERT OR FAIL INTO Main (date, title_short, title_full, '
-                  'checksum) VALUES (:date, :title_short, :title_full, '
+    query.prepare('INSERT OR FAIL INTO Main (created_at, title, title_short,'
+                  'checksum) VALUES (:created_at, :title, :title_short, '
                   ':checksum)')
-    query.bindValue(':date', date)
+    query.bindValue(':title', title)
     query.bindValue(':title_short', title_short)
-    query.bindValue(':title_full', title_full)
     query.bindValue(':checksum', checksum)
+    query.bindValue(':created_at', created_at)
     query.exec_()
 
     if query.lastError().isValid():
@@ -125,11 +117,10 @@ def insert_main(date, title_short, title_full, checksum):
     logger.info('ID: %s' % row_id)
 
     query.finish()
-
     return row_id
 
 
-def insert_mime(parent_id, format, byte_data):
+def insert_mime(parent_id, mime_format, byte_data):
     """Insert mime data into Data table.
 
     Stores Main table's parent id, mime format type, and mime blob into Data
@@ -137,7 +128,7 @@ def insert_mime(parent_id, format, byte_data):
 
     Args:
         parent_id (int): Row ID from Main table.
-        format (str): Mime data format, i.e 'text/html'.
+        mime_format (str): Mime data format, i.e 'text/html'.
         byte_data (QByteArray): Mime data based on format converted to 
             QByteArray.
 
@@ -146,9 +137,9 @@ def insert_mime(parent_id, format, byte_data):
     """
     query = QSqlQuery()
     query.prepare('INSERT OR FAIL INTO Data '
-                  'VALUES (Null, :parent_id, :format, :data)')
+                  'VALUES (Null, :parent_id, :mime_format, :data)')
     query.bindValue(':parent_id', parent_id)
-    query.bindValue(':format', format)
+    query.bindValue(':mime_format', mime_format)
     query.bindValue(':data', byte_data)
     query.exec_()
 

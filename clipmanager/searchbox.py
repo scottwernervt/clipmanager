@@ -3,7 +3,7 @@ import logging
 from PySide.QtCore import Qt, Slot
 from PySide.QtGui import QLineEdit, QSortFilterProxyModel
 
-from clipmanager.defs import TITLE_FULL, TITLE_SHORT
+from clipmanager.defs import TITLE, TITLE_SHORT
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class SearchFilterProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
         super(SearchFilterProxyModel, self).__init__()
 
-        self.setFilterKeyColumn(TITLE_FULL)
+        self.setFilterKeyColumn(TITLE)
         self.setDynamicSortFilter(True)
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
 

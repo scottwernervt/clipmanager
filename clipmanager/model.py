@@ -3,7 +3,7 @@ import logging
 from PySide.QtCore import QDateTime, Qt
 from PySide.QtSql import QSqlTableModel
 
-from clipmanager.defs import CHECKSUM, DATE, ID, TITLE_FULL, TITLE_SHORT
+from clipmanager.defs import CHECKSUM, CREATED_AT, ID, TITLE, TITLE_SHORT
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +31,13 @@ class MainSqlTableModel(QSqlTableModel):
 
         # Model view is only for Main table, not Data
         self.setTable('Main')
-        self.setSort(DATE, Qt.DescendingOrder)  # Sort by Date
+        self.setSort(CREATED_AT, Qt.DescendingOrder)  # Sort by Date
 
         # Create header data
         self.setHeaderData(ID, Qt.Horizontal, 'ID')
-        self.setHeaderData(DATE, Qt.Horizontal, 'DATE')
+        self.setHeaderData(CREATED_AT, Qt.Horizontal, 'CREATED_AT')
         self.setHeaderData(TITLE_SHORT, Qt.Horizontal, 'TITLE_SHORT')
-        self.setHeaderData(TITLE_FULL, Qt.Horizontal, 'TITLE_FULL')
+        self.setHeaderData(TITLE, Qt.Horizontal, 'TITLE')
         self.setHeaderData(CHECKSUM, Qt.Horizontal, 'CHECKSUM')
 
         self.select()
@@ -84,17 +84,17 @@ class MainSqlTableModel(QSqlTableModel):
         if role == Qt.DisplayRole and column == TITLE_SHORT:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLE_FULL:
+        if role == Qt.DisplayRole and column == TITLE:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == DATE:
+        if role == Qt.DisplayRole and column == CREATED_AT:
             return int(QSqlTableModel.data(self, index))
 
         if role == Qt.DisplayRole and column == CHECKSUM:
             return unicode(QSqlTableModel.data(self, index))
 
         if role == Qt.ToolTipRole and column == TITLE_SHORT:
-            date_index = self.index(row, DATE)
+            date_index = self.index(row, CREATED_AT)
 
             time_stamp = QDateTime()
             time_stamp.setMSecsSinceEpoch(

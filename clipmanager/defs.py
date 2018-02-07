@@ -32,8 +32,8 @@ if not QFile.exists(STORAGE_PATH):
     directory.mkpath(STORAGE_PATH)
 
 # Database columns set as integers
-ID, DATE, TITLE_SHORT, TITLE_FULL, CHECKSUM, SAVE = range(6)
-ID, PARENT_ID, FORMAT, DATA = range(4)
+ID, TITLE, TITLE_SHORT, CHECKSUM, KEEP, CREATED_AT = range(6)
+ID, PARENT_ID, MIME_FORMAT, DATA = range(4)
 
 # Formats to check and save with from OS clipboard
 MIME_REFERENCES = [

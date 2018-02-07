@@ -55,10 +55,9 @@ class TestTables(object):
 
     def test_insert_main(self):
         """Does inserting into main table return a row #?"""
-        row_id = database.insert_main(QtCore.QDateTime.currentMSecsSinceEpoch(),
-                                      'Item 1 Short Title',
-                                      'Item 1 Full Title',
-                                      504268943)
+        row_id = database.insert_main('Item 1 Full Title', 'Item 1 Short Title',
+                                      504268943,
+                                      QtCore.QDateTime.currentMSecsSinceEpoch())
         assert row_id != None
         assert type(row_id) == long
 

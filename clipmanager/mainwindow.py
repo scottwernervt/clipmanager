@@ -38,7 +38,7 @@ from clipmanager import (
 from clipmanager.defs import (
     APP_NAME,
     CHECKSUM,
-    DATE,
+    CREATED_AT,
     ID,
     MIME_REFERENCES,
     STORAGE_PATH,
@@ -329,7 +329,7 @@ class MainWidget(QWidget):
         self.proxy_main.setSourceModel(self.model_main)
 
         # self.proxy_main = QSortFilterProxyModel(self)
-        # self.proxy_main.setFilterKeyColumn(TITLE_FULL)
+        # self.proxy_main.setFilterKeyColumn(TITLE)
         # self.proxy_main.setSourceModel(self.model_main)
         # self.proxy_main.setDynamicSortFilter(True)
         # self.proxy_main.setFilterCaseSensitivity(Qt.CaseInsensitive)
@@ -415,7 +415,7 @@ class MainWidget(QWidget):
 
         Searches entire model for a duplicate checksum on new item that 
         requested to be created. If duplicate is found then update the source 
-        DATE column and submit changes. 
+        CREATED_AT column and submit changes.
 
         Args:
             checksum (str): CRC32 string to search for.
@@ -431,11 +431,11 @@ class MainWidget(QWidget):
             source_index = self.model_main.index(row, CHECKSUM)
             checksum_source = self.model_main.data(source_index)
 
-            # Update DATE column if checksums match
+            # Update CREATED_AT column if checksums match
             if str(checksum) == str(checksum_source):
                 logger.debug('%s == %s' % (checksum, checksum_source))
 
-                self.model_main.setData(self.model_main.index(row, DATE),
+                self.model_main.setData(self.model_main.index(row, CREATED_AT),
                                         QDateTime.currentMSecsSinceEpoch())
                 self.model_main.submitAll()
                 logger.info(True)
@@ -493,17 +493,11 @@ class MainWidget(QWidget):
         title_short = remove_extra_lines(text=title_short,
                                          line_count=settings.get_lines_to_display())
 
-        date = QDateTime.currentMSecsSinceEpoch()
-
-        parent_id = database.insert_main(date=date,
+        created_at = QDateTime.currentMSecsSinceEpoch()
+        parent_id = database.insert_main(title=text,
                                          title_short=title_short,
-                                         title_full=text,
-                                         checksum=checksum)
-
-        # Store mime data into database
-        if not parent_id:
-            logger.error('Failed to create entry in database.')
-            return None
+                                         checksum=checksum,
+                                         created_at=created_at)
 
         # Highlight top item and then insert mime data
         self.model_main.select()  # Update view
@@ -512,17 +506,17 @@ class MainWidget(QWidget):
 
         # Convert mime data based on format to ByteArray
         data_insert = []
-        for format in MIME_REFERENCES:
-            if mime_data.hasFormat(format):
-                byte_data = QByteArray(mime_data.data(format))
-                data_insert.append([format, byte_data])
+        for mime_format in MIME_REFERENCES:
+            if mime_data.hasFormat(mime_format):
+                byte_data = QByteArray(mime_data.data(mime_format))
+                data_insert.append([mime_format, byte_data])
 
-        for format, __ in data_insert:
-            logger.debug('Format Saved: %s' % format)
+        for mime_format, __ in data_insert:
+            logger.debug('Mime format: %s' % mime_format)
 
         # Insert mime data into database
-        for format, byte_data in data_insert:
-            database.insert_mime(parent_id, format, byte_data)
+        for mime_format, byte_data in data_insert:
+            database.insert_mime(parent_id, mime_format, byte_data)
 
         # Maintain maximum number of entries
         if int(settings.get_max_entries_value()) != 0:
@@ -549,16 +543,12 @@ class MainWidget(QWidget):
 
         for row in entries:
             logger.debug('Row: %d' % row)
-            index = self.model_main.index(row, DATE)
-            date = self.model_main.data(index)
-            logger.debug('Date: %s' % date)
-
-            if not date:
-                logger.warn('History is empty or date is missing from db!')
-                break
+            index = self.model_main.index(row, CREATED_AT)
+            created_at = self.model_main.data(index)
+            logger.debug('Date: %s' % created_at)
 
             # Convert from ms to s
-            time = datetime.datetime.fromtimestamp(date / 1000)
+            time = datetime.datetime.fromtimestamp(created_at / 1000)
             today = datetime.datetime.today()
             delta = today - time
 
@@ -674,6 +664,7 @@ class MainWidget(QWidget):
             self.emit(SIGNAL('pasteAction()'))
 
         # Update the date column in source
-        self.model_main.setData(self.model_main.index(model_index.row(), DATE),
-                                QDateTime.currentMSecsSinceEpoch())
+        self.model_main.setData(
+            self.model_main.index(model_index.row(), CREATED_AT),
+            QDateTime.currentMSecsSinceEpoch())
         self.model_main.submitAll()
