@@ -8,7 +8,7 @@ from PySide.QtCore import QDir, QEvent, SIGNAL, Slot
 from PySide.QtGui import QApplication
 
 from clipmanager.defs import APP_DOMAIN, APP_NAME, APP_ORG, APP_VERSION
-from clipmanager.mainwindow import MainWindow
+from clipmanager.ui.mainwindow import MainWindow
 from clipmanager.singleinstance import SingleInstance
 
 
