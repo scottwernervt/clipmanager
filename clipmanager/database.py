@@ -95,28 +95,28 @@ def insert_main(title, title_short, checksum, created_at):
     :type checksum: str
 
     :param created_at: UTC in milliseconds.
-    :type created_at: float
+    :type created_at: int
 
     :return: Row id from SQL INSERT.
     :rtype: int
     """
-    query = QSqlQuery()
-    query.prepare('INSERT OR FAIL INTO Main (created_at, title, title_short,'
-                  'checksum) VALUES (:created_at, :title, :title_short, '
-                  ':checksum)')
-    query.bindValue(':title', title)
-    query.bindValue(':title_short', title_short)
-    query.bindValue(':checksum', checksum)
-    query.bindValue(':created_at', created_at)
-    query.exec_()
+    insert_query = QSqlQuery()
+    insert_query.prepare(
+        'INSERT OR FAIL INTO main (title, title_short, checksum, '
+        'created_at) VALUES (:created_at, :title, :title_short, '
+        ':checksum)')
+    insert_query.bindValue(':title', title)
+    insert_query.bindValue(':title_short', title_short)
+    insert_query.bindValue(':checksum', checksum)
+    insert_query.bindValue(':created_at', created_at)
+    insert_query.exec_()
 
-    if query.lastError().isValid():
-        logger.error(query.lastError().text())
+    if insert_query.lastError().isValid():
+        logger.error(insert_query.lastError().text())
 
-    row_id = query.lastInsertId()  # If failed: None
-    logger.info('ID: %s' % row_id)
+    row_id = insert_query.lastInsertId()
+    insert_query.finish()
 
-    query.finish()
     return row_id
 
 
@@ -136,8 +136,7 @@ def insert_mime(parent_id, mime_format, byte_data):
         row_id (int): Row ID from SQL INSERT.
     """
     query = QSqlQuery()
-    query.prepare('INSERT OR FAIL INTO Data '
-                  'VALUES (Null, :parent_id, :mime_format, :data)')
+    query.prepare('INSERT OR FAIL INTO data VALUES (Null, :parent_id, :mime_format, :data)')
     query.bindValue(':parent_id', parent_id)
     query.bindValue(':mime_format', mime_format)
     query.bindValue(':data', byte_data)
