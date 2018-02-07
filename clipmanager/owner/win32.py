@@ -10,6 +10,7 @@ from ctypes import (
     windll,
 )
 
+from win32gui import GetWindowText
 from win32process import GetWindowThreadProcessId
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,18 @@ EnumWindows = windll.user32.EnumWindows
 EnumWindowsProc = WINFUNCTYPE(c_bool, POINTER(c_int), POINTER(c_int))
 GetWindowText = windll.user32.GetWindowTextW
 GetWindowTextLength = windll.user32.GetWindowTextLengthW
+
+
+def get_hwnds_for_pid(pid):
+    def callback(hwnd, hwnds):
+        _, found_pid = GetWindowThreadProcessId(hwnd)
+        if found_pid == pid:
+            hwnds.append(hwnd)
+        return True
+
+    hwnds = []
+    EnumWindows(callback, hwnds)
+    return hwnds
 
 
 def get_win32_owner():
@@ -41,38 +54,42 @@ def get_win32_owner():
     # HWND WINAPI GetClipboardOwner(void);
     owner_hwnd = windll.user32.GetClipboardOwner()
 
-    window_titles = []
-
-    def foreach_window(hwnd, lParam):
-        # int WINAPI GetWindowTextLength(
-        #   _In_ HWND hWnd
-        # );
-        length = GetWindowTextLength(hwnd)
-        buff = create_unicode_buffer(length + 1)
-
-        # int WINAPI GetWindowText(
-        #   _In_  HWND   hWnd,
-        #   _Out_ LPTSTR lpString,
-        #   _In_  int    nMaxCount
-        # );
-        GetWindowText(hwnd, buff, length + 1)
-
-        if buff.value:
-            window_titles.append((hwnd, buff.value))
-
-    EnumWindows(EnumWindowsProc(foreach_window), 0)
-
     # DWORD WINAPI GetWindowThreadProcessId(
     #   _In_       HWND hWnd,
     #   _Out_opt_  LPDWORD lpdwProcessId
     # );
     _, owner_process_id = GetWindowThreadProcessId(owner_hwnd)
 
-    for window_hwnd, window_title in window_titles:
-        _, window_process_id = GetWindowThreadProcessId(window_hwnd)
-        print(window_process_id, owner_process_id, window_process_id == owner_process_id)
-        if window_process_id == owner_hwnd:
-            print('we got a match')
+    window_titles = []
+
+    for hwnd in get_hwnds_for_pid(owner_process_id):
+        print hwnd, "=>", GetWindowText(hwnd)
+
+    # def foreach_window(hwnd, lParam):
+    #     # int WINAPI GetWindowTextLength(
+    #     #   _In_ HWND hWnd
+    #     # );
+    #     length = GetWindowTextLength(hwnd)
+    #     buff = create_unicode_buffer(length + 1)
+    #
+    #     # int WINAPI GetWindowText(
+    #     #   _In_  HWND   hWnd,
+    #     #   _Out_ LPTSTR lpString,
+    #     #   _In_  int    nMaxCount
+    #     # );
+    #     GetWindowText(hwnd, buff, length + 1)
+    #
+    #     if buff.value:
+    #         window_titles.append((hwnd, buff.value))
+    #
+    # EnumWindows(EnumWindowsProc(foreach_window), 0)
+
+
+    # for window_hwnd, window_title in window_titles:
+    #     _, window_process_id = GetWindowThreadProcessId(window_hwnd)
+    #     print(window_process_id, owner_process_id, window_process_id == owner_process_id)
+    #     if window_process_id == owner_hwnd:
+    #         print('we got a match')
 
 
 
