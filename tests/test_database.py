@@ -68,7 +68,7 @@ class TestTables(object):
         mime_data.setData(format, 'test mime data')
         byte_data = QtCore.QByteArray(mime_data.data(format))
         
-        row_id = database.insert_mime(1, format, byte_data)
+        row_id = database.insert_data(1, format, byte_data)
         assert row_id != None
         assert type(row_id) == long
 

@@ -102,9 +102,9 @@ class TestCalculateChecksum(object):
 
 
 def test_clean_up_text():
-	assert utils.clean_up_text('\ttab1') == 'tab1'
-	assert utils.clean_up_text('\tline1\n\t\tline2') == 'line1\n    line2'
-	assert utils.clean_up_text('    4 spaces') == '4 spaces'
+	assert utils.format_title('\ttab1') == 'tab1'
+	assert utils.format_title('\tline1\n\t\tline2') == 'line1\n    line2'
+	assert utils.format_title('    4 spaces') == '4 spaces'
 
 
 def test_remove_extra_lines():
