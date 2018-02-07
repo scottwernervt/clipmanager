@@ -30,15 +30,15 @@ class MainSqlTableModel(QSqlTableModel):
         self.setEditStrategy(QSqlTableModel.OnManualSubmit)
 
         # Model view is only for Main table, not Data
-        self.setTable('Main')
+        self.setTable('main')
         self.setSort(CREATED_AT, Qt.DescendingOrder)  # Sort by Date
 
         # Create header data
         self.setHeaderData(ID, Qt.Horizontal, 'ID')
-        self.setHeaderData(CREATED_AT, Qt.Horizontal, 'CREATED_AT')
-        self.setHeaderData(TITLE_SHORT, Qt.Horizontal, 'TITLE_SHORT')
         self.setHeaderData(TITLE, Qt.Horizontal, 'TITLE')
+        self.setHeaderData(TITLE_SHORT, Qt.Horizontal, 'TITLE_SHORT')
         self.setHeaderData(CHECKSUM, Qt.Horizontal, 'CHECKSUM')
+        self.setHeaderData(CREATED_AT, Qt.Horizontal, 'CREATED_AT')
 
         self.select()
 
@@ -81,10 +81,10 @@ class MainSqlTableModel(QSqlTableModel):
         if role == Qt.DisplayRole and column == ID:
             return int(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLE_SHORT:
+        if role == Qt.DisplayRole and column == TITLE:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLE:
+        if role == Qt.DisplayRole and column == TITLE_SHORT:
             return unicode(QSqlTableModel.data(self, index))
 
         if role == Qt.DisplayRole and column == CREATED_AT:
