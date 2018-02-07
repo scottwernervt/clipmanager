@@ -60,8 +60,6 @@ def calculate_checksum(mime_data):
         mime_data (QMimeData): data from clipboard
 
     Returns:
-        None: Clipboard contents do not have text, html, or url. In other words,
-              the format is not supported.
         checksum: QMimeData bytes converted to crc32.
     """
     checksum_str = None
@@ -100,7 +98,7 @@ def calculate_checksum(mime_data):
     return checksum
 
 
-def clean_up_text(text):
+def format_title(text):
     """Dedent text and replace tab's with spaces.
 
     Args:
