@@ -33,7 +33,7 @@ if not QFile.exists(STORAGE_PATH):
 
 # Database columns set as integers
 ID, TITLE, TITLE_SHORT, CHECKSUM, KEEP, CREATED_AT = range(6)
-ID, PARENT_ID, MIME_FORMAT, BYTE_DATA = range(4)
+_, PARENT_ID, MIME_FORMAT, BYTE_DATA = range(4)
 
 # Formats to check and save with from OS clipboard
 MIME_SUPPORTED = [
