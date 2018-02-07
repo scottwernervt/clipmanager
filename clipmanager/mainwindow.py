@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
 
         # Update scroll bars and refresh view
         set_word_wrap = settings.get_word_wrap()
-        self.main_widget.view_main.set_horiz_scrollbar(set_word_wrap)
+        self.main_widget.view_main.toggle_horizontal_scrollbar(set_word_wrap)
         self.main_widget.model_main.select()
 
         self.unsetCursor()
@@ -322,7 +322,7 @@ class MainWidget(QWidget):
         self.window_owner = owner.initialize()
 
         # Create view, model, and proxy
-        self.view_main = view.ListView(self)
+        self.view_main = view.HistoryListView(self)
         self.model_main = model.MainSqlTableModel(self)
 
         self.proxy_main = searchbox.SearchFilterProxyModel(self)
@@ -525,7 +525,7 @@ class MainWidget(QWidget):
         if int(expire_at) == 0:
             return
 
-        entries = range(0, self.model_main.rowCount() + 1)
+        entries = range(0, self.model_main.rowCount())
         entries.reverse()  # Start from bottom of QListView
 
         for row in entries:

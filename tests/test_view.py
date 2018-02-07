@@ -54,7 +54,7 @@ class TestListView(object):
         self.model = SimpleListModel(self.data)
 
         # Create view
-        self.view = view.ListView()
+        self.view = view.HistoryListView()
         self.view.setModel(self.model)
         self.view.show()    # Needed to test scrollbar
         
@@ -68,12 +68,12 @@ class TestListView(object):
         selection_model.setCurrentIndex(index, QtGui.QItemSelectionModel.Select)
 
     def test_scrollbar_on(self):
-        self.view.set_horiz_scrollbar(True)
+        self.view.toggle_horizontal_scrollbar(True)
         policy = self.view.horizontalScrollBarPolicy()
         assert (policy == QtCore.Qt.ScrollBarAlwaysOff)
 
     def test_scrollbar_off(self):
-        self.view.set_horiz_scrollbar(False)
+        self.view.toggle_horizontal_scrollbar(False)
         policy = self.view.horizontalScrollBarPolicy()
         assert (policy == QtCore.Qt.ScrollBarAsNeeded)
 

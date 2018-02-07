@@ -23,19 +23,14 @@ from clipmanager.utils import resource_filename
 logger = logging.getLogger(__name__)
 
 
-class ListView(QListView):
-    """Clipboard history list.
-
-    Todo:
-        Investigate if storing QMimeData for each list item instead of doing
-        a lookup in the database and creating it.
-    """
+class HistoryListView(QListView):
+    """Clipboard history list."""
 
     def __init__(self, parent=None):
-        super(ListView, self).__init__(parent)
+        super(HistoryListView, self).__init__(parent)
+
         self.parent = parent
 
-        # Settings/design
         self.setLayoutMode(QListView.SinglePass)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -45,149 +40,54 @@ class ListView(QListView):
         self.setViewMode(QListView.ListMode)
         self.setResizeMode(QListView.Adjust)
         self.setStyleSheet('QListView::item {padding:10px;}')
+        self.setItemDelegate(HistoryListItemDelegate(self))
 
-        # Toggle horizontal scroll bar on and off if word wrap enabled
-        self.set_horiz_scrollbar(settings.get_word_wrap())
+        self.toggle_horizontal_scrollbar(settings.get_word_wrap())
 
-        # Set view delegate
-        delegate = ItemDelegate(self)
-        self.setItemDelegate(delegate)
-
-        # Build right click menu and connect actions to widget
-        # Changed from 
         self._build_menu()
-        self.addAction(self.apply_act)
-        self.addAction(self.preview_act)
-        self.addAction(self.delete_act)
+        self.addAction(self.apply_action)
+        self.addAction(self.preview_action)
+        self.addAction(self.delete_action)
 
-        # Item double clicked is set to clipboard
         self.doubleClicked.connect(self._emit_set_clipboard)
 
     def resizeEvent(self, event):
-        """Reset view when user changes lines to display or word wrap settings.
+        """Reset list view when word wrap setting changed.
 
-        Args:
-            event: QResizeEvent
+        :param event:
+        :type event: QResizeEvent
 
-        Returns:
-            Allow QListView.resizeEvent() to process.
-
+        :return:
+        :rtype: QListView.resizeEvent()
         """
         self.emit(SIGNAL('layoutChanged()'))
         self.reset()
         return QListView.resizeEvent(self, event)
 
-    def set_horiz_scrollbar(self, toggle):
-        """Toggle horizontal scroll bar on and off.
-
-        Args:
-            toggle (int/bool): Turn on or off.
-        """
-        if toggle:
-            scroll_bar = Qt.ScrollBarAlwaysOff
-        else:
-            scroll_bar = Qt.ScrollBarAsNeeded
-
-        self.setHorizontalScrollBarPolicy(scroll_bar)
-
-    def _exit(self):
-        """Tell the application to exit with return code 0 (success).
-        """
-        QCoreApplication.quit()
-
-    def _build_menu(self):
-        """Create right click menu.
-        """
-        self.menu = QMenu(self)
-
-        # Set item to clipboard
-        self.apply_act = QAction(QIcon.fromTheme('list-add',
-                                                 QIcon(
-                                                     resource_filename(
-                                                         'icons/add.png'))),
-                                 'Set to clipboard', self)
-        self.apply_act.setShortcut(QKeySequence(Qt.Key_Return))
-
-        # Preview item's contents
-        self.preview_act = QAction(QIcon.fromTheme('document',
-                                                   QIcon(
-                                                       resource_filename(
-                                                           'icons/document.png'))),
-                                   'Preview', self)
-        self.preview_act.setShortcut(QKeySequence(Qt.Key_F11))
-
-        # Prevent item from being deleted
-        self.save_act = QAction('Never delete', self)
-        self.save_act.setCheckable(True)
-
-        # Delete item
-        self.delete_act = QAction(QIcon.fromTheme('list-remove',
-                                                  QIcon(
-                                                      resource_filename(
-                                                          'icons/remove.png'))),
-                                  'Delete', self)
-        self.delete_act.setShortcut(QKeySequence.Delete)
-
-        seperator_1 = QAction(self)
-        seperator_1.setSeparator(True)
-
-        # Open settings dialog
-        settings_act = QAction(QIcon.fromTheme('emblem-system',
-                                               QIcon(
-                                                   resource_filename(
-                                                       'icons/settings.png'))),
-                               'Settings', self)
-
-        seperator_2 = QAction(self)
-        seperator_2.setSeparator(True)
-
-        # Exit
-        exit_act = QAction(QIcon.fromTheme('application-exit',
-                                           QIcon(
-                                               resource_filename(
-                                                   'icons/exit.png'))),
-                           'Quit', self)
-
-        # Add to menu
-        self.menu.addAction(self.apply_act)
-        self.menu.addAction(self.preview_act)
-        self.menu.addAction(self.save_act)
-        self.menu.addAction(self.delete_act)
-        self.menu.addAction(seperator_2)
-        self.menu.addAction(settings_act)
-        self.menu.addAction(seperator_1)
-        self.menu.addAction(exit_act)
-
-        # Connect signal for each action
-        self.menu.connect(self.apply_act, SIGNAL('triggered()'),
-                          self._emit_set_clipboard)
-        self.menu.connect(self.preview_act, SIGNAL('triggered()'),
-                          self._emit_open_preview)
-        self.menu.connect(self.delete_act, SIGNAL('triggered()'),
-                          self._delete_rows)
-        self.menu.connect(settings_act, SIGNAL('triggered()'),
-                          self._emit_open_settings)
-        self.menu.connect(exit_act, SIGNAL('triggered()'), self._exit)
-
     def contextMenuEvent(self, event):
-        """Subclass context menu.
-        """
+        """Capture context menu event.
 
+        :param event:
+        :type event: QEvent
+
+        :return:
+        :rtype:
+        """
         # Get selected item
-        indexes = self.selectionModel().selectedIndexes()
-        # self.apply_act.setChecked(True)
+        # indexes = self.selectionModel().selectedIndexes()
+        # self.apply_action.setChecked(True)
 
         # Open menu
         self.menu.exec_(self.mapToGlobal(event.pos()))
 
     def keyPressEvent(self, event):
-        """Set focus to search box if user starts typing text.
+        """Automatically set focus to search box when typing.
 
-        Args: 
-            event: QEvent
+        :param event:
+        :type event: QEvent
 
-        Returns:
-            Allow QListView.keyPressEvent() to process.
+        :return:
+        :rtype: QListView.keyPressEvent()
         """
         # Catch select all <CTRL><A> on list
         if (event.modifiers() == Qt.ControlModifier) and \
@@ -214,24 +114,32 @@ class ListView(QListView):
 
     @Slot()
     def _emit_open_preview(self):
-        """Emit signal with selected item's QModelIndex to open preview dialog.
+        """Send open preview signal with selection index.
+
+        :return: None
+        :rtype: None
         """
-        self.emit(SIGNAL('open-preview(QModelIndex)'),
-                  self.currentIndex())
+        self.emit(SIGNAL('open-preview(QModelIndex)'), self.currentIndex())
 
     @Slot()
     def _emit_open_settings(self):
-        """Emit signal to open settings dialog.
+        """Send open settings dialog signal.
+
+        :return: None
+        :rtype: None
         """
         self.emit(SIGNAL('open-settings()'))
 
     @Slot()
     def _emit_set_clipboard(self):
-        """Emit signal to set clipboard contents.
+        """Send set clipboard signal.
 
         Todo:
-            Send list of selected indexes instead of just emitting a signal
-            and having main window grab the selection.
+        * Send list of selected indexes instead of just emitting a signal
+        * and having main window grab the selection.
+
+        :return: None
+        :rtype: None
         """
         # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
         # for __ in indexes:
@@ -239,28 +147,35 @@ class ListView(QListView):
 
     @Slot()
     def _delete_rows(self):
-        """Delete selected indexes.
+        """Delete selected rows.
 
-        CTRL+A on list view selects hidden columns. So even if user deselects 
-        an item, it will still be deleted since the hidden column is still 
-        selected. selectedRows(column=TITLE) wasn't working for QListView.
+        CTRL+A on list view selects hidden columns. So even if user deselects
+        an item, it will still be deleted since the hidden column is still
+        selected.
+
+        :return: None
+        :rtype: None
         """
         self.setCursor(Qt.BusyCursor)
 
         selection_model = self.selectionModel()
         indexes = selection_model.selectedIndexes()
-        logger.debug('Items selected: %d' % len(indexes))
 
-        def get_row_id(index):
-            """Sort by row number
+        def get_row_id(idx):
+            """Sort row by ids.
+
+            :param idx:
+            :type idx: QModelIndex
+
+            :return: Row index.
+            :rtype:int
             """
-            return index.row()
+            return idx.row()
 
         # Sort indexes by row number and delete each row and child mime data
         for index in sorted(indexes, key=get_row_id, reverse=True):
             if index.column() == TITLE_SHORT:
                 row = index.row()
-                logger.debug('ID: %d' % row)
 
                 # Get model index
                 model_index = self.model().index(row, ID)
@@ -275,28 +190,142 @@ class ListView(QListView):
         self.model().submit()
         self.unsetCursor()
 
+    def _build_menu(self):
+        """Create right click menu and actions."
 
-class ItemDelegate(QStyledItemDelegate):
-    """Subclass paintnig and style of QListView items.
-    """
+        :return: None
+        :rtype: None
+        """
+        self.menu = QMenu(self)
+
+        # Set item to clipboard
+        self.apply_action = QAction(
+            QIcon.fromTheme(
+                'list-add',
+                QIcon(resource_filename('icons/add.png'))
+            ),
+            'Set to clipboard',
+            self
+        )
+        self.apply_action.setShortcut(QKeySequence(Qt.Key_Return))
+
+        # Preview item's contents
+        self.preview_action = QAction(
+            QIcon.fromTheme(
+                'document',
+                QIcon(resource_filename('icons/document.png'))
+            ),
+            'Preview',
+            self
+        )
+        self.preview_action.setShortcut(QKeySequence(Qt.Key_F11))
+
+        # Prevent item from being deleted
+        self.save_action = QAction('Never delete', self)
+        self.save_action.setCheckable(True)
+
+        # Delete item
+        self.delete_action = QAction(
+            QIcon.fromTheme(
+                'list-remove',
+                QIcon(resource_filename('icons/remove.png'))
+            ),
+            'Delete',
+            self
+        )
+        self.delete_action.setShortcut(QKeySequence.Delete)
+
+        separator_1 = QAction(self)
+        separator_1.setSeparator(True)
+
+        # Open settings dialog
+        settings_act = QAction(
+            QIcon.fromTheme(
+                'emblem-system',
+                QIcon(resource_filename('icons/settings.png'))
+            ),
+            'Settings',
+            self
+        )
+
+        separator_2 = QAction(self)
+        separator_2.setSeparator(True)
+
+        # Exit
+        exit_action = QAction(
+            QIcon.fromTheme(
+                'application-exit',
+                QIcon(resource_filename('icons/exit.png'))
+            ),
+            'Quit',
+            self
+        )
+
+        # Add to menu
+        self.menu.addAction(self.apply_action)
+        self.menu.addAction(self.preview_action)
+        self.menu.addAction(self.save_action)
+        self.menu.addAction(self.delete_action)
+        self.menu.addAction(separator_2)
+        self.menu.addAction(settings_act)
+        self.menu.addAction(separator_1)
+        self.menu.addAction(exit_action)
+
+        # Connect signal for each action
+        self.menu.connect(self.apply_action,
+                          SIGNAL('triggered()'),
+                          self._emit_set_clipboard)
+        self.menu.connect(self.preview_action,
+                          SIGNAL('triggered()'),
+                          self._emit_open_preview)
+        self.menu.connect(self.delete_action,
+                          SIGNAL('triggered()'),
+                          self._delete_rows)
+        self.menu.connect(settings_act,
+                          SIGNAL('triggered()'),
+                          self._emit_open_settings)
+        self.menu.connect(exit_action,
+                          SIGNAL('triggered()'),
+                          QCoreApplication.quit)
+
+    def toggle_horizontal_scrollbar(self, toggle):
+        """Toggle horizontal scroll bar on and off.
+
+        :param toggle: Turn scroll bar or off.
+        :type toggle: bool
+
+        :return: None
+        :rtype: None
+        """
+        policy = Qt.ScrollBarAlwaysOff if toggle else Qt.ScrollBarAsNeeded
+        self.setHorizontalScrollBarPolicy(policy)
+
+
+class HistoryListItemDelegate(QStyledItemDelegate):
+    """Subclass painting and style of QListView items."""
 
     def __init__(self, parent=None):
-        super(ItemDelegate, self).__init__(parent)
+        super(HistoryListItemDelegate, self).__init__(parent)
+
         self.parent = parent
 
     def paint(self, painter, option, index):
         """Subclass of paint function.
 
-        Args:
-            painter: QPainter
-            option: QStyleOptionViewItem
-            index: QModelIndex
-
-        Returns:
-            QStyledItemDelegate.paint() if QModelIndex is not valid.
-
         References:
-            http://pydoc.net/Python/gayeogi/0.6/gayeogi.plugins.player/
+        http://pydoc.net/Python/gayeogi/0.6/gayeogi.plugins.player/
+
+        :param painter:
+        :type painter: QPainter
+
+        :param option:
+        :type option: QStyleOptionViewItem
+
+        :param index:
+        :type index: QModelIndex
+
+        :return:
+        :rtype: QStyledItemDelegate.paint()
         """
         if not index.isValid():
             return QStyledItemDelegate.paint(self, painter, option, index)
@@ -329,22 +358,26 @@ class ItemDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option, index):
-        """Option size is calculated by creating a QTextDocument with modified
-        text and determining the dimensions.
+        """Calculate option size.
 
-        Args:
-            option: QStyleOptionViewItem
-            index: QModelIndex
-
-        Returns:
-            QStyledItemDelegate.sizeHint() if QModelIndex is invalid.
-
-        References:
-            http://qt-project.org/forums/viewthread/12186
+        Calculated by creating a QTextDocument with modified text and
+        determining the dimensions.
 
         Todo:
-            Look into using font metrics bounding rect.
-            Handle lines to display in relation to word wrap.
+        * Look into using font metrics bounding rect.
+        * Handle lines to display in relation to word wrap.
+
+        References:
+        http://qt-project.org/forums/viewthread/12186
+
+        :param option:
+        :type option: QStyleOptionViewItem
+
+        :param index:
+        :type index: QModelIndex
+
+        :return:
+        :rtype: QSize
         """
         if not index.isValid():
             return QStyledItemDelegate.sizeHint(self, option, index)
@@ -355,8 +388,8 @@ class ItemDelegate(QStyledItemDelegate):
         text_option = QTextOption()
         text_option.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-        # Reimplement as lines to display canFetchMore be ignored if word wrap 
-        # forces an extra line to be created
+        # Reimplemented as lines to display canFetchMore be ignored if word
+        # wrap forces an extra line to be created
         if settings.get_word_wrap():
             text_option.setWrapMode(QTextOption.WrapAnywhere)
         else:
