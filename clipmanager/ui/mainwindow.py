@@ -608,8 +608,8 @@ class MainWidget(QWidget):
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
-        for format, byte_data in mime_list:
-            mime_data.setData(format, byte_data)
+        for mime_format, byte_data in mime_list:
+            mime_data.setData(mime_format, byte_data)
 
         # PreviewDialog(self) so it opens at main window
         preview_dialog = PreviewDialog(self)

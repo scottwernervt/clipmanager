@@ -4,6 +4,10 @@
 import os
 import pytest
 import sys
+
+import clipmanager.ui.dialogs.preview
+import clipmanager.ui.dialogs.settings
+
 sys.path.append('..')
 
 from PySide import QtCore
@@ -22,7 +26,7 @@ except RuntimeError:
 class TestSettingsDialog(object):
 
     def setup_class(self):
-        self.dialog = dialogs.SettingsDialog()
+        self.dialog = clipmanager.ui.dialogs.settings.SettingsDialog()
         self.dialog.key_combo_edit.clear_text()
         self.dialog.super_check.setCheckState(QtCore.Qt.Unchecked)
 
@@ -73,7 +77,7 @@ class TestSettingsDialog(object):
 class TestPreviewDialog(object):
 
     def test_doc_plaintext(self):
-        dialog = dialogs.PreviewDialog()
+        dialog = clipmanager.ui.dialogs.preview.PreviewDialog()
 
         # Plain text displays in QTextEdit
         mime_data = QtCore.QMimeData()
@@ -85,7 +89,7 @@ class TestPreviewDialog(object):
         del dialog
 
     def test_doc_html(self):
-        dialog = dialogs.PreviewDialog()
+        dialog = clipmanager.ui.dialogs.preview.PreviewDialog()
 
         # Html text displays in QWebView
         text = 'hi'
@@ -98,7 +102,7 @@ class TestPreviewDialog(object):
         del dialog
 
     def test_mix_mime(self):
-        dialog = dialogs.PreviewDialog()
+        dialog = clipmanager.ui.dialogs.preview.PreviewDialog()
 
         # Html text displays in QWebView
         text = 'hi'

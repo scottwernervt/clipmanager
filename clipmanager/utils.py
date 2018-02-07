@@ -40,11 +40,11 @@ def create_full_title(mime_data):
             text += url.toString() + seperator
 
     # Set plain text
-    if mime_data.hasText() and text == None:
+    if mime_data.hasText() and text is None:
         text = mime_data.text()
 
     # Last resort to create title
-    if mime_data.hasHtml() and text == None:
+    if mime_data.hasHtml() and text is None:
         text = mime_data.html()
 
     logger.debug(text)
@@ -89,10 +89,10 @@ def calculate_checksum(mime_data):
     # CRASH FIX: Handle unicode characters for calculating checksum
     codec = QTextCodec.codecForName('UTF-8')
     encoder = QTextEncoder(codec)
-    bytes = encoder.fromUnicode(checksum_str)  # QByteArray
+    byte_array = encoder.fromUnicode(checksum_str)  # QByteArray
 
     # Calculate checksum with crc32 method (quick)
-    checksum = zlib.crc32(bytes)
+    checksum = zlib.crc32(byte_array)
     logger.debug('checksum=%s' % checksum)
 
     return checksum
@@ -154,7 +154,7 @@ def resource_filename(file_name):
         pkg_resource: Return a true filesystem path for specified resource.
     """
     paths = map(
-        lambda path: os.path.join(path, file_name),
+        lambda p: os.path.join(p, file_name),
         (
             os.path.dirname(sys.argv[0]),  # Win: Executing path of exe
             # Add possible linux paths

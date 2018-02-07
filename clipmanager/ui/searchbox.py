@@ -13,7 +13,7 @@ class SearchFilterProxyModel(QSortFilterProxyModel):
     """
 
     def __init__(self, parent=None):
-        super(SearchFilterProxyModel, self).__init__()
+        super(SearchFilterProxyModel, self).__init__(parent)
 
         self.setFilterKeyColumn(TITLE)
         self.setDynamicSortFilter(True)

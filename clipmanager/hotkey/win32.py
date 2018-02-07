@@ -167,7 +167,8 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
 
         return self._TranslateMessageReal(pmsg)
 
-    def destroy(self):
+    @staticmethod
+    def destroy():
         unhotpatch(ctypes.windll.user32.TranslateMessage)
 
     def __del__(self):
