@@ -71,9 +71,6 @@ class MainWindow(QMainWindow):
                             Qt.CustomizeWindowHint |
                             Qt.WindowCloseButtonHint)
 
-        self.database = Database(STORAGE_PATH)
-        self.database.create_tables()
-
         # Create main widget that holds contents of clipboard history
         self.main_widget = MainWidget(self)
         self.setCentralWidget(self.main_widget)
@@ -137,7 +134,6 @@ class MainWindow(QMainWindow):
         :rtype: None
         """
         self.main_widget.destroy()
-        self.database.close()
 
         if self.hotkey:
             self.hotkey.unregister(winid=self.winId())
@@ -308,6 +304,9 @@ class MainWidget(QWidget):
 
         self.parent = parent
 
+        self.database = Database(STORAGE_PATH)
+        self.database.create_tables()
+
         # Ignore clipboard change when user sets item to clipboard
         self.ignore_created = False
 
@@ -382,10 +381,11 @@ class MainWidget(QWidget):
                      SIGNAL('newItem(QMimeData)'), self.on_new_item)
 
         self.connect(self.view_main, SIGNAL('deleteData(int)'),
-                     self.parent.db.delete_data)
+                     self.database.delete_data)
 
     def destroy(self):
         self.model_main.submitAll()
+        self.database.close()
 
     def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
@@ -454,7 +454,7 @@ class MainWidget(QWidget):
                 index = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index)
 
-                self.db.delete_mime(parent_id)
+                self.database.delete_mime(parent_id)
                 self.model_main.removeRow(row)
             else:
                 logger.debug('Last row not expired, breaking!')
@@ -486,7 +486,7 @@ class MainWidget(QWidget):
                 index_id = self.model_main.index(row, ID)
                 parent_id = self.model_main.data(index_id)
 
-                self.db.delete_data(parent_id)
+                self.database.delete_data(parent_id)
                 self.model_main.removeRow(row)
 
         self.model_main.submitAll()
@@ -558,17 +558,17 @@ class MainWidget(QWidget):
             # TODO: Update created_at date for duplicate
             return None
 
-        parent_id = self.db.insert_main(title=title,
-                                        title_short=title_short,
-                                        checksum=checksum,
-                                        created_at=created_at)
+        parent_id = self.database.insert_main(title=title,
+                                              title_short=title_short,
+                                              checksum=checksum,
+                                              created_at=created_at)
 
         # Save each mime format as QByteArray to data table.
         for mime_format in MIME_SUPPORTED:
             if mime_data.hasFormat(mime_format):
                 byte_data = QByteArray(mime_data.data(mime_format))
                 logger.debug('Mime format: %s', mime_format)
-                self.db.insert_data(parent_id, mime_format, byte_data)
+                self.database.insert_data(parent_id, mime_format, byte_data)
 
         self.purge_max_entries()
         self.purge_expired_entries()
@@ -599,7 +599,7 @@ class MainWidget(QWidget):
         logger.debug('ID: %s' % parent_id)
 
         # Find all children relating to parent_id
-        mime_list = self.db.get_data(parent_id)
+        mime_list = self.database.get_data(parent_id)
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
@@ -637,8 +637,8 @@ class MainWidget(QWidget):
         model_index = self.model_main.index(source_index.row(), ID)
         parent_id = self.model_main.data(model_index)
 
-        # Find all childs relating to parent_id
-        mime_list = self.db.get_data(parent_id)
+        # Find all children relating to parent_id
+        mime_list = self.database.get_data(parent_id)
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()

@@ -34,7 +34,7 @@ class Database(QObject):
         if not db.open():
             logger.error(db.lastError())
 
-        self.db = db
+        self.connection = db
 
     @staticmethod
     def insert_main(title, title_short, checksum, created_at):
@@ -197,4 +197,4 @@ class Database(QObject):
         return True
 
     def close(self):
-        self.db.close()
+        self.connection.close()
