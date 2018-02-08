@@ -59,7 +59,6 @@ setup(
     packages=find_packages(exclude=['contrib', 'tests*']),
     include_package_data=True,
     package_data={
-        'clipmanager': ['*.txt'],
         'clipmanager': ['icons/*.png', 'icons/*.ico'],
     },
     data_files=[
