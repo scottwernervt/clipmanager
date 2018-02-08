@@ -33,7 +33,7 @@ class SearchFilterProxyModel(QSortFilterProxyModel):
         QSortFilterProxyModel.setFilterFixedString(self, args[0])
 
 
-class SearchBox(QLineEdit):
+class SearchEdit(QLineEdit):
     """Search box for history model.
 
     Todo:
@@ -42,7 +42,7 @@ class SearchBox(QLineEdit):
     """
 
     def __init__(self, view, proxy, parent=None):
-        super(SearchBox, self).__init__(parent)
+        super(SearchEdit, self).__init__(parent)
         self.view = view  # QListView
         self.proxy = proxy  # QSortFilterProxyModel
         self.parent = parent
