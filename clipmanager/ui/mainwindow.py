@@ -144,20 +144,18 @@ class MainWindow(QMainWindow):
         settings.sync()
 
     @Slot(QSystemTrayIcon.ActivationReason)
-    def _on_system_tray_clicked(self, reason):
-        """Bring main window to front if system tray clicked.
-   
-        Args:
-            reason (QSystemTrayIcon.ActivationReason.Trigger): Clicked and 
-                double clicked.
+    def _on_system_tray_clicked(self, activation_reason):
+        """Toggle window when system tray icon is clicked.
+
+        :param activation_reason: Clicked or double clicked.
+        :type activation_reason: QSystemTrayIcon.ActivationReason.Trigger
+
+        :return: None
+        :rtype: None
         """
-        if reason in (QSystemTrayIcon.Trigger,
-                      QSystemTrayIcon.DoubleClick):
-            if self.isVisible():
-                self.show()  # Open window
-                self.activateWindow()  # Bring to front
-            else:
-                self._on_toggle_window()
+        if activation_reason in (QSystemTrayIcon.Trigger,
+                                 QSystemTrayIcon.DoubleClick):
+            self._on_toggle_window()
 
     @Slot()
     def _on_open_settings(self):
