@@ -114,7 +114,7 @@ class TestListView(object):
         num_of_rows = self.view.model().rowCount(None)
 
         self.select_item(1)
-        self.view._delete_rows()
+        self.view.delete_rows()
         assert (len(self.data) < num_of_rows)        
 
     def test_select_all(self):
