@@ -187,29 +187,27 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_toggle_window(self):
-        """Toggle the main window visibility.
+        """Show and hide main window.
 
-        If visible, then hide the window. If not visible, then open window 
-        based on position settings at: mouse cursor, system tray, or last 
-        position. Adjust's the window position based on desktop dimensions to 
+        If visible, then hide the window. If not visible, then open window
+        based on position settings at: mouse cursor, system tray, or last
+        position. Adjust's the window position based on desktop dimensions to
         prevent main window going off screen.
 
-        TODO: Clean up this code as it is long and can most likely be improved.
+        :return: None
+        :rtype: None
         """
-        win_size = settings.get_window_size()  # QSize()
+        window_size = settings.get_window_size()
 
         # Hide window if visible and leave function
         if self.isVisible():
-            # Store window position and size
             settings.set_window_pos(self.pos())
             settings.set_window_size(self.size())
-
             self.hide()
         else:
             # Desktop number based on cursor
             desktop = QDesktopWidget()
             current_screen = desktop.screenNumber(QCursor().pos())
-            logger.debug('Screen #=%s' % current_screen)
 
             # Determine global coordinates by summing screen(s) coordinates
             x_max = 0
@@ -223,52 +221,39 @@ class MainWindow(QMainWindow):
 
             # Minimum x and y screen coordinates
             x_min, y_min, __, __ = desktop.availableGeometry().getCoords()
-            logger.debug('GlobalScreenRect=(%d,%d,%d,%d)' % (x_min, y_min,
-                                                             x_max, y_max))
 
-            # 2: System tray
-            if settings.get_open_window_at() == 2:
+            open_window_at = settings.get_open_window_at()
+            if open_window_at == 2:  # 2: System tray
                 x = self.system_tray.geometry().x()
                 y = self.system_tray.geometry().y()
-                logger.debug('SystemTrayCoords=(%d,%d)' % (x, y))
-
-            # 1: Last position
-            elif settings.get_open_window_at() == 1:
+            elif open_window_at == 1:  # 1: Last position
                 x = settings.get_window_pos().x()
                 y = settings.get_window_pos().y()
-                logger.debug('LastPositionCoords=(%d,%d)' % (x, y))
-
-            # 0: At mouse cursor
-            else:
+            else:  # 0: At mouse cursor
                 x = QCursor().pos().x()
                 y = QCursor().pos().y()
-                logger.debug('CursorCoords=(%d,%d)' % (x, y))
 
-            # Readjust window's position if it will be off screen
+            # Readjust window's position if offscreen
             if x < x_min:
                 x = x_min
-            elif x + win_size.width() > x_max:
-                x = x_max - win_size.width()
+            elif x + window_size.width() > x_max:
+                x = x_max - window_size.width()
 
             if y < y_min:
                 y = y_min
-            elif y + win_size.height() > y_max:
-                y = y_max - win_size.height()
+            elif y + window_size.height() > y_max:
+                y = y_max - window_size.height()
 
             # Clear search box from last interaction
             if len(self.main_widget.search_box.text()) != 0:
                 self.main_widget.search_box.clear()
 
-            logger.debug('MainWindowCoords=(%d,%d)' % (x, y))
-            logger.debug('MainWindowSize=(%d,%d)' % (win_size.width(),
-                                                     win_size.height()))
-
             # Reposition and resize the main window
             self.move(x, y)
-            self.resize(win_size.width(), win_size.height())
+            self.resize(window_size.width(), window_size.height())
 
-            self.show()  # Open window
-            self.activateWindow()  # Bring to front
+            self.show()
+            self.activateWindow()
             self.main_widget.check_selection()
 
     @Slot()
