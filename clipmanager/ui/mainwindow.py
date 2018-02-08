@@ -182,7 +182,7 @@ class MainWindow(QMainWindow):
 
         # Update scroll bars and refresh view
         set_word_wrap = settings.get_word_wrap()
-        self.main_widget.view_main.toggle_horizontal_scrollbar(set_word_wrap)
+        self.main_widget.history_view.toggle_horizontal_scrollbar(set_word_wrap)
         self.main_widget.model_main.select()
 
         self.unsetCursor()
@@ -314,37 +314,38 @@ class MainWidget(QWidget):
         self.window_owner = owner.initialize()
 
         # Create view, model, and proxy
-        self.view_main = HistoryListView(self)
+        self.history_view = HistoryListView(self)
         self.model_main = MainSqlTableModel(self)
 
-        self.proxy_main = SearchFilterProxyModel(self)
-        self.proxy_main.setSourceModel(self.model_main)
+        self.search_proxy = SearchFilterProxyModel(self)
+        self.search_proxy.setSourceModel(self.model_main)
 
-        # self.proxy_main = QSortFilterProxyModel(self)
-        # self.proxy_main.setFilterKeyColumn(TITLE)
-        # self.proxy_main.setSourceModel(self.model_main)
-        # self.proxy_main.setDynamicSortFilter(True)
-        # self.proxy_main.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        # self.search_proxy = QSortFilterProxyModel(self)
+        # self.search_proxy.setFilterKeyColumn(TITLE)
+        # self.search_proxy.setSourceModel(self.model_main)
+        # self.search_proxy.setDynamicSortFilter(True)
+        # self.search_proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
-        self.view_main.setModel(self.proxy_main)
-        self.view_main.setModelColumn(TITLE_SHORT)
+        self.history_view.setModel(self.search_proxy)
+        self.history_view.setModelColumn(TITLE_SHORT)
 
         # Pass view and proxy pointers to search box class
-        self.search_box = SearchBox(self.view_main, self.proxy_main)
+        self.search_box = SearchBox(self.history_view, self.search_proxy)
 
         settings_button = QPushButton(self)
-        settings_button.setIcon(QIcon.fromTheme('emblem-system',
-                                                QIcon(
-                                                    resource_filename(
-                                                        'icons/settings.png')
-                                                )))
+        settings_button.setIcon(
+            QIcon.fromTheme(
+                'emblem-system',
+                QIcon(resource_filename('icons/settings.png'))
+            )
+        )
         settings_button.setToolTip('Settings...')
 
         # Create layout
         layout = QGridLayout(self)
         layout.addWidget(self.search_box, 0, 0)
         layout.addWidget(settings_button, 0, 1)
-        layout.addWidget(self.view_main, 1, 0, 1, 2)
+        layout.addWidget(self.history_view, 1, 0, 1, 2)
         self.setLayout(layout)
 
         # Set clipboard contents if return pressed or from right click menu
@@ -353,14 +354,14 @@ class MainWidget(QWidget):
 
         # Search proxy model
         self.connect(self.search_box, SIGNAL('textChanged(QString)'),
-                     self.proxy_main.setFilterFixedString)
+                     self.search_proxy.setFilterFixedString)
 
         # Check selection in view during search
         self.connect(self.search_box, SIGNAL('textChanged(QString)'),
                      self.check_selection)
 
         # Set clipboard data from signal by view
-        self.connect(self.view_main, SIGNAL('setClipboard()'),
+        self.connect(self.history_view, SIGNAL('setClipboard()'),
                      self.set_clipboard)
 
         # Open settings dialog from button next to search box
@@ -368,11 +369,11 @@ class MainWidget(QWidget):
                      self._emit_open_settings)
 
         # Open settings dialog from right click menu of the view
-        self.connect(self.view_main, SIGNAL('openSettings()'),
+        self.connect(self.history_view, SIGNAL('openSettings()'),
                      self._emit_open_settings)
 
         # Show preview of selected item in view
-        self.connect(self.view_main,
+        self.connect(self.history_view,
                      SIGNAL('openPreview(QModelIndex)'),
                      self.open_preview_dialog)
 
@@ -380,7 +381,7 @@ class MainWidget(QWidget):
         self.connect(self.clipboard_manager,
                      SIGNAL('newItem(QMimeData)'), self.on_new_item)
 
-        self.connect(self.view_main, SIGNAL('deleteData(int)'),
+        self.connect(self.history_view, SIGNAL('deleteData(int)'),
                      self.database.delete_data)
 
     def destroy(self):
@@ -504,11 +505,11 @@ class MainWidget(QWidget):
         Args:
             text (str): Ignored parameter as the signal emits it.
         """
-        selection_model = self.view_main.selectionModel()
+        selection_model = self.history_view.selectionModel()
         indexes = selection_model.selectedIndexes()
 
         if not indexes:
-            index = self.proxy_main.index(0, TITLE_SHORT)
+            index = self.search_proxy.index(0, TITLE_SHORT)
             selection_model.select(index, QItemSelectionModel.Select)
             selection_model.setCurrentIndex(index,
                                             QItemSelectionModel.Select)
@@ -575,8 +576,8 @@ class MainWidget(QWidget):
 
         # Highlight top item and then insert mime data
         self.model_main.select()  # Update view
-        index = QModelIndex(self.view_main.model().index(0, TITLE_SHORT))
-        self.view_main.setCurrentIndex(index)
+        index = QModelIndex(self.history_view.model().index(0, TITLE_SHORT))
+        self.history_view.setCurrentIndex(index)
 
         return True
 
@@ -588,7 +589,7 @@ class MainWidget(QWidget):
             index (QModelIndex): Selected row index from view
         """
         # Map the view->proxy to the source->db index
-        source_index = self.proxy_main.mapToSource(index)
+        source_index = self.search_proxy.mapToSource(index)
 
         # No item is selected so quit
         index_id = self.model_main.index(source_index.row(), ID)
@@ -630,8 +631,8 @@ class MainWidget(QWidget):
         self.window().hide()
 
         # Map the view->proxy to the source->db index
-        proxy_index = self.view_main.currentIndex()
-        source_index = self.proxy_main.mapToSource(proxy_index)
+        proxy_index = self.history_view.currentIndex()
+        source_index = self.search_proxy.mapToSource(proxy_index)
 
         # Get parent ID by creating a new index for data
         model_index = self.model_main.index(source_index.row(), ID)
