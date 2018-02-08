@@ -3,8 +3,6 @@ import logging
 from PySide.QtCore import QObject, SIGNAL, Slot
 from PySide.QtGui import QApplication, QClipboard
 
-from clipmanager.settings import settings
-
 logger = logging.getLogger(__name__)
 
 
@@ -47,8 +45,11 @@ class ClipboardManager(QObject):
     def emit_new_item(self, mime_data):
         """Emits new clipboard contents to main window.
 
-        Args:
-           mime_data: QMimeData
+        :param mime_data:
+        :type mime_data: QMimeData
+
+        :return: None
+        :rtype: None
         """
         self.emit(SIGNAL('newItem(QMimeData)'), mime_data)
 
@@ -96,8 +97,7 @@ class Clipboard(QObject):
         :return: None
         :rtype: None
         """
-        if not settings.get_disconnect():
-            self.clipboard.setMimeData(mime_data, self.mode)
+        self.clipboard.setMimeData(mime_data, self.mode)
 
     def clear_text(self):
         """Clear clipboard contents.
@@ -105,8 +105,7 @@ class Clipboard(QObject):
         :return: None
         :rtype: None
         """
-        if not settings.get_disconnect():
-            self.clipboard.clear(mode=self.mode)
+        self.clipboard.clear(mode=self.mode)
 
     @Slot()
     def on_owner_change(self):
@@ -119,8 +118,7 @@ class Clipboard(QObject):
         :return: None
         :rtype: None
         """
-        if not settings.get_disconnect():
-            self.new_item_callback(self.contents)
+        self.new_item_callback(self.contents)
 
     @Slot()
     def on_data_changed(self):
@@ -129,5 +127,4 @@ class Clipboard(QObject):
         :return: None
         :rtype: None
         """
-        if not settings.get_disconnect():
-            self.new_item_callback(self.get_text())
+        self.new_item_callback(self.get_text())

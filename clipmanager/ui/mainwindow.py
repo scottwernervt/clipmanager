@@ -373,18 +373,17 @@ class MainWidget(QWidget):
     def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
 
-        Searches entire model for a duplicate checksum on new item that 
-        requested to be created. If duplicate is found then update the source 
+        Searches entire model for a duplicate checksum on new item that
+        requested to be created. If duplicate is found then update the source
         CREATED_AT column and submit changes.
 
-        Args:
-            checksum (str): CRC32 string to search for.
-
-        Returns:
-            True (bool): Matching row found and date updated.
-            False (bool): No matching row found.
-
         TODO: Investigate if SQL query is quicker on larger databases.
+
+        :param checksum: CRC32 string to search for.
+        :type checksum: str
+
+        :return: True if duplicate found and False if not found.
+        :rtype: bool
         """
         for row in range(self.model.rowCount()):
             # Get CHECKSUM column from source's row
@@ -408,9 +407,12 @@ class MainWidget(QWidget):
     def purge_expired_entries(self):
         """Remove entries that have expired.
 
-        Starting at the bottom of the list, compare each item's date to user 
+        Starting at the bottom of the list, compare each item's date to user
         set expire in X days. If item is older than setting, remove it from
         database.
+
+        :return: None
+        :rtype: None
         """
         # Work in reverse and break when row date is less than
         # expiration date
@@ -481,11 +483,11 @@ class MainWidget(QWidget):
         self.emit(SIGNAL('openSettings()'))
 
     @Slot(str)
-    def check_selection(self, text=None):
-        """Prevents selection from disappearing during proxy filter.
+    def check_selection(self):
+        """Prevent user selection from disappearing during a proxy filter.
 
-        Args:
-            text (str): Ignored parameter as the signal emits it.
+        :return: None
+        :rtype: None
         """
         selection_model = self.history_view.selectionModel()
         indexes = selection_model.selectedIndexes()
@@ -498,37 +500,26 @@ class MainWidget(QWidget):
 
     @Slot(QMimeData)
     def on_new_item(self, mime_data):
-        """Append new clipboard contents to database.
+        """Append clipboard contents to database.
 
-        Performs checksum for new data vs database. If duplicate found, then
-        the time is updated in a separate function. Once parent data is
-        created, the mime data is converted to QByteArray and stored in data
-        table as a blob.
+        :param mime_data: Clipboard contents mime data
+        :type mime_data: QMimeData
 
-        Args:
-            mime_data (QMimeData): clipboard contents mime data
-
-        Returns:
-            True (bool): Successfully added data to model.
-            None: User just set new clipboard data trigger dataChanged() to be
-                emitted. Data does not have any text. Duplicate found. Storing
-                data in database fails.
-
-        TODO: Clean up this function as there are too many random returns.
-            Store images.
+        :return: True, if successfully added.
+        :rtype: bool
         """
-        # Do not perform the new item process because user just set clipboard
-        # contents
-        if self.ignore_created:
+        if settings.get_disconnect():
+            return False
+        elif self.ignore_created:
             self.ignore_created = False
-            return None
+            return False
 
         # Check if process that set clipboard is on exclude list
         window_names = self.window_owner()
         ignore_list = settings.get_exclude().lower().split(';')
         if any(str(i) in window_names for i in ignore_list):
             logger.info('Ignoring copy action from application.')
-            return None
+            return False
 
         title = create_full_title(mime_data)
         title_short = format_title(title)
@@ -565,10 +556,13 @@ class MainWidget(QWidget):
 
     @Slot(QModelIndex)
     def open_preview_dialog(self, index):
-        """Open preview dialog of selected item.
+        """"Open preview dialog for selected item.
 
-        Args:
-            index (QModelIndex): Selected row index from view
+        :param index: Selected row index from history list view.
+        :type index: QModelIndex
+
+        :return: None
+        :rtype: None
         """
         # Map the view->proxy to the source->db index
         source_index = self.search_proxy.mapToSource(index)
