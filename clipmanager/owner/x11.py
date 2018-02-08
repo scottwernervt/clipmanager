@@ -1,4 +1,7 @@
-"""Source: https://github.com/ActivityWatch/aw-watcher-x11/blob/master/aw_watcher_x11/xprop.py"""
+"""
+Source: https://github.com/ActivityWatch/aw-watcher-x11/blob/master/aw_watcher_x11/xprop.py
+License: None
+"""
 import logging
 import os
 import re
@@ -9,19 +12,19 @@ logger = logging.getLogger(__name__)
 
 def readlink_binary(pid):
     cmd = ['readlink', '-f', '/proc/%s/exe' % pid]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
     return p.stdout.read()
 
 
 def xprop_id(window_id):
     cmd = ['xprop', '-id', window_id]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
     return p.stdout.read()
 
 
 def xprop_root():
     cmd = ['xprop', '-root']
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
     return p.stdout.read()
 
 
