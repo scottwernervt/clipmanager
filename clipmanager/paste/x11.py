@@ -1,40 +1,80 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# TODO: Look into X11 lib http://pastebin.com/GMLjeAg1
-
-# import os
 import logging
 import subprocess
 
+from Xlib import X, XK
+from Xlib.display import Display
+from Xlib.error import DisplayError, XError
+from Xlib.protocol import event
+
 logger = logging.getLogger(__name__)
 
+PASTE_KEY = "v"
 
-def send_event():
-    """Send paste key stroke to active window.
 
-    Returns:
-        True: xdotool executed with zero exit code.
-        False: xdotool executed with non zero exit code. Most likely, the user
-            does not have it installed.
+def _get_keycode(key, display):
+    keysym = XK.string_to_keysym(key)
+    keycode = display.keysym_to_keycode(keysym)
+    return keycode
+
+
+def _paste_x11():
+    display = Display()
+    root = display.screen().root
+    window = display.get_input_focus().focus
+
+    window.grab_keyboard(False, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+    display.flush()
+
+    keycode = _get_keycode(PASTE_KEY, display)
+
+    key_press = event.KeyPress(detail=keycode,
+                               time=X.CurrentTime,
+                               root=root,
+                               window=window,
+                               child=X.NONE,
+                               root_x=0,
+                               root_y=0,
+                               event_x=0,
+                               event_y=0,
+                               state=X.ControlMask,
+                               same_screen=1)
+    key_release = event.KeyRelease(detail=keycode,
+                                   time=X.CurrentTime,
+                                   root=root,
+                                   window=window,
+                                   child=X.NONE,
+                                   root_x=0,
+                                   root_y=0,
+                                   event_x=0,
+                                   event_y=0,
+                                   state=X.ControlMask,
+                                   same_screen=1)
+
+    window.send_event(key_press)
+    window.send_event(key_release)
+    display.ungrab_keyboard(X.CurrentTime)
+
+    display.flush()
+    display.close()
+    return True
+
+
+def _paste_xdotool():
+    cmd = ['xdotool', 'key', '--delay', '100', 'ctrl+v']
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
+    return p.returncode
+
+
+def paste_action():
+    """Execute paste key shortcut, CTRL+V.
+
+    If X11 fails, fallback to xdotool.
+
+    :return: None
+    :rtype: None
     """
-    cmd = "/bin/sh -c 'xdotool key --delay 100 ctrl+v'"
-
-    logger.info('Paste action sent.')
-    logger.debug('cmd: %s', cmd)
-
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-
-    # Wait for the process to terminate
-    out, err = process.communicate()
-    errcode = process.returncode
-
-    if errcode != 0:
-        logger.warn('std.out: %s' % out)
-        logger.warn('std.err: %s' % err)
-        logger.warn('Exit code: %s' % errcode)
-
-        return False
-    else:
-        return True
+    try:
+        _paste_x11()
+    except (DisplayError, XError) as e:
+        logging.exception(e)
+        _paste_xdotool()
