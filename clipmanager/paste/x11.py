@@ -76,5 +76,5 @@ def paste_action():
     try:
         _paste_x11()
     except (DisplayError, XError) as e:
-        logging.exception(e)
+        logger.exception(e)
         _paste_xdotool()

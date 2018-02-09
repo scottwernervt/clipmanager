@@ -30,6 +30,8 @@ class Database(QObject):
         db = QSqlDatabase.addDatabase('QSQLITE')
 
         db_path = os.path.join(storage_path, 'contents.db')
+        logger.info(db_path)
+
         db.setDatabaseName(db_path)
         if not db.open():
             logger.error(db.lastError())
