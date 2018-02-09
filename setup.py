@@ -15,6 +15,14 @@ if os.name == 'nt':
 elif os.name == 'posix':
     install_requires.append('python-xlib')
 
+data_files = []
+if os.name == 'posix':
+    data_files.extend([
+        ('share/applications', ['clipmanager.desktop']),
+        ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
+        ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
+    ])
+
 
 def get_version():
     init = open(os.path.join(ROOT, 'clipmanager', '__init__.py')).read()
@@ -58,12 +66,6 @@ setup(
     ],
     packages=find_packages(exclude=['contrib', 'tests*']),
     include_package_data=True,
-    package_data={
-        'clipmanager': ['icons/*.png', 'icons/*.ico'],
-    },
-    data_files=[
-        ('share/applications', ['clipmanager.desktop']),
-        ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
-        ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
-    ],
+    package_data={'clipmanager': ['icons/*.png', 'icons/*.ico']},
+    data_files=data_files,
 )
