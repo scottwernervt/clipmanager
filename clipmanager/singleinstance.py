@@ -52,8 +52,8 @@ class SingleInstance(object):
     def is_running(self):
         """Check if application is running.
 
-        Returns:
-            True/False (bool): Instance of app is or is not running
+        :return: True if instance is running.
+        :rtype: bool
         """
         if os.name == 'nt':
             # ERROR_ALREADY_EXISTS

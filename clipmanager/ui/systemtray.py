@@ -4,38 +4,35 @@ from PySide.QtCore import QCoreApplication, SIGNAL
 from PySide.QtGui import QIcon, QMenu, QSystemTrayIcon
 
 from clipmanager.defs import APP_NAME
-from clipmanager.ui.dialogs.about import AboutDialog
 from clipmanager.settings import settings
+from clipmanager.ui.dialogs.about import AboutDialog
 from clipmanager.utils import resource_filename
 
 logger = logging.getLogger(__name__)
 
 
-def _disconnect_icon():
-    """Determine which icon to display if disconnect menu is toggled on/off.
+def _load_disconnect_icon():
+    """Load disconnect icon if menu item is checked or unchecked.
 
-    Returns:
-        QIcon
+    :return: Icon.
+    :rtype: QIcon
     """
-    # Clipboard _disconnected and ignoring changes
     if settings.get_disconnect():
-        return QIcon.fromTheme('network-offline',
-                               QIcon(resource_filename(
-                                   'icons/disconnect.png')))
-    # Clipboard connected and monitoring
+        theme = ('network-offline',
+                 QIcon(resource_filename('icons/disconnect.png')))
     else:
-        return QIcon.fromTheme('network-transmit-receive',
-                               QIcon(resource_filename(
-                                   'icons/connect.png')))
+        theme = ('network-transmit-receive',
+                 QIcon(resource_filename('icons/connect.png')))
+
+    return QIcon.fromTheme(*theme)
 
 
 class SystemTrayIcon(QSystemTrayIcon):
-    """System tray icon with right click menu and ability to open main window
-    by clicking on the icon.
-    """
+    """Application system tray icon with right click menu."""
 
     def __init__(self, parent=None):
         super(SystemTrayIcon, self).__init__(parent)
+
         self.parent = parent
 
         self.setIcon(QIcon(resource_filename('icons/clipmanager.ico')))
@@ -44,83 +41,104 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     def setup_menu(self):
         """Create right click menu.
+
+        :return: None
+        :rtype: None
         """
-        # Right click menu
         menu = QMenu()
 
-        # Open or hide main window
-        toggle_act = menu.addAction(QIcon.fromTheme('search',
-                                                    QIcon(
-                                                        resource_filename(
-                                                            'icons/search.png'))),
-                                    'Toggle')
+        toggle_window_action = menu.addAction(
+            QIcon.fromTheme(
+                'search',
+                QIcon(resource_filename('icons/search.png'))
+            ),
+            'Toggle'
+        )
 
         menu.addSeparator()
 
-        # Disconnect from OS clipboard(s)
-        self.disconnect_act = menu.addAction(_disconnect_icon(), 'Disconnect')
-        self.disconnect_act.setCheckable(True)
-        self.disconnect_act.setChecked(settings.get_disconnect())
+        self.disconnect_action = menu.addAction(_load_disconnect_icon(),
+                                                'Disconnect')
+        self.disconnect_action.setCheckable(True)
+        self.disconnect_action.setChecked(settings.get_disconnect())
 
-        # Open settings dialog
-        settings_act = menu.addAction(QIcon.fromTheme('emblem-system',
-                                                      QIcon(
-                                                          resource_filename(
-                                                              'icons/settings.png'))),
-                                      'Settings')
+        settings_action = menu.addAction(
+            QIcon.fromTheme(
+                'emblem-system',
+                QIcon(resource_filename('icons/settings.png'))
+            ),
+            'Settings'
+        )
 
-        # Open about dialog
-        about_act = menu.addAction(QIcon.fromTheme('help-about',
-                                                   QIcon(
-                                                       resource_filename(
-                                                           'icons/about.png'))),
-                                   'About')
+        about_action = menu.addAction(
+            QIcon.fromTheme(
+                'help-about',
+                QIcon(resource_filename('icons/about.png'))
+            ),
+            'About'
+        )
 
         menu.addSeparator()
 
-        # Exit application
-        exit_act = menu.addAction(QIcon.fromTheme('application-exit',
-                                                  QIcon(
-                                                      resource_filename(
-                                                          'icons/exit.png'))),
-                                  'Quit')
+        exit_action = menu.addAction(
+            QIcon.fromTheme(
+                'application-exit',
+                QIcon(resource_filename('icons/exit.png'))
+            ),
+            'Quit'
+        )
 
-        # Connect menu triggered action to functions
-        self.connect(toggle_act, SIGNAL('triggered()'),
+        self.connect(toggle_window_action, SIGNAL('triggered()'),
                      self._emit_toggle_window)
-        self.connect(self.disconnect_act, SIGNAL('triggered()'),
+        self.connect(self.disconnect_action, SIGNAL('triggered()'),
                      self._disconnect)
-        self.connect(settings_act, SIGNAL('triggered()'),
+        self.connect(settings_action, SIGNAL('triggered()'),
                      self._emit_open_settings)
-        self.connect(about_act, SIGNAL("triggered()"), self._about)
-        self.connect(exit_act, SIGNAL("triggered()"), self._exit)
+        self.connect(about_action, SIGNAL("triggered()"), self._about)
+        self.connect(exit_action, SIGNAL("triggered()"), self._exit)
 
         self.setContextMenu(menu)
 
     def _emit_toggle_window(self):
         """Emit signal to toggle the main window.
+
+        :return: None
+        :rtype: None
         """
         self.emit(SIGNAL('toggleWindow()'))
 
     def _emit_open_settings(self):
         """Emit signal to open the settings dialog.
+
+        :return: None
+        :rtype: None
         """
         self.emit(SIGNAL('openSettings()'))
 
     def _disconnect(self):
-        """Save and change icon for disconnecting from clipboard.
+        """Toggle and save disconnect settings.
+
+        :return: None
+        :rtype: None
         """
         settings.set_disconnect(not settings.get_disconnect())
-        self.disconnect_act.setIcon(_disconnect_icon())
+        self.disconnect_action.setIcon(_load_disconnect_icon())
 
     def _about(self):
         """Open about dialog.
+
+        :return: None
+        :rtype: None
         """
-        about = AboutDialog(self.parent)  # Opens dialog near main window
+        # parent forces dialog to load near main window
+        about = AboutDialog(self.parent)
         about.exec_()
         del about
 
     def _exit(self):
-        """Tell the application to exit with return code 0 (success).
+        """Exit application.
+
+        :return: None
+        :rtype: None
         """
         QCoreApplication.quit()

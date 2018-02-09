@@ -46,7 +46,7 @@ from clipmanager.utils import (
     calculate_checksum,
     create_full_title,
     format_title,
-    remove_extra_lines,
+    truncate_lines,
     resource_filename,
 )
 
@@ -523,8 +523,8 @@ class MainWidget(QWidget):
 
         title = create_full_title(mime_data)
         title_short = format_title(title)
-        title_short = remove_extra_lines(title_short,
-                                         settings.get_lines_to_display())
+        title_short = truncate_lines(title_short,
+                                     settings.get_lines_to_display())
         created_at = QDateTime.currentMSecsSinceEpoch()
 
         checksum = calculate_checksum(mime_data)

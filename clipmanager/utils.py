@@ -71,74 +71,61 @@ def calculate_checksum(mime_data):
     return checksum
 
 
-def format_title(text):
-    """Dedent text and replace tab's with spaces.
+def format_title(title):
+    """Format clipboard text for display in history view list.
 
-    Args:
-        text (unicode): Single or multi-line text with or without indentation.
+    :param title: Title to format.
+    :type title: str
 
-    Returns:
-        unicode: Input text dedented and tab's replaced by spaces.
+    :return: Formatted text.
+    :rtype: str
     """
-    modified = textwrap.dedent(text)
+    modified = textwrap.dedent(title)
     return modified.replace('\t', '    ')
 
 
-def remove_extra_lines(text, line_count):
+def truncate_lines(text, count):
     """Truncate string based on line count.
 
     Counts number of line breaks in text and removes extra lines
     based on line_count value. If lines are removed, appends '...'
     to end of text to inform user of truncation.
 
-    Args:
-        text (str): Single or multline line string.
-        line_count (int): Number of lines to return.
+    :param text: Single or multi-line string.
+    :type text: str
 
-    Returns:
-        text (str): Extra lines removed from variables text
+    :param count: Number of lines to return.
+    :type count: int
+
+    :return: Truncated text string.
+    :rtype: str
     """
-    try:
-        # Remove empty line breaks as we want to capture text not white space
-        text = os.linesep.join([s for s in text.splitlines() if s])
-    except AttributeError as err:
-        logger.exception(err)
-        return text
-
-    # Split text by line breaks
-    lines = text.splitlines()
-
-    # Remove extra lines
-    if len(lines) > line_count:
-        text = '\n'.join(lines[:line_count])
-        return '%s...' % text
-    else:
-        return text
+    lines = [line for line in text.splitlines() if line.strip()]
+    text = '\n'.join(lines[:count])
+    if len(lines) > count:
+        text += '...'
+    return text
 
 
 def resource_filename(file_name):
-    """Get data file on physical disk or from resource package.
+    """Load resource from resource package.
 
-    Args:
-        file_name (str): names.dat, icons\app.ico
+    :param file_name: File name of resource, e.g. icons\app.ico.
+    :type file_name: str
 
-    Returns:
-        path: Absolute path to resource file found locally on disk.
-        pkg_resource: Return a true filesystem path for specified resource.
+    :return: Absolute path to resource file found locally on disk OR a true
+        filesystem path for specified resource.
+    :rtype:
     """
     paths = map(
         lambda p: os.path.join(p, file_name),
         (
             os.path.dirname(sys.argv[0]),  # Win: Executing path of exe
-            # Add possible linux paths
         ),
     )
-    # Return physical path to file if exists
     for path in paths:
         if os.path.isfile(path):
             logger.debug(path)
             return path
 
-    # Return to resource path
-    logger.debug('Using resource filename.')
     return pkg_resources.resource_filename('clipmanager', file_name)
