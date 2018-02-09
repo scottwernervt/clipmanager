@@ -9,14 +9,12 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
 
 install_requires = ['PySide']
+data_files = []
 
 if os.name == 'nt':
     install_requires.append('pywin32')
 elif os.name == 'posix':
     install_requires.append('python-xlib')
-
-data_files = []
-if os.name == 'posix':
     data_files.extend([
         ('share/applications', ['clipmanager.desktop']),
         ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
