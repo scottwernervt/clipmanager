@@ -13,31 +13,25 @@ from clipmanager.utils import resource_filename
 
 
 class PreviewDialog(QDialog):
-    """Dialog to display model full contents.
-
-    Todo:
-        Allow user to edit data and save it back to database.
-    """
+    """Display preview of item."""
 
     def __init__(self, parent=None):
         super(PreviewDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(
-            QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(QIcon(resource_filename('icons/clipmanager.ico')))
         self.setWindowTitle('Preview')
         self.resize(QSize(500, 300))
         self.setAttribute(Qt.WA_DeleteOnClose)
 
     def setup_ui(self, mime_data):
-        """Determine what to display based on mime data formats.
+        """Preview display is determined by mime format.
 
-        If mime_data has html, then use QWebView to display content: tables,
-        images, etc. If mime_data has plain text, then use QTextEdit to display
-        contents.
+        :param mime_data:
+        :type mime_data: QMimeData
 
-        Args:
-            mime_data: QMimeData
+        :return: None
+        :rtype: None
         """
         # if mime_data.hasImage():
         #     pass
@@ -84,12 +78,12 @@ class PreviewDialog(QDialog):
         layout.addWidget(button_box, 1, 0)
         self.setLayout(layout)
 
-        button_box.rejected.connect(self._close)
+        button_box.rejected.connect(self.close)
 
-    def _close(self):
-        """Only option on dialog is a close button.
+    def close(self):
+        """Close dialog.
 
-        Returns:
-            True: Dialog has been closed.
+        :return: None
+        :rtype: None
         """
         self.done(True)

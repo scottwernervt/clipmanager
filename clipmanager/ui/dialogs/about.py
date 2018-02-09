@@ -6,8 +6,7 @@ from clipmanager.utils import resource_filename
 
 
 class AboutDialog(QDialog):
-    """About dialog that displays information about application.
-    """
+    """About dialog that displays information about application."""
 
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
@@ -20,7 +19,10 @@ class AboutDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        """Display application name, version, company, and url.
+        """Setup About Dialog UI.
+
+        :return: None
+        :rtype: None
         """
         app_name = QCoreApplication.applicationName()
         app_version = QCoreApplication.applicationVersion()
@@ -66,9 +68,9 @@ class AboutDialog(QDialog):
         button_box.rejected.connect(self.close)
 
     def close(self):
-        """Only option on dialog is to close.
+        """Close dialog.
 
-        Returns:
-            True
+        :return: None
+        :rtype: None
         """
         self.done(True)

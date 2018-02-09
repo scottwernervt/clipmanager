@@ -61,16 +61,16 @@ class MainSqlTableModel(QSqlTableModel):
         return status
 
     def data(self, index, role=Qt.DisplayRole):
-        """Subclass of data.
+        """Override QSqlTableModel.data()
 
-        Args:
-            index (QModelIndex): Row and column of data entry.
-            role: Qt.DisplayRole
+        :param index: Row and column of data entry.
+        :type index: QModelIndex
 
-        Returns:
-            int: Integer from table.
-            unicode: Text from table.
-            None: No data found.
+        :param role:
+        :type role: Qt.DisplayRole
+
+        :return: Row column data from table.
+        :rtype: str, int, or None
         """
         if not index.isValid():
             return None
@@ -110,16 +110,13 @@ class MainSqlTableModel(QSqlTableModel):
         return None
 
     def flags(self, index):
-        """Return Qt flags for model.
-        
-        Called by the view to check the state of the items. Flags function 
-        overrides default from QAbstractListModel. How should we treat the items?
+        """Return item's Qt.ItemFlags in history list view.
 
-        Args:
-            index (QModelIndex): Row and column of data entry.
+        :param index: Row and column of data entry.
+        :type index: QModelIndex
 
-        Returns:
-            Qt.ItemFlags
+        :return:
+        :rtype: Qt.ItemFlags
         """
         if not index.isValid():
             return Qt.ItemFlags()

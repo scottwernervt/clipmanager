@@ -21,16 +21,20 @@ class SearchFilterProxyModel(QSortFilterProxyModel):
 
     @Slot(str)
     def setFilterFixedString(self, *args):
-        """Fetch more rows from the source model before filtering the QListView.
-        
-        Args:
-            *args: tuple with a unicode string, (u'string',)
+        """Fetch rows from source model before filtering.
+
+        TODO: QSortFilterProxyModel does not show all matching records due to
+        all records not being loaded until scrolled.
+
+        :param args: Filter string.
+        :type args: tuple[str]
+
+        :return: None
+        :rtype: None
         """
-        # Issue #1: QSortFilterProxyModel does not show all matching records 
-        # due to all records not being loaded until scrolled.
         # while self.sourceModel().canFetchMore():
         #     self.sourceModel().fetchMore()
-        QSortFilterProxyModel.setFilterFixedString(self, args[0])
+        QSortFilterProxyModel.setFilterFixedString(self, *args)
 
 
 class SearchEdit(QLineEdit):
@@ -50,35 +54,31 @@ class SearchEdit(QLineEdit):
         self.setPlaceholderText('Start typing to search history...')
 
     def keyPressEvent(self, event):
-        """Allow up and down navigation on list from search box.
+        """Allow arrow selection on history list from search box.
 
-        Sub class to enable list navigation when searching in the text box.
-        Must return False at end of all events will be blocked.
+        Override QLineEdit.keyPressEvent and check for up and down arrow key
+        for changing selection. If conditional checks not met, return original
+        keyPressEvent.
 
-        Args:
-            event: Qt.Event
+        :param event:
+        :type event: Qt.Event
 
-        Returns:
-            Allow other events to process after conditional checks.
+        :return: None
+        :rtype: None
         """
-        # Change selected row by moving up
         if event.key() == Qt.Key_Up:
             if self.view.currentIndex().row() >= 1:
                 current_row = self.view.currentIndex().row()
                 index = self.proxy.index(current_row - 1, TITLE_SHORT)
                 self.view.setCurrentIndex(index)
             else:
-                # Prevent user from going off list (keep them at top)
+                # keep selection at top
                 index = self.proxy.index(0, TITLE_SHORT)
                 self.view.setCurrentIndex(index)
-
-        # Change selected row by moving down
         elif event.key() == Qt.Key_Down:
             current_row = self.view.currentIndex().row()
             index = self.proxy.index(current_row + 1, TITLE_SHORT)
             self.view.setCurrentIndex(index)
-
-        # Clear text
         elif event.key() == Qt.Key_Escape:
             self.clear()
 

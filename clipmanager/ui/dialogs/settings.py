@@ -21,18 +21,17 @@ from clipmanager.utils import resource_filename
 def _qcheckbox_state(state):
     """Toggle QCheckBox based on boolean state.
 
-    Args:
-        state (int/boolean): Checked or not checked.
+    :param state: Enabled or disabled.
+    :type state: bool
 
-    Returns:
-        Qt.Checked/Qt.Unchecked
+    :return: Checked or unchecked.
+    :rtype: Qt.Checked/Qt.Unchecked
     """
     return Qt.Checked if state else Qt.Unchecked
 
 
 class SettingsDialog(QDialog):
-    """Dialog that allows user to change application settings.
-    """
+    """Settings dialog for changing application preferences."""
 
     def __init__(self, parent=None):
         super(SettingsDialog, self).__init__(parent)
@@ -45,9 +44,12 @@ class SettingsDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        """Display each setting widget with saved values from registry/ini.
+        """Setup Settings Dialog UI.
 
         TODO: Re-enable word_wrap widget when QDelegate Sizing issue fixed.
+
+        :return: None
+        :rtype: None
         """
         # Global hot key
         self.key_combo_edit = HotKeyEdit(self)
@@ -75,7 +77,6 @@ class SettingsDialog(QDialog):
         # global_form.addRow('Maximum entries:', self.entries_edit)
         # global_form.addRow('Expire after:', self.expire_edit)
         global_form.addRow('Lines to display:', self.line_count_spin)
-        ######################
 
         # Manage History
         self.paste_check = QCheckBox('Paste in active window after '
@@ -102,7 +103,6 @@ class SettingsDialog(QDialog):
         manage_box = QGroupBox('Manage history:')
         manage_box.setAlignment(Qt.AlignLeft)
         manage_box.setLayout(manage_form)
-        ######################
 
         # Ignore Applications
         ignore_box = QGroupBox('Ignore the following applications:')
@@ -114,12 +114,9 @@ class SettingsDialog(QDialog):
         ignore_layout = QVBoxLayout()
         ignore_layout.addWidget(self.exclude_list)
         ignore_box.setLayout(ignore_layout)
-        ######################
-
         # Save and Cancel
         button_box = QDialogButtonBox(QDialogButtonBox.Save |
                                       QDialogButtonBox.Cancel)
-        ######################
 
         # Set main layout
         main_layout = QVBoxLayout(self)
@@ -134,12 +131,14 @@ class SettingsDialog(QDialog):
         # LINUX: I use Windows key to move windows with my wm
         self.setFocus(Qt.PopupFocusReason)
 
-        # Connect
         button_box.accepted.connect(self.save)
         button_box.rejected.connect(self.cancel)
 
     def save(self):
-        """Save and sync settings and return to main window.
+        """Save settings and and close the dialog.
+
+        :return: None
+        :rtype: None
         """
         settings.set_global_hot_key(self.key_combo_edit.text())
         settings.set_lines_to_display(self.line_count_spin.value())
@@ -158,8 +157,10 @@ class SettingsDialog(QDialog):
         self.done(True)
 
     def cancel(self):
-        """Close dialog. Object is destroyed so no need to revert each widget's
-        values.
+        """Do not save settings and close the dialog.
+
+        :return: None
+        :rtype: None
         """
         self.done(False)
 
@@ -201,22 +202,16 @@ class HotKeyEdit(QLineEdit):
         self.setToolTip('Press ESC to clear_text.')
 
     def keyPressEvent(self, event):
-        """Capture key and modifier presses and insert them as plain text.
-
-        Example, user presses CTRL+ALT+H, then QLineEdit will display
-        <CTRL><ALT>H.
-
-        Args:
-            event: QKeyEvent
-
-        Returns:
-            QLineEdit.keyPressEvent's to be processed.
+        """Capture key and modifier presses and insert then.
 
         References:
-            http://stackoverflow.com/questions/6647970/how-can-i-capture-qkey_sequence-from-qkeyevent-depending-on-current-keyboard-layo
+        http://stackoverflow.com/questions/6647970/how-can-i-capture-qkey_sequence-from-qkeyevent-depending-on-current-keyboard-layo
 
-        Todo:
-            Code can be improved and be more user friendly.
+        :param event:
+        :type event: QKeyEvent
+
+        :return:
+        :rtype:  QLineEdit.keyPressEvent
         """
         key = event.key()
 
