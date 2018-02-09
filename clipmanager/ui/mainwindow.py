@@ -108,6 +108,11 @@ class MainWindow(QMainWindow):
 
         self.register_hot_key()
 
+        logger.debug('MainWindow: DEBUG')
+        logger.info('MainWindow: INFO')
+        logger.warning('MainWindow: warning')
+        logger.error('MainWindow: error')
+
     def closeEvent(self, event):
         """Capture close event and hide main window.
 
@@ -161,8 +166,8 @@ class MainWindow(QMainWindow):
     def _on_open_settings(self):
         """Open settings dialog.
 
-        Prior to opening dialog, the global hot key is unbinded and then binded 
-        in case user changes it. The model view is updated to reflect changes 
+        Prior to opening dialog, the global hot key is unbinded and then binded
+        in case user changes it. The model view is updated to reflect changes
         in lines to display and if word wrap is enabled.
         """
         # Windows allow's the user to open extra settings dialogs from system
@@ -263,7 +268,7 @@ class MainWindow(QMainWindow):
     def register_hot_key(self):
         """Helper function to bind global hot key to OS specific binder class.
 
-        If binding fails then display a message in system tray notification 
+        If binding fails then display a message in system tray notification
         tray.
         """
         key_sequence = settings.get_global_hot_key()  # Ctrl+Shift+h

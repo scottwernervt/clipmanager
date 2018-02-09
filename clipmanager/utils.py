@@ -125,7 +125,6 @@ def resource_filename(file_name):
     )
     for path in paths:
         if os.path.isfile(path):
-            logger.debug(path)
             return path
 
     return pkg_resources.resource_filename('clipmanager', file_name)
