@@ -46,8 +46,8 @@ from clipmanager.utils import (
     calculate_checksum,
     create_full_title,
     format_title,
-    truncate_lines,
     resource_filename,
+    truncate_lines,
 )
 
 logger = logging.getLogger(__name__)
@@ -107,11 +107,6 @@ class MainWindow(QMainWindow):
             self._on_toggle_window()
 
         self.register_hot_key()
-
-        logger.debug('MainWindow: DEBUG')
-        logger.info('MainWindow: INFO')
-        logger.warning('MainWindow: warning')
-        logger.error('MainWindow: error')
 
     def closeEvent(self, event):
         """Capture close event and hide main window.
