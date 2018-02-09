@@ -206,7 +206,7 @@ class HistoryListView(QListView):
         separator_1.setSeparator(True)
 
         # Open settings dialog
-        settings_act = QAction(
+        settings_action = QAction(
             QIcon.fromTheme(
                 'emblem-system',
                 QIcon(resource_filename('icons/settings.png'))
@@ -234,7 +234,7 @@ class HistoryListView(QListView):
         self.menu.addAction(self.save_action)
         self.menu.addAction(self.delete_action)
         self.menu.addAction(separator_2)
-        self.menu.addAction(settings_act)
+        self.menu.addAction(settings_action)
         self.menu.addAction(separator_1)
         self.menu.addAction(exit_action)
 
@@ -248,7 +248,7 @@ class HistoryListView(QListView):
         self.menu.connect(self.delete_action,
                           SIGNAL('triggered()'),
                           self.delete_rows)
-        self.menu.connect(settings_act,
+        self.menu.connect(settings_action,
                           SIGNAL('triggered()'),
                           self._emit_open_settings)
         self.menu.connect(exit_action,
