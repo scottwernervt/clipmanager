@@ -1,4 +1,6 @@
 import logging
+from itertools import groupby
+from operator import itemgetter
 
 from PySide.QtCore import QCoreApplication, QSize, Qt, SIGNAL, Slot
 from PySide.QtGui import (
@@ -16,7 +18,7 @@ from PySide.QtGui import (
 )
 
 # from clipmanager.database import delete_mime
-from clipmanager.defs import ID, TITLE_SHORT
+# from clipmanager.database import delete_mime
 from clipmanager.settings import settings
 from clipmanager.utils import resource_filename
 
@@ -126,35 +128,14 @@ class HistoryListView(QListView):
         self.setCursor(Qt.BusyCursor)
 
         selection_model = self.selectionModel()
-        indexes = selection_model.selectedIndexes()
+        selection_rows = set(idx.row() for idx in
+                             selection_model.selectedIndexes())
 
-        def get_row_id(idx):
-            """Sort row by ids.
+        for k, g in groupby(enumerate(selection_rows), lambda (i, x): i - x):
+            rows = map(itemgetter(1), g)
+            self.model().removeRows(min(rows), len(rows))
 
-            :param idx:
-            :type idx: QModelIndex
-
-            :return: Row index.
-            :rtype:int
-            """
-            return idx.row()
-
-        # Sort indexes by row number and delete each row and child mime data
-        for index in sorted(indexes, key=get_row_id, reverse=True):
-            if index.column() == TITLE_SHORT:
-                row = index.row()
-
-                # Get model index
-                model_index = self.model().index(row, ID)
-                parent_id = self.model().data(model_index)
-
-                self._emit_delete_data(parent_id)
-                self.model().removeRow(row)
-                self.model().sourceModel().submitAll()
-            else:
-                pass
-
-        self.model().submit()
+        self.model().sourceModel().submitAll()
         self.unsetCursor()
 
     def build_menu(self):
