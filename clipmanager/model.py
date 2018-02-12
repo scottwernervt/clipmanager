@@ -1,11 +1,9 @@
-import logging
-
 from PySide.QtCore import QDateTime, Qt
-from PySide.QtSql import QSqlTableModel
-
-from clipmanager.defs import CHECKSUM, CREATED_AT, ID, TITLE, TITLE_SHORT
-
-logger = logging.getLogger(__name__)
+from PySide.QtSql import (
+    QSqlRelation,
+    QSqlRelationalTableModel,
+    QSqlTableModel,
+)
 
 
 class MainSqlTableModel(QSqlTableModel):
@@ -20,27 +18,23 @@ class MainSqlTableModel(QSqlTableModel):
         
         http://stackoverflow.com/questions/13055423/virtual-column-in-qtableview
     """
+    ID, TITLE, TITLE_SHORT, CHECKSUM, KEEP, CREATED_AT = range(6)
 
     def __init__(self, parent=None):
         super(MainSqlTableModel, self).__init__(parent)
-        self.parent = parent
 
-        # Call submitAll() to submit changes and update QListView
-        # Necessary for handling max num of entries and date check
+        self.setTable('main')
+        self.setSort(self.CREATED_AT, Qt.DescendingOrder)
+        # submitAll() to make changes, needed for max entries / date check
         self.setEditStrategy(QSqlTableModel.OnManualSubmit)
 
-        # Model view is only for Main table, not Data
-        self.setTable('main')
-        self.setSort(CREATED_AT, Qt.DescendingOrder)  # Sort by Date
-
-        # Create header data
-        self.setHeaderData(ID, Qt.Horizontal, 'ID')
-        self.setHeaderData(TITLE, Qt.Horizontal, 'TITLE')
-        self.setHeaderData(TITLE_SHORT, Qt.Horizontal, 'TITLE_SHORT')
-        self.setHeaderData(CHECKSUM, Qt.Horizontal, 'CHECKSUM')
-        self.setHeaderData(CREATED_AT, Qt.Horizontal, 'CREATED_AT')
-
         self.select()
+
+        self.setHeaderData(self.ID, Qt.Horizontal, 'id')
+        self.setHeaderData(self.TITLE, Qt.Horizontal, 'title')
+        self.setHeaderData(self.TITLE_SHORT, Qt.Horizontal, 'title_short')
+        self.setHeaderData(self.CHECKSUM, Qt.Horizontal, 'checksum')
+        self.setHeaderData(self.CREATED_AT, Qt.Horizontal, 'created_at')
 
     def select(self):
         """Load all records before returning if there is a selection.
@@ -77,23 +71,23 @@ class MainSqlTableModel(QSqlTableModel):
         row = index.row()
         column = index.column()
 
-        if role == Qt.DisplayRole and column == ID:
+        if role == Qt.DisplayRole and column == self.ID:
             return int(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLE:
+        if role == Qt.DisplayRole and column == self.TITLE:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == TITLE_SHORT:
+        if role == Qt.DisplayRole and column == self.TITLE_SHORT:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == CREATED_AT:
+        if role == Qt.DisplayRole and column == self.CREATED_AT:
             return int(QSqlTableModel.data(self, index))
 
-        if role == Qt.DisplayRole and column == CHECKSUM:
+        if role == Qt.DisplayRole and column == self.CHECKSUM:
             return unicode(QSqlTableModel.data(self, index))
 
-        if role == Qt.ToolTipRole and column == TITLE_SHORT:
-            date_index = self.index(row, CREATED_AT)
+        if role == Qt.ToolTipRole and column == self.TITLE_SHORT:
+            date_index = self.index(row, self.CREATED_AT)
 
             time_stamp = QDateTime()
             time_stamp.setMSecsSinceEpoch(
@@ -121,3 +115,15 @@ class MainSqlTableModel(QSqlTableModel):
             return Qt.ItemFlags()
 
         return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+
+
+class DataSqlRelationalTableModel(QSqlRelationalTableModel):
+    ID, PARENT_ID, MIME_FORMAT, BYTE_DATA = range(4)
+
+    def __init__(self, parent=None):
+        super(DataSqlRelationalTableModel, self).__init__(parent)
+
+        self.setTable('data')
+        self.setRelation(self.PARENT_ID,
+                         QSqlRelation('main', 'id', 'mime_format'))
+        self.select()
