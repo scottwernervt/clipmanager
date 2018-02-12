@@ -28,14 +28,14 @@ from clipmanager.clipboard import ClipboardManager
 from clipmanager.database import Database
 from clipmanager.defs import (
     APP_NAME,
-    CHECKSUM,
-    CREATED_AT,
-    ID,
+    #     CHECKSUM,
+    #     CREATED_AT,
+    #     ID,
     MIME_SUPPORTED,
     STORAGE_PATH,
-    TITLE_SHORT,
+    #     TITLE_SHORT,
 )
-from clipmanager.model import MainSqlTableModel
+from clipmanager.model import DataSqlRelationalTableModel, MainSqlTableModel
 from clipmanager.settings import settings
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow):
         # Update scroll bars and refresh view
         set_word_wrap = settings.get_word_wrap()
         self.main_widget.history_view.toggle_horizontal_scrollbar(set_word_wrap)
-        self.main_widget.model.select()
+        self.main_widget.main_model.select()
 
         self.unsetCursor()
 
@@ -298,10 +298,11 @@ class MainWidget(QWidget):
 
         # Create view, model, and proxy
         self.history_view = HistoryListView(self)
-        self.model = MainSqlTableModel(self)
+        self.main_model = MainSqlTableModel(self)
+        self.data_model = DataSqlRelationalTableModel(self)
 
         self.search_proxy = SearchFilterProxyModel(self)
-        self.search_proxy.setSourceModel(self.model)
+        self.search_proxy.setSourceModel(self.main_model)
 
         # self.search_proxy = QSortFilterProxyModel(self)
         # self.search_proxy.setFilterKeyColumn(TITLE)
@@ -310,7 +311,7 @@ class MainWidget(QWidget):
         # self.search_proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
         self.history_view.setModel(self.search_proxy)
-        self.history_view.setModelColumn(TITLE_SHORT)
+        self.history_view.setModelColumn(self.main_model.TITLE_SHORT)
 
         # Pass view and proxy pointers to search input
         self.search_box = SearchEdit(self.history_view, self.search_proxy)
@@ -367,7 +368,7 @@ class MainWidget(QWidget):
                      self.database.delete_data)
 
     def destroy(self):
-        self.model.submitAll()
+        self.main_model.submitAll()
         self.database.close()
 
     def find_duplicate(self, checksum):
@@ -385,18 +386,20 @@ class MainWidget(QWidget):
         :return: True if duplicate found and False if not found.
         :rtype: bool
         """
-        for row in range(self.model.rowCount()):
+        for row in range(self.main_model.rowCount()):
             # Get CHECKSUM column from source's row
-            source_index = self.model.index(row, CHECKSUM)
-            checksum_source = self.model.data(source_index)
+            source_index = self.main_model.index(row, self.main_model.CHECKSUM)
+            checksum_source = self.main_model.data(source_index)
 
             # Update CREATED_AT column if checksums match
             if str(checksum) == str(checksum_source):
                 logger.debug('%s == %s' % (checksum, checksum_source))
 
-                self.model.setData(self.model.index(row, CREATED_AT),
-                                   QDateTime.currentMSecsSinceEpoch())
-                self.model.submitAll()
+                self.main_model.setData(
+                    self.main_model.index(row, self.main_model.CREATED_AT),
+                    QDateTime.currentMSecsSinceEpoch()
+                )
+                self.main_model.submitAll()
                 logger.info(True)
                 return True
 
@@ -420,13 +423,13 @@ class MainWidget(QWidget):
         if int(expire_at) == 0:
             return
 
-        entries = range(0, self.model.rowCount())
+        entries = range(0, self.main_model.rowCount())
         entries.reverse()  # Start from bottom of QListView
 
         for row in entries:
             logger.debug('Row: %d' % row)
-            index = self.model.index(row, CREATED_AT)
-            created_at = self.model.data(index)
+            index = self.main_model.index(row, self.main_model.CREATED_AT)
+            created_at = self.main_model.data(index)
             logger.debug('Date: %s' % created_at)
 
             # Convert from ms to s
@@ -436,16 +439,16 @@ class MainWidget(QWidget):
 
             logger.debug('Delta: %d days' % delta.days)
             if delta.days > expire_at:
-                index = self.model.index(row, ID)
-                parent_id = self.model.data(index)
+                index = self.main_model.index(row, self.main_model.ID)
+                parent_id = self.main_model.data(index)
 
                 self.database.delete_mime(parent_id)
-                self.model.removeRow(row)
+                self.main_model.removeRow(row)
             else:
                 logger.debug('Last row not expired, breaking!')
                 break
 
-        self.model.submitAll()
+        self.main_model.submitAll()
 
     def purge_max_entries(self):
         """Remove extra entries.
@@ -457,7 +460,7 @@ class MainWidget(QWidget):
         if max_entries == 0:
             return
 
-        row_count = self.model.rowCount() + 1
+        row_count = self.main_model.rowCount() + 1
 
         logger.debug('Row count: %s' % row_count)
         logger.debug('Max entries: %s' % max_entries)
@@ -468,13 +471,13 @@ class MainWidget(QWidget):
             for row in range(max_entries - 1, row_count):
                 logger.debug('Row: %d' % row)
 
-                index_id = self.model.index(row, ID)
-                parent_id = self.model.data(index_id)
+                index_id = self.main_model.index(row, self.main_model.ID)
+                parent_id = self.main_model.data(index_id)
 
                 self.database.delete_data(parent_id)
-                self.model.removeRow(row)
+                self.main_model.removeRow(row)
 
-        self.model.submitAll()
+        self.main_model.submitAll()
 
     @Slot()
     def _emit_open_settings(self):
@@ -493,7 +496,7 @@ class MainWidget(QWidget):
         indexes = selection_model.selectedIndexes()
 
         if not indexes:
-            index = self.search_proxy.index(0, TITLE_SHORT)
+            index = self.search_proxy.index(0, self.main_model.TITLE_SHORT)
             selection_model.select(index, QItemSelectionModel.Select)
             selection_model.setCurrentIndex(index,
                                             QItemSelectionModel.Select)
@@ -548,8 +551,10 @@ class MainWidget(QWidget):
         self.purge_expired_entries()
 
         # Highlight top item and then insert mime data
-        self.model.select()  # Update view
-        index = QModelIndex(self.history_view.model().index(0, TITLE_SHORT))
+        self.main_model.select()  # Update view
+        index = QModelIndex(
+            self.history_view.model().index(0, self.main_model.TITLE_SHORT)
+        )
         self.history_view.setCurrentIndex(index)
 
         return True
@@ -568,11 +573,11 @@ class MainWidget(QWidget):
         source_index = self.search_proxy.mapToSource(index)
 
         # No item is selected so quit
-        index_id = self.model.index(source_index.row(), ID)
+        index_id = self.main_model.index(source_index.row(), self.main_model.ID)
         if index_id.row() <= -1:
             return None
 
-        parent_id = self.model.data(index_id)
+        parent_id = self.main_model.data(index_id)
         logger.debug('ID: %s' % parent_id)
 
         # Find all children relating to parent_id
@@ -611,8 +616,9 @@ class MainWidget(QWidget):
         source_index = self.search_proxy.mapToSource(proxy_index)
 
         # Get parent ID by creating a new index for data
-        model_index = self.model.index(source_index.row(), ID)
-        parent_id = self.model.data(model_index)
+        model_index = self.main_model.index(source_index.row(),
+                                            self.main_model.ID)
+        parent_id = self.main_model.data(model_index)
 
         # Find all children relating to parent_id
         mime_list = self.database.get_data(parent_id)
@@ -630,7 +636,8 @@ class MainWidget(QWidget):
             self.emit(SIGNAL('pasteClipboard()'))
 
         # Update the date column in source
-        self.model.setData(
-            self.model.index(model_index.row(), CREATED_AT),
+        self.main_model.setData(
+            self.main_model.index(model_index.row(),
+                                  self.main_model.CREATED_AT),
             QDateTime.currentMSecsSinceEpoch())
-        self.model.submitAll()
+        self.main_model.submitAll()
