@@ -9,8 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class SearchFilterProxyModel(QSortFilterProxyModel):
-    """Search database using fixed string.
-    """
+    """Search database using fixed string."""
 
     def __init__(self, parent=None):
         super(SearchFilterProxyModel, self).__init__(parent)
