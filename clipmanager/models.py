@@ -114,8 +114,7 @@ class MainSqlTableModel(QSqlTableModel):
 
         return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-    @staticmethod
-    def create(title, title_short, checksum, created_at):
+    def create(self, title, title_short, checksum, created_at):
         """Insert new row into the main table.
 
         :param title: Full title of clipboard contents.
@@ -151,17 +150,6 @@ class MainSqlTableModel(QSqlTableModel):
 
         return row_id
 
-
-# class DataSqlTableModel(QSqlRelationalTableModel):
-#     ID, PARENT_ID, MIME_FORMAT, BYTE_DATA = range(4)
-#
-#     def __init__(self, parent=None):
-#         super(DataSqlTableModel, self).__init__(parent)
-#
-#         self.setTable('data')
-#         self.setRelation(self.PARENT_ID,
-#                          QSqlRelation('main', 'id', 'mime_format'))
-#         self.select()
 
 class DataSqlTableModel(QSqlTableModel):
     ID, PARENT_ID, MIME_FORMAT, BYTE_DATA = range(4)
