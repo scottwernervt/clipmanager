@@ -22,12 +22,12 @@ from PySide.QtGui import (
     QSystemTrayIcon,
     QWidget,
 )
-from clipmanager.model import DataSqlTableModel, MainSqlTableModel
 
 from clipmanager import hotkey, owner, paste
 from clipmanager.clipboard import ClipboardManager
 from clipmanager.database import Database
 from clipmanager.defs import APP_NAME, MIME_SUPPORTED, STORAGE_PATH
+from clipmanager.models import DataSqlTableModel, MainSqlTableModel
 from clipmanager.settings import settings
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
@@ -279,7 +279,7 @@ class MainWidget(QWidget):
 
         self.parent = parent
 
-        self.database = Database(STORAGE_PATH)
+        self.database = Database(STORAGE_PATH, self)
         self.database.create_tables()
 
         # Ignore clipboard change when user sets item to clipboard
