@@ -32,7 +32,7 @@ def create_full_title(mime_data):
         logger.warning(
             'Failed to create a title from the following formats: %s',
             ','.join(mime_data.formats()))
-        return '<unknown>'
+        return '<unknown-%s>' % id(mime_data)
 
 
 def calculate_checksum(mime_data):
