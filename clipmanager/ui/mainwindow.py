@@ -22,20 +22,12 @@ from PySide.QtGui import (
     QSystemTrayIcon,
     QWidget,
 )
+from clipmanager.model import DataSqlTableModel, MainSqlTableModel
 
 from clipmanager import hotkey, owner, paste
 from clipmanager.clipboard import ClipboardManager
 from clipmanager.database import Database
-from clipmanager.defs import (
-    APP_NAME,
-    #     CHECKSUM,
-    #     CREATED_AT,
-    #     ID,
-    MIME_SUPPORTED,
-    STORAGE_PATH,
-    #     TITLE_SHORT,
-)
-from clipmanager.model import DataSqlRelationalTableModel, MainSqlTableModel
+from clipmanager.defs import APP_NAME, MIME_SUPPORTED, STORAGE_PATH
 from clipmanager.settings import settings
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
@@ -299,7 +291,7 @@ class MainWidget(QWidget):
         # Create view, model, and proxy
         self.history_view = HistoryListView(self)
         self.main_model = MainSqlTableModel(self)
-        self.data_model = DataSqlRelationalTableModel(self)
+        self.data_model = DataSqlTableModel(self)
 
         self.search_proxy = SearchFilterProxyModel(self)
         self.search_proxy.setSourceModel(self.main_model)
@@ -364,9 +356,6 @@ class MainWidget(QWidget):
         self.connect(self.clipboard_manager, SIGNAL('newItem(QMimeData)'),
                      self.on_new_item)
 
-        self.connect(self.history_view, SIGNAL('deleteData(int)'),
-                     self.database.delete_data)
-
     def destroy(self):
         self.main_model.submitAll()
         self.database.close()
@@ -393,17 +382,12 @@ class MainWidget(QWidget):
 
             # Update CREATED_AT column if checksums match
             if str(checksum) == str(checksum_source):
-                logger.debug('%s == %s' % (checksum, checksum_source))
-
                 self.main_model.setData(
                     self.main_model.index(row, self.main_model.CREATED_AT),
                     QDateTime.currentMSecsSinceEpoch()
                 )
                 self.main_model.submitAll()
-                logger.info(True)
                 return True
-
-        logger.info(False)
 
         return False
 
@@ -427,17 +411,14 @@ class MainWidget(QWidget):
         entries.reverse()  # Start from bottom of QListView
 
         for row in entries:
-            logger.debug('Row: %d' % row)
             index = self.main_model.index(row, self.main_model.CREATED_AT)
             created_at = self.main_model.data(index)
-            logger.debug('Date: %s' % created_at)
 
             # Convert from ms to s
             time = datetime.datetime.fromtimestamp(created_at / 1000)
             today = datetime.datetime.today()
             delta = today - time
 
-            logger.debug('Delta: %d days' % delta.days)
             if delta.days > expire_at:
                 index = self.main_model.index(row, self.main_model.ID)
                 parent_id = self.main_model.data(index)
@@ -445,7 +426,6 @@ class MainWidget(QWidget):
                 self.database.delete_mime(parent_id)
                 self.main_model.removeRow(row)
             else:
-                logger.debug('Last row not expired, breaking!')
                 break
 
         self.main_model.submitAll()
@@ -462,19 +442,12 @@ class MainWidget(QWidget):
 
         row_count = self.main_model.rowCount() + 1
 
-        logger.debug('Row count: %s' % row_count)
-        logger.debug('Max entries: %s' % max_entries)
-
         if row_count > max_entries:
-            # Delete extra rows
-            # self.model.removeRows(max_entries, row_count-max_entries)
             for row in range(max_entries - 1, row_count):
-                logger.debug('Row: %d' % row)
-
                 index_id = self.main_model.index(row, self.main_model.ID)
                 parent_id = self.main_model.data(index_id)
 
-                self.database.delete_data(parent_id)
+                self.data_model.delete(parent_id)
                 self.main_model.removeRow(row)
 
         self.main_model.submitAll()
@@ -521,7 +494,7 @@ class MainWidget(QWidget):
         window_names = self.window_owner()
         ignore_list = settings.get_exclude().lower().split(';')
         if any(str(i) in window_names for i in ignore_list):
-            logger.info('Ignoring copy action from application.')
+            logger.info('Ignoring copy from application.')
             return False
 
         title = create_full_title(mime_data)
@@ -535,17 +508,16 @@ class MainWidget(QWidget):
             # TODO: Update created_at date for duplicate
             return None
 
-        parent_id = self.database.insert_main(title=title,
-                                              title_short=title_short,
-                                              checksum=checksum,
-                                              created_at=created_at)
+        parent_id = self.main_model.create(title=title,
+                                           title_short=title_short,
+                                           checksum=checksum,
+                                           created_at=created_at)
 
         # Save each mime format as QByteArray to data table.
         for mime_format in MIME_SUPPORTED:
             if mime_data.hasFormat(mime_format):
                 byte_data = QByteArray(mime_data.data(mime_format))
-                logger.debug('Mime format: %s', mime_format)
-                self.database.insert_data(parent_id, mime_format, byte_data)
+                self.data_model.create(parent_id, mime_format, byte_data)
 
         self.purge_max_entries()
         self.purge_expired_entries()
@@ -578,10 +550,9 @@ class MainWidget(QWidget):
             return None
 
         parent_id = self.main_model.data(index_id)
-        logger.debug('ID: %s' % parent_id)
 
         # Find all children relating to parent_id
-        mime_list = self.database.get_data(parent_id)
+        mime_list = self.data_model.read(parent_id)
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
@@ -621,7 +592,7 @@ class MainWidget(QWidget):
         parent_id = self.main_model.data(model_index)
 
         # Find all children relating to parent_id
-        mime_list = self.database.get_data(parent_id)
+        mime_list = self.data_model.read(parent_id)
 
         # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()

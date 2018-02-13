@@ -17,8 +17,6 @@ from PySide.QtGui import (
     QTextOption,
 )
 
-# from clipmanager.database import delete_mime
-# from clipmanager.database import delete_mime
 from clipmanager.settings import settings
 from clipmanager.utils import resource_filename
 
@@ -115,7 +113,7 @@ class HistoryListView(QListView):
         return QListView.keyPressEvent(self, event)
 
     @Slot()
-    def delete_rows(self):
+    def delete(self):
         """Delete selected rows.
 
         CTRL+A on list view selects hidden columns. So even if user deselects
@@ -131,6 +129,13 @@ class HistoryListView(QListView):
         selection_rows = set(idx.row() for idx in
                              selection_model.selectedIndexes())
 
+        # delete from data table
+        parent_indexes = [self.model().index(row, 0) for row in selection_rows]
+        parent_ids = filter(lambda p: p is not None,
+                            [self.model().data(idx) for idx in parent_indexes])
+        self.parent.data_model.delete(parent_ids)
+
+        # delete from main table and view
         for k, g in groupby(enumerate(selection_rows), lambda (i, x): i - x):
             rows = map(itemgetter(1), g)
             self.model().removeRows(min(rows), len(rows))
@@ -228,7 +233,7 @@ class HistoryListView(QListView):
                           self._emit_open_preview)
         self.menu.connect(self.delete_action,
                           SIGNAL('triggered()'),
-                          self.delete_rows)
+                          self.delete)
         self.menu.connect(settings_action,
                           SIGNAL('triggered()'),
                           self._emit_open_settings)
@@ -281,9 +286,9 @@ class HistoryListView(QListView):
         # for __ in indexes:
         self.emit(SIGNAL('setClipboard()'))
 
-    @Slot(int)
-    def _emit_delete_data(self, parent_id):
-        self.emit(SIGNAL('deleteData(int)'), parent_id)
+    @Slot(object)
+    def _emit_delete_data(self, parent_ids):
+        self.emit(SIGNAL('deleteData(object)'), parent_ids)
 
 
 class HistoryListItemDelegate(QStyledItemDelegate):
@@ -291,8 +296,6 @@ class HistoryListItemDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super(HistoryListItemDelegate, self).__init__(parent)
-
-        self.parent = parent
 
     def paint(self, painter, option, index):
         """Subclass of paint function.
