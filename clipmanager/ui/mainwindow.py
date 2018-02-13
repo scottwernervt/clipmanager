@@ -370,7 +370,7 @@ class MainWidget(QWidget):
         TODO: Investigate if SQL query is quicker on larger databases.
 
         :param checksum: CRC32 string to search for.
-        :type checksum: str
+        :type checksum: int
 
         :return: True if duplicate found and False if not found.
         :rtype: bool
@@ -492,6 +492,8 @@ class MainWidget(QWidget):
 
         # Check if process that set clipboard is on exclude list
         window_names = self.window_owner()
+        logger.debug('%s', window_names)
+
         ignore_list = settings.get_exclude().lower().split(';')
         if any(str(i) in window_names for i in ignore_list):
             logger.info('Ignoring copy from application.')

@@ -95,5 +95,4 @@ def get_win32_owner():
     # );
     windll.kernel32.CloseHandle(h_process)
 
-    logger.debug('%s', owner_names)
     return owner_names

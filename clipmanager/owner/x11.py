@@ -110,5 +110,4 @@ def get_x11_owner():
     if binary_name:
         owner_names.append(binary_name)
 
-    logger.debug('%s', owner_names)
     return owner_names
