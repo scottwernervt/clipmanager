@@ -1,10 +1,7 @@
 import logging
-import os
-import sys
 import textwrap
 import zlib
 
-import pkg_resources
 from PySide.QtCore import QTextCodec, QTextEncoder
 
 logger = logging.getLogger(__name__)
@@ -105,26 +102,3 @@ def truncate_lines(text, count):
     if len(lines) > count:
         text += '...'
     return text
-
-
-def resource_filename(file_name):
-    """Load resource from resource package.
-
-    :param file_name: File name of resource, e.g. icons\app.ico.
-    :type file_name: str
-
-    :return: Absolute path to resource file found locally on disk OR a true
-        filesystem path for specified resource.
-    :rtype:
-    """
-    paths = map(
-        lambda p: os.path.join(p, file_name),
-        (
-            os.path.dirname(sys.argv[0]),  # Win: Executing path of exe
-        ),
-    )
-    for path in paths:
-        if os.path.isfile(path):
-            return path
-
-    return pkg_resources.resource_filename('clipmanager', file_name)
