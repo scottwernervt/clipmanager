@@ -114,7 +114,7 @@ class TestListView(object):
         num_of_rows = self.view.model().rowCount(None)
 
         self.select_item(1)
-        self.view.delete()
+        self.view.delete_item()
         assert (len(self.data) < num_of_rows)        
 
     def test_select_all(self):
@@ -131,7 +131,7 @@ class TestListView(object):
         self.connection_box.connect(self.view,
                                     QtCore.SIGNAL('set-clipboard()'),
                                     self.connection_box.slotSlot)
-        self.view._emit_set_clipboard()
+        self.view.paste_item()
 
         self.connection_box.assertSignalArrived('set-clipboard()')
         self.connection_box.assertNumberOfArguments(0)
@@ -141,7 +141,7 @@ class TestListView(object):
         self.connection_box.connect(self.view,
                                     QtCore.SIGNAL('open-settings()'),
                                     self.connection_box.slotSlot)
-        self.view._emit_open_settings()
+        self.view.open_settings()
 
         self.connection_box.assertSignalArrived('open-settings()')
         self.connection_box.assertNumberOfArguments(0)
@@ -151,7 +151,7 @@ class TestListView(object):
         self.connection_box.connect(self.view,
                                     QtCore.SIGNAL('open-preview(QModelIndex)'),
                                     self.connection_box.slotSlot)
-        self.view._emit_open_preview()
+        self.view.open_preview()
 
         self.connection_box.assertSignalArrived('open-preview(QModelIndex)')
         self.connection_box.assertNumberOfArguments(1)
