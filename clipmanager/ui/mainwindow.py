@@ -29,16 +29,17 @@ from clipmanager.database import Database
 from clipmanager.defs import APP_NAME, MIME_SUPPORTED, STORAGE_PATH
 from clipmanager.models import DataSqlTableModel, MainSqlTableModel
 from clipmanager.settings import settings
+from clipmanager.ui import icons
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
 from clipmanager.ui.historylist import HistoryListView
+from clipmanager.ui.icons import resource_filename
 from clipmanager.ui.searchedit import SearchEdit, SearchFilterProxyModel
 from clipmanager.ui.systemtray import SystemTrayIcon
 from clipmanager.utils import (
     calculate_checksum,
     create_full_title,
     format_title,
-    resource_filename,
     truncate_lines,
 )
 
@@ -170,11 +171,7 @@ class MainWindow(QMainWindow):
         # Attempt to set new hot key
         self.register_hot_key()
 
-        # Update scroll bars and refresh view
-        set_word_wrap = settings.get_word_wrap()
-        self.main_widget.history_view.toggle_horizontal_scrollbar(set_word_wrap)
         self.main_widget.main_model.select()
-
         self.unsetCursor()
 
     @Slot()
@@ -309,15 +306,9 @@ class MainWidget(QWidget):
         self.search_box = SearchEdit(self.history_view, self.search_proxy)
 
         settings_button = QPushButton(self)
-        settings_button.setIcon(
-            QIcon.fromTheme(
-                'emblem-system',
-                QIcon(resource_filename('icons/settings.png'))
-            )
-        )
+        settings_button.setIcon(icons.SETTINGS)
         settings_button.setToolTip('Settings...')
 
-        # Create layout
         layout = QGridLayout(self)
         layout.addWidget(self.search_box, 0, 0)
         layout.addWidget(settings_button, 0, 1)
@@ -434,7 +425,7 @@ class MainWidget(QWidget):
         """Remove extra entries.
 
         Count total number of items in history, and if greater than user
-        setting for maximum entries, delete them.
+        setting for maximum entries, delete_item them.
         """
         max_entries = settings.get_max_entries_value()
         if max_entries == 0:

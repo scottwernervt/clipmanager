@@ -9,7 +9,7 @@ from PySide.QtGui import (
 )
 from PySide.QtWebKit import QWebSettings, QWebView
 
-from clipmanager.utils import resource_filename
+from clipmanager.ui.icons import resource_filename
 
 
 class PreviewDialog(QDialog):

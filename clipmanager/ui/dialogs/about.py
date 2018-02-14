@@ -2,7 +2,7 @@ from PySide.QtCore import QCoreApplication, Qt
 from PySide.QtGui import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel
 
 from clipmanager import __license__
-from clipmanager.utils import resource_filename
+from clipmanager.ui.icons import resource_filename
 
 
 class AboutDialog(QDialog):
