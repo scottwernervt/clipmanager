@@ -7,7 +7,7 @@ from clipmanager.defs import APP_NAME
 from clipmanager.settings import settings
 from clipmanager.ui import icons
 from clipmanager.ui.dialogs.about import AboutDialog
-from clipmanager.ui.icons import resource
+from clipmanager.ui.icons import get_resource
 
 logger = logging.getLogger(__name__)
 
@@ -20,12 +20,18 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.parent = parent
 
-        self.setIcon(QIcon(resource('icons/clipmanager.ico')))
+        self.setIcon(QIcon(get_resource('icons/clipmanager.ico')))
         self.setToolTip(APP_NAME)
 
         menu = QMenu()
 
-        toggle_action = QAction(icons.TOGGLE, '&Toggle', self)
+        toggle_action = QAction(
+        #     QIcon.fromTheme('search', QIcon(get_resource('icons/search.png'))),
+        #     '&Toggle',
+        #     self)        # toggle_action = QAction(
+            QIcon('icons/search.png'),
+            '&Toggle',
+            self)
         toggle_action.triggered.connect(self.toggle_window)
 
         settings_action = QAction(icons.SETTINGS, '&Settings', self)
