@@ -6,7 +6,6 @@ from PySide.QtCore import QCoreApplication, QSize, Qt, SIGNAL, Slot
 from PySide.QtGui import (
     QAbstractItemView,
     QAction,
-    QIcon,
     QKeySequence,
     QListView,
     QMenu,
@@ -18,7 +17,7 @@ from PySide.QtGui import (
 )
 
 from clipmanager.settings import settings
-from clipmanager.utils import resource_filename
+from clipmanager.ui import icons
 
 logger = logging.getLogger(__name__)
 
@@ -40,16 +39,11 @@ class HistoryListView(QListView):
         self.setViewMode(QListView.ListMode)
         self.setResizeMode(QListView.Adjust)
         self.setStyleSheet('QListView::item {padding:10px;}')
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
         self.setItemDelegate(HistoryListItemDelegate(self))
 
-        self.toggle_horizontal_scrollbar(settings.get_word_wrap())
-
-        self.build_menu()
-        self.addAction(self.apply_action)
-        self.addAction(self.preview_action)
-        self.addAction(self.delete_action)
-
-        self.doubleClicked.connect(self._emit_set_clipboard)
+        self.doubleClicked.connect(self.paste_item)
 
     def resizeEvent(self, event):
         """Reset list view when word wrap setting changed.
@@ -73,12 +67,30 @@ class HistoryListView(QListView):
         :return:
         :rtype:
         """
-        # Get selected item
-        # indexes = self.selectionModel().selectedIndexes()
-        # self.apply_action.setChecked(True)
+        menu = QMenu(self)
 
-        # Open menu
-        self.menu.exec_(self.mapToGlobal(event.pos()))
+        paste_action = QAction(icons.EDIT_PASTE, 'Paste', self)
+        paste_action.setShortcut(QKeySequence(Qt.Key_Return))
+        paste_action.triggered.connect(self.paste_item)
+
+        preview_action = QAction(icons.PREVIEW, 'Preview', self)
+        preview_action.setShortcut(QKeySequence(Qt.Key_F11))
+        preview_action.triggered.connect(self.open_preview)
+
+        delete_action = QAction(icons.LIST_REMOVE, 'Delete', self)
+        delete_action.setShortcut(QKeySequence.Delete)
+        delete_action.triggered.connect(self.delete_item)
+
+        exit_action = QAction(icons.EXIT, 'Quit', self)
+        exit_action.triggered.connect(QCoreApplication.quit)
+
+        menu.addAction(paste_action)
+        menu.addAction(preview_action)
+        menu.addAction(delete_action)
+        menu.addSeparator()
+        menu.addAction(exit_action)
+
+        menu.exec_(event.globalPos())
 
     def keyPressEvent(self, event):
         """Automatically set focus to search box when typing.
@@ -113,7 +125,22 @@ class HistoryListView(QListView):
         return QListView.keyPressEvent(self, event)
 
     @Slot()
-    def delete(self):
+    def paste_item(self):
+        """Send set clipboard signal.
+
+        Todo:
+        * Send list of selected indexes instead of just emitting a signal
+        * and having main window grab the selection.
+
+        :return: None
+        :rtype: None
+        """
+        # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
+        # for __ in indexes:
+        self.emit(SIGNAL('setClipboard()'))
+
+    @Slot()
+    def delete_item(self):
         """Delete selected rows.
 
         CTRL+A on list view selects hidden columns. So even if user deselects
@@ -129,13 +156,13 @@ class HistoryListView(QListView):
         selection_rows = set(idx.row() for idx in
                              selection_model.selectedIndexes())
 
-        # delete from data table
+        # delete_item from data table
         parent_indexes = [self.model().index(row, 0) for row in selection_rows]
         parent_ids = filter(lambda p: p is not None,
                             [self.model().data(idx) for idx in parent_indexes])
         self.parent.data_model.delete(parent_ids)
 
-        # delete from main table and view
+        # delete_item from main table and view
         for k, g in groupby(enumerate(selection_rows), lambda (i, x): i - x):
             rows = map(itemgetter(1), g)
             self.model().removeRows(min(rows), len(rows))
@@ -143,118 +170,8 @@ class HistoryListView(QListView):
         self.model().sourceModel().submitAll()
         self.unsetCursor()
 
-    def build_menu(self):
-        """Create right click menu and actions."
-
-        :return: None
-        :rtype: None
-        """
-        self.menu = QMenu(self)
-
-        # Set item to clipboard
-        self.apply_action = QAction(
-            QIcon.fromTheme(
-                'list-add',
-                QIcon(resource_filename('icons/add.png'))
-            ),
-            'Set to clipboard',
-            self
-        )
-        self.apply_action.setShortcut(QKeySequence(Qt.Key_Return))
-
-        # Preview item's contents
-        self.preview_action = QAction(
-            QIcon.fromTheme(
-                'document',
-                QIcon(resource_filename('icons/document.png'))
-            ),
-            'Preview',
-            self
-        )
-        self.preview_action.setShortcut(QKeySequence(Qt.Key_F11))
-
-        # Prevent item from being deleted
-        self.save_action = QAction('Never delete', self)
-        self.save_action.setCheckable(True)
-
-        # Delete item
-        self.delete_action = QAction(
-            QIcon.fromTheme(
-                'list-remove',
-                QIcon(resource_filename('icons/remove.png'))
-            ),
-            'Delete',
-            self
-        )
-        self.delete_action.setShortcut(QKeySequence.Delete)
-
-        separator_1 = QAction(self)
-        separator_1.setSeparator(True)
-
-        # Open settings dialog
-        settings_action = QAction(
-            QIcon.fromTheme(
-                'emblem-system',
-                QIcon(resource_filename('icons/settings.png'))
-            ),
-            'Settings',
-            self
-        )
-
-        separator_2 = QAction(self)
-        separator_2.setSeparator(True)
-
-        # Exit
-        exit_action = QAction(
-            QIcon.fromTheme(
-                'application-exit',
-                QIcon(resource_filename('icons/exit.png'))
-            ),
-            'Quit',
-            self
-        )
-
-        # Add to menu
-        self.menu.addAction(self.apply_action)
-        self.menu.addAction(self.preview_action)
-        self.menu.addAction(self.save_action)
-        self.menu.addAction(self.delete_action)
-        self.menu.addAction(separator_2)
-        self.menu.addAction(settings_action)
-        self.menu.addAction(separator_1)
-        self.menu.addAction(exit_action)
-
-        # Connect signal for each action
-        self.menu.connect(self.apply_action,
-                          SIGNAL('triggered()'),
-                          self._emit_set_clipboard)
-        self.menu.connect(self.preview_action,
-                          SIGNAL('triggered()'),
-                          self._emit_open_preview)
-        self.menu.connect(self.delete_action,
-                          SIGNAL('triggered()'),
-                          self.delete)
-        self.menu.connect(settings_action,
-                          SIGNAL('triggered()'),
-                          self._emit_open_settings)
-        self.menu.connect(exit_action,
-                          SIGNAL('triggered()'),
-                          QCoreApplication.quit)
-
-    def toggle_horizontal_scrollbar(self, toggle):
-        """Toggle horizontal scroll bar on and off.
-
-        :param toggle: Turn scroll bar or off.
-        :type toggle: bool
-
-        :return: None
-        :rtype: None
-        """
-        policy = Qt.ScrollBarAlwaysOff if toggle else Qt.ScrollBarAsNeeded
-        self.setHorizontalScrollBarPolicy(policy)
-
     @Slot()
-    def _emit_open_preview(self):
+    def open_preview(self):
         """Send open preview signal with selection index.
 
         :return: None
@@ -263,32 +180,13 @@ class HistoryListView(QListView):
         self.emit(SIGNAL('openPreview(QModelIndex)'), self.currentIndex())
 
     @Slot()
-    def _emit_open_settings(self):
+    def open_settings(self):
         """Send open settings dialog signal.
 
         :return: None
         :rtype: None
         """
         self.emit(SIGNAL('openSettings()'))
-
-    @Slot()
-    def _emit_set_clipboard(self):
-        """Send set clipboard signal.
-
-        Todo:
-        * Send list of selected indexes instead of just emitting a signal
-        * and having main window grab the selection.
-
-        :return: None
-        :rtype: None
-        """
-        # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
-        # for __ in indexes:
-        self.emit(SIGNAL('setClipboard()'))
-
-    @Slot(object)
-    def _emit_delete_data(self, parent_ids):
-        self.emit(SIGNAL('deleteData(object)'), parent_ids)
 
 
 class HistoryListItemDelegate(QStyledItemDelegate):
