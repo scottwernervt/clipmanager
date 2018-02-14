@@ -33,7 +33,7 @@ from clipmanager.ui import icons
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
 from clipmanager.ui.historylist import HistoryListView
-from clipmanager.ui.icons import resource_filename
+from clipmanager.ui.icons import resource
 from clipmanager.ui.searchedit import SearchEdit, SearchFilterProxyModel
 from clipmanager.ui.systemtray import SystemTrayIcon
 from clipmanager.utils import (
@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(QIcon(resource('icons/clipmanager.ico')))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(Qt.WindowStaysOnTopHint |

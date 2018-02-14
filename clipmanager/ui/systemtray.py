@@ -7,7 +7,7 @@ from clipmanager.defs import APP_NAME
 from clipmanager.settings import settings
 from clipmanager.ui import icons
 from clipmanager.ui.dialogs.about import AboutDialog
-from clipmanager.ui.icons import resource_filename
+from clipmanager.ui.icons import resource
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.parent = parent
 
-        self.setIcon(QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setIcon(QIcon(resource('icons/clipmanager.ico')))
         self.setToolTip(APP_NAME)
 
         menu = QMenu()

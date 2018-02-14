@@ -4,17 +4,8 @@ import sys
 import pkg_resources
 from PySide.QtGui import QIcon
 
-TOGGLE = QIcon.fromTheme('search')
-SETTINGS = QIcon.fromTheme('preferences-system')
-ABOUT = QIcon.fromTheme('help-about')
-EXIT = QIcon.fromTheme('application-exit')
 
-EDIT_PASTE = QIcon.fromTheme('edit-paste')
-LIST_REMOVE = QIcon.fromTheme('list-remove')
-PREVIEW = QIcon.fromTheme('document-print-preview')
-
-
-def resource_filename(filename):
+def resource(filename):
     """Load resource from resource package.
 
     :param filename: File name of resource, e.g. icons\app.ico.
@@ -32,3 +23,17 @@ def resource_filename(filename):
             return path
 
     return pkg_resources.resource_filename('clipmanager', filename)
+
+
+TOGGLE = QIcon.fromTheme('search', resource('search.png'))
+SETTINGS = QIcon.fromTheme('preferences-system',
+                           resource('preferences-system.png'))
+ABOUT = QIcon.fromTheme('help-about', resource('help-about.png'))
+EXIT = QIcon.fromTheme('application-exit',
+                       resource('application-exit.png'))
+
+EDIT_PASTE = QIcon.fromTheme('edit-paste', resource('edit-paste.png'))
+LIST_REMOVE = QIcon.fromTheme('list-remove',
+                              resource('list-remove.png'))
+PREVIEW = QIcon.fromTheme('document-print-preview',
+                          resource('document-print-preview.png'))

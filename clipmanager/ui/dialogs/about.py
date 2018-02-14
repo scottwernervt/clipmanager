@@ -2,7 +2,7 @@ from PySide.QtCore import QCoreApplication, Qt
 from PySide.QtGui import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel
 
 from clipmanager import __license__
-from clipmanager.ui.icons import resource_filename
+from clipmanager.ui.icons import resource
 
 
 class AboutDialog(QDialog):
@@ -12,7 +12,7 @@ class AboutDialog(QDialog):
         super(AboutDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QIcon(resource_filename('icons/clipmanager.ico')))
+        self.setWindowIcon(QIcon(resource('icons/clipmanager.ico')))
         self.setWindowTitle('About')
         self.setAttribute(Qt.WA_DeleteOnClose)
 
