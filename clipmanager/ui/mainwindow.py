@@ -25,7 +25,7 @@ from PySide.QtGui import (
     QWidget,
 )
 
-from clipmanager import hotkey, owner, paste, __title__
+from clipmanager import __title__, hotkey, owner, paste
 from clipmanager.clipboard import ClipboardManager
 from clipmanager.database import Database
 from clipmanager.defs import MIME_SUPPORTED
@@ -78,21 +78,22 @@ class MainWindow(QMainWindow):
         self.hotkey = hotkey.initialize()
         self.paste = paste.initialize()
 
-        # Toggle window from system tray right click menu
-        self.connect(self.system_tray, SIGNAL('toggleWindow()'),
-                     self.toggle_window)
-
-        # Open settings dialog from right click menu on system tray and view
-        self.connect(self.system_tray, SIGNAL('openSettings()'),
-                     self.open_settings)
-
-        self.connect(self.main_widget, SIGNAL('pasteClipboard()'),
-                     self.paste_clipboard)
-
         if not minimize:
             self.toggle_window()
 
         self.register_hot_key()
+
+        self.connect(self.system_tray, SIGNAL('toggleWindow()'),
+                     self.toggle_window)
+
+        self.connect(self.system_tray, SIGNAL('openSettings()'),
+                     self.open_settings)
+
+        self.connect(self.main_widget, SIGNAL('openSettings()'),
+                     self.open_settings)
+
+        self.connect(self.main_widget, SIGNAL('pasteClipboard()'),
+                     self.paste_clipboard)
 
     def closeEvent(self, event):
         """Capture close event and hide main window.
@@ -294,6 +295,7 @@ class MainWidget(QWidget):
         settings_button = QPushButton(self)
         settings_button.setIcon(get_icon('preferences-system'))
         settings_button.setToolTip('Settings...')
+        settings_button.clicked.connect(self.emit_open_settings)
 
         layout = QGridLayout(self)
 
@@ -311,9 +313,6 @@ class MainWidget(QWidget):
 
         self.connect(self.history_view, SIGNAL('setClipboard(QModelIndex)'),
                      self.set_clipboard)
-
-        self.connect(settings_button, SIGNAL('clicked()'),
-                     self.emit_open_settings)
 
         self.connect(self.search_box, SIGNAL('textChanged(QString)'),
                      self.search_proxy.setFilterFixedString)
@@ -477,6 +476,9 @@ class MainWidget(QWidget):
     @Slot()
     def emit_open_settings(self):
         """Emit signal to open settings dialog.
+
+        :return: None
+        :rtype: None
         """
         self.emit(SIGNAL('openSettings()'))
 
