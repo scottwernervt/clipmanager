@@ -58,6 +58,7 @@ class HistoryListView(QListView):
         )
         preview_action.setShortcut(QKeySequence(Qt.Key_F11))
         preview_action.triggered.connect(self.open_preview)
+        self.preview_action = preview_action
 
         delete_action = QAction(get_icon('list-remove'), 'Delete', self)
         delete_action.setShortcut(QKeySequence.Delete)
@@ -101,8 +102,10 @@ class HistoryListView(QListView):
         """
         if len(self.selectionModel().selectedIndexes()) > 1:
             self.paste_action.setDisabled(True)
+            self.preview_action.setDisabled(True)
         else:
             self.paste_action.setDisabled(False)
+            self.preview_action.setDisabled(False)
 
         self.menu.exec_(event.globalPos())
 
@@ -140,18 +143,14 @@ class HistoryListView(QListView):
 
     @Slot()
     def paste_item(self):
-        """Send set clipboard signal.
-
-        Todo:
-        * Send list of selected indexes instead of just emitting a signal
-        * and having main window grab the selection.
+        """Send set clipboard signal with current selection.
 
         :return: None
         :rtype: None
         """
-        # indexes = self.selectionModel().selectedIndexes() # QItemSelectionModel
-        # for __ in indexes:
-        self.emit(SIGNAL('setClipboard()'))
+        indexes = self.selectionModel().selectedIndexes()
+        if len(indexes) == 1:
+            self.emit(SIGNAL('setClipboard(QModelIndex)'), indexes[0])
 
     @Slot()
     def delete_item(self):
@@ -191,16 +190,9 @@ class HistoryListView(QListView):
         :return: None
         :rtype: None
         """
-        self.emit(SIGNAL('openPreview(QModelIndex)'), self.currentIndex())
-
-    @Slot()
-    def open_settings(self):
-        """Send open settings dialog signal.
-
-        :return: None
-        :rtype: None
-        """
-        self.emit(SIGNAL('openSettings()'))
+        indexes = self.selectionModel().selectedIndexes()
+        if len(indexes) == 1:
+            self.emit(SIGNAL('openPreview(QModelIndex)'), indexes[0])
 
 
 class HistoryListItemDelegate(QStyledItemDelegate):

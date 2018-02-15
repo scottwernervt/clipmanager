@@ -17,7 +17,6 @@ from PySide.QtGui import (
     QCursor,
     QDesktopWidget,
     QGridLayout,
-    QIcon,
     QItemSelectionModel,
     QMainWindow,
     QMessageBox,
@@ -32,7 +31,6 @@ from clipmanager.database import Database
 from clipmanager.defs import APP_NAME, MIME_SUPPORTED, STORAGE_PATH
 from clipmanager.models import DataSqlTableModel, MainSqlTableModel
 from clipmanager.settings import settings
-from clipmanager.ui import icons
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
 from clipmanager.ui.historylist import HistoryListView
@@ -66,15 +64,16 @@ class MainWindow(QMainWindow):
         self.main_widget = MainWidget(self)
         self.setCentralWidget(self.main_widget)
 
-        # Create system tray icon
         if not QSystemTrayIcon.isSystemTrayAvailable():
-            QMessageBox.warning(self,
-                                'System Tray',
-                                'Cannot find a system tray.')
-        else:
-            self.system_tray = SystemTrayIcon(self)
-            self.system_tray.activated.connect(self._on_system_tray_clicked)
-            self.system_tray.show()
+            QMessageBox.critical(
+                self,
+                'System Tray',
+                'Cannot find a system tray.'
+            )
+
+        self.system_tray = SystemTrayIcon(self)
+        self.system_tray.activated.connect(self._on_system_tray_clicked)
+        self.system_tray.show()
 
         # Return OS specific global hot key binder and set it
         self.hotkey = hotkey.initialize()
@@ -259,11 +258,12 @@ class MainWindow(QMainWindow):
             self.hotkey.register(key_sequence, self._on_toggle_window,
                                  self.winId())
         else:
-            title = 'Global Hot Key'
-            message = 'Failed to bind global hot key %s.' % hotkey
-            self.system_tray.showMessage(title, message,
-                                         icon=QSystemTrayIcon.Warning,
-                                         msecs=10000)
+            self.system_tray.showMessage(
+                'Global Hot Key',
+                'Failed to bind global hot key %s.' % hotkey,
+                icon=QSystemTrayIcon.Warning,
+                msecs=10000
+            )
 
 
 class MainWidget(QWidget):
@@ -283,19 +283,13 @@ class MainWidget(QWidget):
         self.clipboard_manager = ClipboardManager(self)
         self.window_owner = owner.initialize()
 
-        # Create view, model, and proxy
         self.history_view = HistoryListView(self)
+
         self.main_model = MainSqlTableModel(self)
         self.data_model = DataSqlTableModel(self)
 
         self.search_proxy = SearchFilterProxyModel(self)
         self.search_proxy.setSourceModel(self.main_model)
-
-        # self.search_proxy = QSortFilterProxyModel(self)
-        # self.search_proxy.setFilterKeyColumn(TITLE)
-        # self.search_proxy.setSourceModel(self.model)
-        # self.search_proxy.setDynamicSortFilter(True)
-        # self.search_proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
 
         self.history_view.setModel(self.search_proxy)
         self.history_view.setModelColumn(self.main_model.TITLE_SHORT)
@@ -308,9 +302,11 @@ class MainWidget(QWidget):
         settings_button.setToolTip('Settings...')
 
         layout = QGridLayout(self)
+
         layout.addWidget(self.search_box, 0, 0)
         layout.addWidget(settings_button, 0, 1)
         layout.addWidget(self.history_view, 1, 0, 1, 2)
+
         self.setLayout(layout)
 
         # Set clipboard contents if return pressed or from right click menu
@@ -326,7 +322,7 @@ class MainWidget(QWidget):
                      self.check_selection)
 
         # Set clipboard data from signal by view
-        self.connect(self.history_view, SIGNAL('setClipboard()'),
+        self.connect(self.history_view, SIGNAL('setClipboard(QModelIndex)'),
                      self.set_clipboard)
 
         # Open settings dialog from button next to search box
@@ -345,8 +341,7 @@ class MainWidget(QWidget):
         self.connect(self.clipboard_manager, SIGNAL('newItem(QMimeData)'),
                      self.on_new_item)
 
-    @staticmethod
-    def item_title(mime_data):
+    def item_title(self, mime_data):
         """Create full title from clipboard mime data.
 
         Extract a title from QMimeData using urls, html, or text.
@@ -365,11 +360,15 @@ class MainWidget(QWidget):
         elif mime_data.hasHtml():  # last resort
             return mime_data.html()
         else:
-            logger.warning('Failed to get clipboard mime data formats.')
+            self.parent.system_tray.showMessage(
+                'Clipboard',
+                'Failed to get clipboard mime data formats.',
+                icon=QSystemTrayIcon.Warning,
+                msecs=5000
+            )
             return None
 
-    @staticmethod
-    def item_checksum(mime_data):
+    def item_checksum(self, mime_data):
         """Calculate CRC checksum based on urls, html, or text.
 
         :param mime_data: Data from clipboard.
@@ -378,14 +377,6 @@ class MainWidget(QWidget):
         :return: CRC32 checksum.
         :rtype: int
         """
-        # if mime_data.hasImage():
-        #     image = mime_data.imageData()
-        #     ba = QByteArray()
-        #     buff = QBuffer(ba)
-        #     image.save(buff, 'PNG')
-        #     byte_array = QByteArray(buff.buffer())
-        #     buff.close()
-        #     checksum_string = str(byte_array.toBase64())
         if mime_data.hasUrls():
             checksum_str = str(mime_data.urls())
         elif mime_data.hasHtml():
@@ -393,7 +384,12 @@ class MainWidget(QWidget):
         elif mime_data.hasText():
             checksum_str = mime_data.text()
         else:
-            logger.warning('Failed to get clipboard text/html/urls.')
+            self.parent.system_tray.showMessage(
+                'Clipboard',
+                'Failed to get clipboard text/html/urls.',
+                icon=QSystemTrayIcon.Warning,
+                msecs=5000
+            )
             return None
 
         # encode unicode characters for crc library
@@ -411,12 +407,6 @@ class MainWidget(QWidget):
     def find_duplicate(self, checksum):
         """Checks for a duplicate row in Main table.
 
-        Searches entire model for a duplicate checksum on new item that
-        requested to be created. If duplicate is found then update the source
-        CREATED_AT column and submit changes.
-
-        TODO: Investigate if SQL query is quicker on larger databases.
-
         :param checksum: CRC32 string to search for.
         :type checksum: int
 
@@ -424,11 +414,10 @@ class MainWidget(QWidget):
         :rtype: bool
         """
         for row in range(self.main_model.rowCount()):
-            # Get CHECKSUM column from source's row
             source_index = self.main_model.index(row, self.main_model.CHECKSUM)
             checksum_source = self.main_model.data(source_index)
 
-            # Update CREATED_AT column if checksums match
+            # update row created_at timestamp
             if str(checksum) == str(checksum_source):
                 self.main_model.setData(
                     self.main_model.index(row, self.main_model.CREATED_AT),
@@ -549,9 +538,12 @@ class MainWidget(QWidget):
 
         title = self.item_title(mime_data)
         if not title:
-            QMessageBox.warning(self,
-                                'Clipboard',
-                                'Failed to get clipboard contents.')
+            self.parent.system_tray.showMessage(
+                'Clipboard',
+                'Failed to get clipboard contents.',
+                icon=QSystemTrayIcon.Warning,
+                msecs=5000
+            )
             return None
 
         title_short = format_title(title)
@@ -561,7 +553,6 @@ class MainWidget(QWidget):
 
         checksum = self.item_checksum(mime_data)
         if checksum and self.find_duplicate(checksum):
-            # TODO: Update created_at date for duplicate
             return None
 
         parent_id = self.main_model.create(title=title,
@@ -569,7 +560,6 @@ class MainWidget(QWidget):
                                            checksum=checksum,
                                            created_at=created_at)
 
-        # Save each mime format as QByteArray to data table.
         for mime_format in MIME_SUPPORTED:
             if mime_data.hasFormat(mime_format):
                 byte_data = QByteArray(mime_data.data(mime_format))
@@ -588,81 +578,56 @@ class MainWidget(QWidget):
         return True
 
     @Slot(QModelIndex)
-    def open_preview_dialog(self, index):
+    def open_preview_dialog(self, selection_index):
         """"Open preview dialog for selected item.
 
-        :param index: Selected row index from history list view.
-        :type index: QModelIndex
+        :param selection_index: Selected row index from history list view.
+        :type selection_index: QModelIndex
 
         :return: None
         :rtype: None
         """
-        # Map the view->proxy to the source->db index
-        source_index = self.search_proxy.mapToSource(index)
+        source_index = self.search_proxy.mapToSource(selection_index)
+        source_row = source_index.row()
+        model_index = self.main_model.index(source_row, self.main_model.ID)
+        parent_id = self.main_model.data(model_index)
 
-        # No item is selected so quit
-        index_id = self.main_model.index(source_index.row(), self.main_model.ID)
-        if index_id.row() <= -1:
-            return None
-
-        parent_id = self.main_model.data(index_id)
-
-        # Find all children relating to parent_id
-        mime_list = self.data_model.read(parent_id)
-
-        # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
-        for mime_format, byte_data in mime_list:
+        for mime_format, byte_data in self.data_model.read(parent_id):
             mime_data.setData(mime_format, byte_data)
 
-        # PreviewDialog(self) so it opens at main window
         preview_dialog = PreviewDialog(self)
         preview_dialog.setup_ui(mime_data)
         preview_dialog.exec_()
+        del preview_dialog
 
-    @Slot()
-    def set_clipboard(self):
-        """Set clipboard contents from list selection.
-        
-        Parent ID is retrieved from user selection and mime data is compiled 
-        from database search. QMimeData() object is created from bytearray and 
-        reference format. Finally, clipboard contents are set, window is 
-        hidden, and OS paste command is sent to current active window.
+    @Slot(QModelIndex)
+    def set_clipboard(self, selection_index):
+        """Set selection item to clipboard.
 
-        When clipboard contents are set, it emits dataChanged() so the app
-        immediately attempts to insert it and runs into a duplicate update.
-        Setting ignore_created will prevent this check from happening.
+        :param selection_index:
+        :type selection_index:
+
+        :return:
+        :rtype:
         """
+        self.window().hide()
         self.ignore_created = True
 
-        # Hide parent window
-        self.window().hide()
-
-        # Map the view->proxy to the source->db index
-        proxy_index = self.history_view.currentIndex()
-        source_index = self.search_proxy.mapToSource(proxy_index)
-
-        # Get parent ID by creating a new index for data
-        model_index = self.main_model.index(source_index.row(),
-                                            self.main_model.ID)
+        source_index = self.search_proxy.mapToSource(selection_index)
+        source_row = source_index.row()
+        model_index = self.main_model.index(source_row, self.main_model.ID)
         parent_id = self.main_model.data(model_index)
 
-        # Find all children relating to parent_id
-        mime_list = self.data_model.read(parent_id)
-
-        # Create QMimeData object based on formats and byte data
         mime_data = QMimeData()
-        for mime_type, byte_data in mime_list:
+        for mime_type, byte_data in self.data_model.read(parent_id):
             mime_data.setData(mime_type, byte_data)
 
-        # Set to clipboard
         self.clipboard_manager.set_text(mime_data)
 
-        # Send Ctrl+V key stroke (paste) to foreground window
         if settings.get_send_paste():
             self.emit(SIGNAL('pasteClipboard()'))
 
-        # Update the date column in source
         self.main_model.setData(
             self.main_model.index(model_index.row(),
                                   self.main_model.CREATED_AT),
