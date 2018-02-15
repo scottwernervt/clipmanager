@@ -39,6 +39,12 @@ Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.o
 * [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
 
 
+## Help
+
+### ClipManager is not using my GTK theme
+
+$ ln -s icon/theme/directory $HOME/.icons/hicolor
+
 ## Inspiration
 * [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
 * [Glipper](https://launchpad.net/glipper)

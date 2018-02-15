@@ -17,7 +17,7 @@ from PySide.QtGui import (
 )
 
 from clipmanager.settings import settings
-from clipmanager.ui import icons
+from clipmanager.ui.icons import get_icon
 
 logger = logging.getLogger(__name__)
 
@@ -69,19 +69,23 @@ class HistoryListView(QListView):
         """
         menu = QMenu(self)
 
-        paste_action = QAction(icons.EDIT_PASTE, 'Paste', self)
+        paste_action = QAction(get_icon('edit-paste'), 'Paste', self)
         paste_action.setShortcut(QKeySequence(Qt.Key_Return))
         paste_action.triggered.connect(self.paste_item)
 
-        preview_action = QAction(icons.PREVIEW, 'Preview', self)
+        preview_action = QAction(
+            get_icon('document-print-preview'),
+            'Preview',
+            self
+        )
         preview_action.setShortcut(QKeySequence(Qt.Key_F11))
         preview_action.triggered.connect(self.open_preview)
 
-        delete_action = QAction(icons.LIST_REMOVE, 'Delete', self)
+        delete_action = QAction(get_icon('list-remove'), 'Delete', self)
         delete_action.setShortcut(QKeySequence.Delete)
         delete_action.triggered.connect(self.delete_item)
 
-        exit_action = QAction(icons.EXIT, 'Quit', self)
+        exit_action = QAction(get_icon('application-exit'), 'Quit', self)
         exit_action.triggered.connect(QCoreApplication.quit)
 
         menu.addAction(paste_action)

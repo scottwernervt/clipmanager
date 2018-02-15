@@ -36,7 +36,7 @@ from clipmanager.ui import icons
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
 from clipmanager.ui.historylist import HistoryListView
-from clipmanager.ui.icons import get_resource
+from clipmanager.ui.icons import get_icon
 from clipmanager.ui.searchedit import SearchEdit, SearchFilterProxyModel
 from clipmanager.ui.systemtray import SystemTrayIcon
 from clipmanager.utils import format_title, truncate_lines
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QIcon(get_resource('icons/clipmanager.ico')))
+        self.setWindowIcon(get_icon('clipmanager.ico'))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(Qt.WindowStaysOnTopHint |
@@ -304,7 +304,7 @@ class MainWidget(QWidget):
         self.search_box = SearchEdit(self.history_view, self.search_proxy)
 
         settings_button = QPushButton(self)
-        settings_button.setIcon(icons.SETTINGS)
+        settings_button.setIcon(get_icon('preferences-system'))
         settings_button.setToolTip('Settings...')
 
         layout = QGridLayout(self)

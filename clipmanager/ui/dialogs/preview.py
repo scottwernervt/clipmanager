@@ -9,7 +9,7 @@ from PySide.QtGui import (
 )
 from PySide.QtWebKit import QWebSettings, QWebView
 
-from clipmanager.ui.icons import resource
+from clipmanager.ui.icons import get_icon
 
 
 class PreviewDialog(QDialog):
@@ -19,7 +19,7 @@ class PreviewDialog(QDialog):
         super(PreviewDialog, self).__init__(parent)
         self.parent = parent
 
-        self.setWindowIcon(QIcon(resource('icons/clipmanager.ico')))
+        self.setWindowIcon(get_icon('clipmanager.ico'))
         self.setWindowTitle('Preview')
         self.resize(QSize(500, 300))
         self.setAttribute(Qt.WA_DeleteOnClose)
