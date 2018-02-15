@@ -40,38 +40,16 @@ class HistoryListView(QListView):
         self.setResizeMode(QListView.Adjust)
         self.setStyleSheet('QListView::item {padding:10px;}')
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
         self.setItemDelegate(HistoryListItemDelegate(self))
 
         self.doubleClicked.connect(self.paste_item)
 
-    def resizeEvent(self, event):
-        """Reset list view when word wrap setting changed.
-
-        :param event:
-        :type event: QResizeEvent
-
-        :return:
-        :rtype: QListView.resizeEvent()
-        """
-        self.emit(SIGNAL('layoutChanged()'))
-        self.reset()
-        return QListView.resizeEvent(self, event)
-
-    def contextMenuEvent(self, event):
-        """Capture context menu event.
-
-        :param event:
-        :type event: QEvent
-
-        :return:
-        :rtype:
-        """
-        menu = QMenu(self)
+        self.menu = QMenu(self)
 
         paste_action = QAction(get_icon('edit-paste'), 'Paste', self)
         paste_action.setShortcut(QKeySequence(Qt.Key_Return))
         paste_action.triggered.connect(self.paste_item)
+        self.paste_action = paste_action
 
         preview_action = QAction(
             get_icon('document-print-preview'),
@@ -88,13 +66,45 @@ class HistoryListView(QListView):
         exit_action = QAction(get_icon('application-exit'), 'Quit', self)
         exit_action.triggered.connect(QCoreApplication.quit)
 
-        menu.addAction(paste_action)
-        menu.addAction(preview_action)
-        menu.addAction(delete_action)
-        menu.addSeparator()
-        menu.addAction(exit_action)
+        self.menu.addAction(paste_action)
+        self.menu.addAction(preview_action)
+        self.menu.addAction(delete_action)
+        self.menu.addSeparator()
+        self.menu.addAction(exit_action)
 
-        menu.exec_(event.globalPos())
+        # keyboard shortcuts work on selected items without menu
+        self.addAction(paste_action)
+        self.addAction(preview_action)
+        self.addAction(delete_action)
+
+    def resizeEvent(self, event):
+        """Reset list view when word wrap setting changed.
+
+        :param event: Resize event.
+        :type event: QResizeEvent
+
+        :return: Resize event.
+        :rtype: QListView.resizeEvent
+        """
+        self.emit(SIGNAL('layoutChanged()'))
+        self.reset()
+        return QListView.resizeEvent(self, event)
+
+    def contextMenuEvent(self, event):
+        """Open context menu.
+
+        :param event: Event.
+        :type event: QEvent
+
+        :return: None
+        :rtype: None
+        """
+        if len(self.selectionModel().selectedIndexes()) > 1:
+            self.paste_action.setDisabled(True)
+        else:
+            self.paste_action.setDisabled(False)
+
+        self.menu.exec_(event.globalPos())
 
     def keyPressEvent(self, event):
         """Automatically set focus to search box when typing.
@@ -106,8 +116,8 @@ class HistoryListView(QListView):
         :rtype: QListView.keyPressEvent()
         """
         # Catch select all <CTRL><A> on list
-        if (event.modifiers() == Qt.ControlModifier) and \
-                (event.key() == Qt.Key_A):
+        if (event.modifiers() == Qt.ControlModifier) and (
+                event.key() == Qt.Key_A):
             return QListView.keyPressEvent(self, event)
 
         # Scroll list view to the right (word wrap disabled)
