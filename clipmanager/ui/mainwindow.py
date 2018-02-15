@@ -1,11 +1,14 @@
 import datetime
 import logging
+import zlib
 
 from PySide.QtCore import (
     QByteArray,
     QDateTime,
     QMimeData,
     QModelIndex,
+    QTextCodec,
+    QTextEncoder,
     Qt,
     SIGNAL,
     Slot,
@@ -33,15 +36,10 @@ from clipmanager.ui import icons
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
 from clipmanager.ui.historylist import HistoryListView
-from clipmanager.ui.icons import resource
+from clipmanager.ui.icons import get_resource
 from clipmanager.ui.searchedit import SearchEdit, SearchFilterProxyModel
 from clipmanager.ui.systemtray import SystemTrayIcon
-from clipmanager.utils import (
-    calculate_checksum,
-    create_full_title,
-    format_title,
-    truncate_lines,
-)
+from clipmanager.utils import format_title, truncate_lines
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +55,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(APP_NAME)
-        self.setWindowIcon(QIcon(resource('icons/clipmanager.ico')))
+        self.setWindowIcon(QIcon(get_resource('icons/clipmanager.ico')))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(Qt.WindowStaysOnTopHint |
@@ -347,6 +345,65 @@ class MainWidget(QWidget):
         self.connect(self.clipboard_manager, SIGNAL('newItem(QMimeData)'),
                      self.on_new_item)
 
+    @staticmethod
+    def item_title(mime_data):
+        """Create full title from clipboard mime data.
+
+        Extract a title from QMimeData using urls, html, or text.
+
+        :param mime_data:
+        :type mime_data: QMimeData
+
+        :return: Full title or None if it did not have any text/html/url.
+        :rtype: str or None
+        """
+        if mime_data.hasUrls():
+            urls = [url.toString() for url in mime_data.urls()]
+            return 'Copied File(s):\n' + '\n'.join(urls)
+        elif mime_data.hasText():
+            return mime_data.text()
+        elif mime_data.hasHtml():  # last resort
+            return mime_data.html()
+        else:
+            logger.warning('Failed to get clipboard mime data formats.')
+            return None
+
+    @staticmethod
+    def item_checksum(mime_data):
+        """Calculate CRC checksum based on urls, html, or text.
+
+        :param mime_data: Data from clipboard.
+        :type mime_data: QMimeData
+
+        :return: CRC32 checksum.
+        :rtype: int
+        """
+        # if mime_data.hasImage():
+        #     image = mime_data.imageData()
+        #     ba = QByteArray()
+        #     buff = QBuffer(ba)
+        #     image.save(buff, 'PNG')
+        #     byte_array = QByteArray(buff.buffer())
+        #     buff.close()
+        #     checksum_string = str(byte_array.toBase64())
+        if mime_data.hasUrls():
+            checksum_str = str(mime_data.urls())
+        elif mime_data.hasHtml():
+            checksum_str = mime_data.html()
+        elif mime_data.hasText():
+            checksum_str = mime_data.text()
+        else:
+            logger.warning('Failed to get clipboard text/html/urls.')
+            return None
+
+        # encode unicode characters for crc library
+        codec = QTextCodec.codecForName('UTF-8')
+        encoder = QTextEncoder(codec)
+        byte_array = encoder.fromUnicode(checksum_str)  # QByteArray
+
+        checksum = zlib.crc32(byte_array)
+        return checksum
+
     def destroy(self):
         self.main_model.submitAll()
         self.database.close()
@@ -490,13 +547,19 @@ class MainWidget(QWidget):
             logger.info('Ignoring copy from application.')
             return False
 
-        title = create_full_title(mime_data)
+        title = self.item_title(mime_data)
+        if not title:
+            QMessageBox.warning(self,
+                                'Clipboard',
+                                'Failed to get clipboard contents.')
+            return None
+
         title_short = format_title(title)
         title_short = truncate_lines(title_short,
                                      settings.get_lines_to_display())
         created_at = QDateTime.currentMSecsSinceEpoch()
 
-        checksum = calculate_checksum(mime_data)
+        checksum = self.item_checksum(mime_data)
         if checksum and self.find_duplicate(checksum):
             # TODO: Update created_at date for duplicate
             return None
