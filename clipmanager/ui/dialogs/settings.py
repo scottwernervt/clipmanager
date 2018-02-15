@@ -15,7 +15,7 @@ from PySide.QtGui import (
 )
 
 from clipmanager.settings import settings
-from clipmanager.ui.icons import resource
+from clipmanager.ui.icons import get_icon
 
 
 def _qcheckbox_state(state):
@@ -36,7 +36,7 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super(SettingsDialog, self).__init__(parent)
 
-        self.setWindowIcon(QIcon(resource('icons/clipmanager.ico')))
+        self.setWindowIcon(get_icon('clipmanager.ico'))
         self.setWindowTitle('Settings')
         self.setAttribute(Qt.WA_DeleteOnClose)
 

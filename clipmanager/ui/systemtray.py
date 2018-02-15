@@ -1,13 +1,13 @@
 import logging
 
 from PySide.QtCore import QCoreApplication, SIGNAL, Slot
-from PySide.QtGui import QAction, QIcon, QMenu, QSystemTrayIcon
+from PySide.QtGui import QAction, QMenu, QSystemTrayIcon
 
 from clipmanager.defs import APP_NAME
 from clipmanager.settings import settings
 from clipmanager.ui import icons
 from clipmanager.ui.dialogs.about import AboutDialog
-from clipmanager.ui.icons import get_resource
+from clipmanager.ui.icons import get_icon
 
 logger = logging.getLogger(__name__)
 
@@ -20,27 +20,23 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.parent = parent
 
-        self.setIcon(QIcon(get_resource('icons/clipmanager.ico')))
+        self.setIcon(get_icon('clipmanager.ico'))
         self.setToolTip(APP_NAME)
 
         menu = QMenu()
 
-        toggle_action = QAction(
-        #     QIcon.fromTheme('search', QIcon(get_resource('icons/search.png'))),
-        #     '&Toggle',
-        #     self)        # toggle_action = QAction(
-            QIcon('icons/search.png'),
-            '&Toggle',
-            self)
+        toggle_action = QAction(get_icon('search'), '&Toggle', self)
         toggle_action.triggered.connect(self.toggle_window)
 
-        settings_action = QAction(icons.SETTINGS, '&Settings', self)
+        settings_action = QAction(get_icon('preferences-system'),
+                                  '&Settings',
+                                  self)
         settings_action.triggered.connect(self.open_settings)
 
-        about_action = QAction(icons.ABOUT, '&About', self)
+        about_action = QAction(get_icon('help-about'), '&About', self)
         about_action.triggered.connect(self.open_about)
 
-        exit_action = QAction(icons.EXIT, '&Quit', self)
+        exit_action = QAction(get_icon('application-exit'), '&Quit', self)
         exit_action.triggered.connect(QCoreApplication.quit)
 
         disconnect_action = QAction('&Private mode', self)
