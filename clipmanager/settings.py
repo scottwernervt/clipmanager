@@ -1,6 +1,6 @@
 from PySide.QtCore import QObject, QPoint, QSettings, QSize
 
-from clipmanager.defs import APP_NAME, APP_ORG
+from clipmanager import __org__, __title__
 
 
 class Settings(QObject):
@@ -14,7 +14,7 @@ class Settings(QObject):
     def __init__(self, parent=None):
         super(QObject, self).__init__(parent)
 
-        self.settings = QSettings(APP_ORG, APP_NAME)
+        self.settings = QSettings(__org__, __title__)
 
     def sync(self):
         """Sync settings to storage method.

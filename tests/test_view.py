@@ -131,7 +131,7 @@ class TestListView(object):
         self.connection_box.connect(self.view,
                                     QtCore.SIGNAL('set-clipboard()'),
                                     self.connection_box.slotSlot)
-        self.view.paste_item()
+        self.view.emit_set_clipboard()
 
         self.connection_box.assertSignalArrived('set-clipboard()')
         self.connection_box.assertNumberOfArguments(0)
@@ -151,7 +151,7 @@ class TestListView(object):
         self.connection_box.connect(self.view,
                                     QtCore.SIGNAL('open-preview(QModelIndex)'),
                                     self.connection_box.slotSlot)
-        self.view.open_preview()
+        self.view.emit_open_preview()
 
         self.connection_box.assertSignalArrived('open-preview(QModelIndex)')
         self.connection_box.assertNumberOfArguments(1)

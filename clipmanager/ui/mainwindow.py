@@ -25,10 +25,10 @@ from PySide.QtGui import (
     QWidget,
 )
 
-from clipmanager import hotkey, owner, paste
+from clipmanager import hotkey, owner, paste, __title__
 from clipmanager.clipboard import ClipboardManager
 from clipmanager.database import Database
-from clipmanager.defs import APP_NAME, MIME_SUPPORTED, STORAGE_PATH
+from clipmanager.defs import MIME_SUPPORTED
 from clipmanager.models import DataSqlTableModel, MainSqlTableModel
 from clipmanager.settings import settings
 from clipmanager.ui.dialogs.preview import PreviewDialog
@@ -52,17 +52,13 @@ class MainWindow(QMainWindow):
     def __init__(self, minimize=False):
         super(MainWindow, self).__init__()
 
-        self.setWindowTitle(APP_NAME)
+        self.setWindowTitle(__title__)
         self.setWindowIcon(get_icon('clipmanager.ico'))
 
         # Remove minimize and maximize buttons from window title
         self.setWindowFlags(Qt.WindowStaysOnTopHint |
                             Qt.CustomizeWindowHint |
                             Qt.WindowCloseButtonHint)
-
-        # Create main widget that holds contents of clipboard history
-        self.main_widget = MainWidget(self)
-        self.setCentralWidget(self.main_widget)
 
         if not QSystemTrayIcon.isSystemTrayAvailable():
             QMessageBox.critical(
@@ -75,26 +71,26 @@ class MainWindow(QMainWindow):
         self.system_tray.activated.connect(self._on_system_tray_clicked)
         self.system_tray.show()
 
+        self.main_widget = MainWidget(self)
+        self.setCentralWidget(self.main_widget)
+
         # Return OS specific global hot key binder and set it
         self.hotkey = hotkey.initialize()
         self.paste = paste.initialize()
 
         # Toggle window from system tray right click menu
         self.connect(self.system_tray, SIGNAL('toggleWindow()'),
-                     self._on_toggle_window)
+                     self.toggle_window)
 
         # Open settings dialog from right click menu on system tray and view
         self.connect(self.system_tray, SIGNAL('openSettings()'),
-                     self._on_open_settings)
-
-        self.connect(self.main_widget, SIGNAL('openSettings()'),
-                     self._on_open_settings)
+                     self.open_settings)
 
         self.connect(self.main_widget, SIGNAL('pasteClipboard()'),
-                     self.paste)
+                     self.paste_clipboard)
 
         if not minimize:
-            self._on_toggle_window()
+            self.toggle_window()
 
         self.register_hot_key()
 
@@ -116,6 +112,25 @@ class MainWindow(QMainWindow):
         settings.set_window_size(self.size())
 
         self.hide()
+
+    def register_hot_key(self):
+        """Helper function to bind global hot key to OS specific binder class.
+
+        If binding fails then display a message in system tray notification
+        tray.
+        """
+        key_sequence = settings.get_global_hot_key()  # Ctrl+Shift+h
+        if key_sequence:
+            self.hotkey.unregister(winid=self.winId())
+            self.hotkey.register(key_sequence, self.toggle_window,
+                                 self.winId())
+        else:
+            self.system_tray.showMessage(
+                'Global Hot Key',
+                'Failed to bind global hot key %s.' % hotkey,
+                icon=QSystemTrayIcon.Warning,
+                msecs=10000
+            )
 
     def destroy(self):
         """Perform cleanup before exiting the application.
@@ -145,10 +160,10 @@ class MainWindow(QMainWindow):
         """
         if activation_reason in (QSystemTrayIcon.Trigger,
                                  QSystemTrayIcon.DoubleClick):
-            self._on_toggle_window()
+            self.toggle_window()
 
     @Slot()
-    def _on_open_settings(self):
+    def open_settings(self):
         """Open settings dialog.
 
         Prior to opening dialog, the global hot key is unbinded and then binded
@@ -172,7 +187,7 @@ class MainWindow(QMainWindow):
         self.unsetCursor()
 
     @Slot()
-    def _on_toggle_window(self):
+    def toggle_window(self):
         """Show and hide main window.
 
         If visible, then hide the window. If not visible, then open window
@@ -243,27 +258,8 @@ class MainWindow(QMainWindow):
             self.main_widget.check_selection()
 
     @Slot()
-    def paste_action(self):
+    def paste_clipboard(self):
         self.paste()
-
-    def register_hot_key(self):
-        """Helper function to bind global hot key to OS specific binder class.
-
-        If binding fails then display a message in system tray notification
-        tray.
-        """
-        key_sequence = settings.get_global_hot_key()  # Ctrl+Shift+h
-        if key_sequence:
-            self.hotkey.unregister(winid=self.winId())
-            self.hotkey.register(key_sequence, self._on_toggle_window,
-                                 self.winId())
-        else:
-            self.system_tray.showMessage(
-                'Global Hot Key',
-                'Failed to bind global hot key %s.' % hotkey,
-                icon=QSystemTrayIcon.Warning,
-                msecs=10000
-            )
 
 
 class MainWidget(QWidget):
@@ -274,10 +270,9 @@ class MainWidget(QWidget):
 
         self.parent = parent
 
-        self.database = Database(STORAGE_PATH, self)
+        self.database = Database(self)
         self.database.create_tables()
 
-        # Ignore clipboard change when user sets item to clipboard
         self.ignore_created = False
 
         self.clipboard_manager = ClipboardManager(self)
@@ -294,7 +289,6 @@ class MainWidget(QWidget):
         self.history_view.setModel(self.search_proxy)
         self.history_view.setModelColumn(self.main_model.TITLE_SHORT)
 
-        # Pass view and proxy pointers to search input
         self.search_box = SearchEdit(self.history_view, self.search_proxy)
 
         settings_button = QPushButton(self)
@@ -309,39 +303,29 @@ class MainWidget(QWidget):
 
         self.setLayout(layout)
 
-        # Set clipboard contents if return pressed or from right click menu
-        self.connect(self.search_box, SIGNAL('returnPressed()'),
+        self.connect(self.clipboard_manager, SIGNAL('newItem(QMimeData)'),
+                     self.new_item)
+
+        self.connect(self.search_box, SIGNAL('returnPressed(QModelIndex)'),
                      self.set_clipboard)
 
-        # Search proxy model
-        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
-                     self.search_proxy.setFilterFixedString)
-
-        # Check selection in view during search
-        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
-                     self.check_selection)
-
-        # Set clipboard data from signal by view
         self.connect(self.history_view, SIGNAL('setClipboard(QModelIndex)'),
                      self.set_clipboard)
 
-        # Open settings dialog from button next to search box
         self.connect(settings_button, SIGNAL('clicked()'),
-                     self._emit_open_settings)
+                     self.emit_open_settings)
 
-        # Open settings dialog from right click menu of the view
+        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
+                     self.search_proxy.setFilterFixedString)
+        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
+                     self.check_selection)
+
         self.connect(self.history_view, SIGNAL('openSettings()'),
-                     self._emit_open_settings)
-
-        # Show preview of selected item in view
+                     self.emit_open_settings)
         self.connect(self.history_view, SIGNAL('openPreview(QModelIndex)'),
                      self.open_preview_dialog)
 
-        # Clipboard dataChanged() emits to append new item to model->view
-        self.connect(self.clipboard_manager, SIGNAL('newItem(QMimeData)'),
-                     self.on_new_item)
-
-    def item_title(self, mime_data):
+    def create_item_title(self, mime_data):
         """Create full title from clipboard mime data.
 
         Extract a title from QMimeData using urls, html, or text.
@@ -368,7 +352,7 @@ class MainWidget(QWidget):
             )
             return None
 
-    def item_checksum(self, mime_data):
+    def get_item_checksum(self, mime_data):
         """Calculate CRC checksum based on urls, html, or text.
 
         :param mime_data: Data from clipboard.
@@ -438,14 +422,12 @@ class MainWidget(QWidget):
         :return: None
         :rtype: None
         """
-        # Work in reverse and break when row date is less than
-        # expiration date
         expire_at = settings.get_expire_value()
         if int(expire_at) == 0:
             return
 
         entries = range(0, self.main_model.rowCount())
-        entries.reverse()  # Start from bottom of QListView
+        entries.reverse()  # sort by oldest
 
         for row in entries:
             index = self.main_model.index(row, self.main_model.CREATED_AT)
@@ -472,6 +454,9 @@ class MainWidget(QWidget):
 
         Count total number of items in history, and if greater than user
         setting for maximum entries, delete_item them.
+
+        :return: None
+        :rtype: None
         """
         max_entries = settings.get_max_entries_value()
         if max_entries == 0:
@@ -490,7 +475,7 @@ class MainWidget(QWidget):
         self.main_model.submitAll()
 
     @Slot()
-    def _emit_open_settings(self):
+    def emit_open_settings(self):
         """Emit signal to open settings dialog.
         """
         self.emit(SIGNAL('openSettings()'))
@@ -512,7 +497,7 @@ class MainWidget(QWidget):
                                             QItemSelectionModel.Select)
 
     @Slot(QMimeData)
-    def on_new_item(self, mime_data):
+    def new_item(self, mime_data):
         """Append clipboard contents to database.
 
         :param mime_data: Clipboard contents mime data
@@ -536,7 +521,7 @@ class MainWidget(QWidget):
             logger.info('Ignoring copy from application.')
             return False
 
-        title = self.item_title(mime_data)
+        title = self.create_item_title(mime_data)
         if not title:
             self.parent.system_tray.showMessage(
                 'Clipboard',
@@ -551,7 +536,7 @@ class MainWidget(QWidget):
                                      settings.get_lines_to_display())
         created_at = QDateTime.currentMSecsSinceEpoch()
 
-        checksum = self.item_checksum(mime_data)
+        checksum = self.get_item_checksum(mime_data)
         if checksum and self.find_duplicate(checksum):
             return None
 

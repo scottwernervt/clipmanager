@@ -42,13 +42,13 @@ class HistoryListView(QListView):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setItemDelegate(HistoryListItemDelegate(self))
 
-        self.doubleClicked.connect(self.paste_item)
+        self.doubleClicked.connect(self.emit_set_clipboard)
 
         self.menu = QMenu(self)
 
         paste_action = QAction(get_icon('edit-paste'), 'Paste', self)
         paste_action.setShortcut(QKeySequence(Qt.Key_Return))
-        paste_action.triggered.connect(self.paste_item)
+        paste_action.triggered.connect(self.emit_set_clipboard)
         self.paste_action = paste_action
 
         preview_action = QAction(
@@ -57,7 +57,7 @@ class HistoryListView(QListView):
             self
         )
         preview_action.setShortcut(QKeySequence(Qt.Key_F11))
-        preview_action.triggered.connect(self.open_preview)
+        preview_action.triggered.connect(self.emit_open_preview)
         self.preview_action = preview_action
 
         delete_action = QAction(get_icon('list-remove'), 'Delete', self)
@@ -142,7 +142,7 @@ class HistoryListView(QListView):
         return QListView.keyPressEvent(self, event)
 
     @Slot()
-    def paste_item(self):
+    def emit_set_clipboard(self):
         """Send set clipboard signal with current selection.
 
         :return: None
@@ -151,6 +151,17 @@ class HistoryListView(QListView):
         indexes = self.selectionModel().selectedIndexes()
         if len(indexes) == 1:
             self.emit(SIGNAL('setClipboard(QModelIndex)'), indexes[0])
+
+    @Slot()
+    def emit_open_preview(self):
+        """Send open preview signal with selection index.
+
+        :return: None
+        :rtype: None
+        """
+        indexes = self.selectionModel().selectedIndexes()
+        if len(indexes) == 1:
+            self.emit(SIGNAL('openPreview(QModelIndex)'), indexes[0])
 
     @Slot()
     def delete_item(self):
@@ -182,17 +193,6 @@ class HistoryListView(QListView):
 
         self.model().sourceModel().submitAll()
         self.unsetCursor()
-
-    @Slot()
-    def open_preview(self):
-        """Send open preview signal with selection index.
-
-        :return: None
-        :rtype: None
-        """
-        indexes = self.selectionModel().selectedIndexes()
-        if len(indexes) == 1:
-            self.emit(SIGNAL('openPreview(QModelIndex)'), indexes[0])
 
 
 class HistoryListItemDelegate(QStyledItemDelegate):

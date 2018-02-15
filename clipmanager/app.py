@@ -6,10 +6,10 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
-from PySide.QtCore import QDir, QEvent, SIGNAL, Slot
+from PySide.QtCore import QCoreApplication, QDir, QEvent, SIGNAL, Slot
 from PySide.QtGui import QApplication
 
-from clipmanager.defs import APP_DOMAIN, APP_NAME, APP_ORG, APP_VERSION
+from clipmanager import (__org__, __title__, __url__, __version__)
 from clipmanager.singleinstance import SingleInstance
 from clipmanager.ui.mainwindow import MainWindow
 
@@ -19,7 +19,7 @@ sys.path.insert(0, installation_directory)
 
 
 def _setup_logger(logging_level='INFO'):
-    log_path = os.path.join(QDir.tempPath(), APP_NAME.lower() + '.log')
+    log_path = os.path.join(QDir.tempPath(), __title__.lower() + '.log')
     formatter = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 
@@ -48,10 +48,10 @@ class Application(QApplication):
         """
         super(Application, self).__init__(args)
 
-        self.setApplicationName(APP_DOMAIN)
-        self.setOrganizationName(APP_ORG)
-        self.setApplicationName(APP_NAME)
-        self.setApplicationVersion(APP_VERSION)
+        self.setApplicationName(__url__)
+        self.setOrganizationName(__org__)
+        self.setApplicationName(__title__)
+        self.setApplicationVersion(__version__)
 
         # prevent application from exiting if minimized "closed"
         self.setQuitOnLastWindowClosed(False)
@@ -91,9 +91,13 @@ if __name__ == '__main__':
     _setup_logger(options.logging_level)
 
     single_instance = SingleInstance()
-    if not single_instance.is_running():
-        app = Application(sys.argv)
+    if single_instance.is_running():
+        sys.exit(-1)
 
-        sys.exit(app.exec_())
+    QCoreApplication.setOrganizationName(__org__)
+    QCoreApplication.setApplicationName(__title__)
+    QCoreApplication.setApplicationVersion(__version__)
+    QCoreApplication.setOrganizationDomain(__url__)
 
-    sys.exit(-1)
+    app = Application(sys.argv)
+    sys.exit(app.exec_())

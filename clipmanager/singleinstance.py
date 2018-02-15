@@ -12,7 +12,7 @@ else:
     import commands
     import os
 
-from clipmanager.defs import APP_ORG, APP_NAME
+from clipmanager import __org__, __name__
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +32,11 @@ class SingleInstance(object):
             # );
             # 
             # DWORD WINAPI GetLastError(void);
-            self.mutex_name = '%s.%s' % (APP_ORG, APP_NAME)
+            self.mutex_name = '%s.%s' % (__org__, __name__)
             self.mutex = CreateMutex(None, False, self.mutex_name)
             self.last_error = GetLastError()
         else:
-            self.pid_path = '/tmp/%s.pid' % APP_NAME.lower()
+            self.pid_path = '/tmp/%s.pid' % __name__.lower()
             if os.path.exists(self.pid_path):
                 pid = open(self.pid_path, 'r').read().strip()
                 pid_running = commands.getoutput('ls /proc | grep %s' % pid)

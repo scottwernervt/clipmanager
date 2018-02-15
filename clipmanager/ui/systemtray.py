@@ -3,7 +3,7 @@ import logging
 from PySide.QtCore import QCoreApplication, SIGNAL, Slot
 from PySide.QtGui import QAction, QMenu, QSystemTrayIcon
 
-from clipmanager.defs import APP_NAME
+from clipmanager import __title__
 from clipmanager.settings import settings
 from clipmanager.ui.dialogs.about import AboutDialog
 from clipmanager.ui.icons import get_icon
@@ -20,17 +20,17 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.parent = parent
 
         self.setIcon(get_icon('clipmanager.ico'))
-        self.setToolTip(APP_NAME)
+        self.setToolTip(__title__)
 
-        menu = QMenu()
+        menu = QMenu(parent)
 
         toggle_action = QAction(get_icon('search'), '&Toggle', self)
-        toggle_action.triggered.connect(self.toggle_window)
+        toggle_action.triggered.connect(self.emit_toggle_window)
 
         settings_action = QAction(get_icon('preferences-system'),
                                   '&Settings',
                                   self)
-        settings_action.triggered.connect(self.open_settings)
+        settings_action.triggered.connect(self.emit_open_settings)
 
         about_action = QAction(get_icon('help-about'), '&About', self)
         about_action.triggered.connect(self.open_about)
@@ -54,32 +54,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(menu)
 
     @Slot()
-    def toggle_window(self):
+    def emit_toggle_window(self):
         """Emit signal to toggle the main window.
 
         :return: None
         :rtype: None
         """
         self.emit(SIGNAL('toggleWindow()'))
-
-    @Slot()
-    def toggle_private(self):
-        """Toggle and save disconnect settings.
-
-        :return: None
-        :rtype: None
-        """
-        settings.set_disconnect(not settings.get_disconnect())
-        # self.contextMenu().menuAction().setIcon(_disconnect_icon())
-
-    @Slot()
-    def open_settings(self):
-        """Emit signal to open the settings dialog.
-
-        :return: None
-        :rtype: None
-        """
-        self.emit(SIGNAL('openSettings()'))
 
     @Slot()
     def open_about(self):
@@ -92,3 +73,21 @@ class SystemTrayIcon(QSystemTrayIcon):
         about = AboutDialog(self.parent)
         about.exec_()
         del about
+
+    @Slot()
+    def emit_open_settings(self):
+        """Emit signal to open the settings dialog.
+
+        :return: None
+        :rtype: None
+        """
+        self.emit(SIGNAL('openSettings()'))
+
+    @Slot()
+    def toggle_private(self):
+        """Toggle and save private settings.
+
+        :return: None
+        :rtype: None
+        """
+        settings.set_disconnect(not settings.get_disconnect())
