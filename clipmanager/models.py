@@ -124,7 +124,7 @@ class MainSqlTableModel(QSqlTableModel):
         :type title_short: str
 
         :param checksum: CRC32 checksum of entity.
-        :type checksum: str
+        :type checksum: int
 
         :param created_at: UTC in milliseconds.
         :type created_at: int
