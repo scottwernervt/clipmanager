@@ -5,7 +5,6 @@ from PySide.QtGui import QAction, QMenu, QSystemTrayIcon
 
 from clipmanager.defs import APP_NAME
 from clipmanager.settings import settings
-from clipmanager.ui import icons
 from clipmanager.ui.dialogs.about import AboutDialog
 from clipmanager.ui.icons import get_icon
 
