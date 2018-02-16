@@ -85,12 +85,12 @@ class SettingsDialog(QDialog):
         manage_box.setLayout(manage_form)
 
         ignore_box = QGroupBox('Ignore the following applications:')
-        self.exclude_list = QLineEdit(self)
-        self.exclude_list.setPlaceholderText('BinaryName;WindowTitle;')
-        self.exclude_list.setText(self.settings.get_exclude())
+        self.exclude_edit = QLineEdit(self)
+        self.exclude_edit.setPlaceholderText('BinaryName;WindowTitle;')
+        self.exclude_edit.setText(self.settings.get_exclude())
 
         ignore_layout = QVBoxLayout()
-        ignore_layout.addWidget(self.exclude_list)
+        ignore_layout.addWidget(self.exclude_edit)
         ignore_box.setLayout(ignore_layout)
 
         self.button_box = QDialogButtonBox(
@@ -119,7 +119,7 @@ class SettingsDialog(QDialog):
         self.settings.set_global_hot_key(self.key_combo_edit.text())
         self.settings.set_lines_to_display(self.line_count_spin.value())
         self.settings.set_send_paste(self.paste_check.isChecked())
-        self.settings.set_exclude(self.exclude_list.text())
+        self.settings.set_exclude(self.exclude_edit.text())
         self.settings.set_max_entries_value(self.entries_edit.text())
         self.settings.set_expire_value(self.expire_edit.value())
 
@@ -213,5 +213,6 @@ class HotKeyEdit(QLineEdit):
 
         key_sequence |= int(key)
 
-        self.setText(QKeySequence(key_sequence).toString(
-            QKeySequence.NativeText))
+        self.setText(
+            QKeySequence(key_sequence).toString(QKeySequence.NativeText)
+        )
