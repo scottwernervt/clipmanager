@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     single_instance = SingleInstance()
     if single_instance.is_running():
-        sys.exit(-1)
+        sys.exit(1056)
 
     QCoreApplication.setOrganizationName(__org__)
     QCoreApplication.setApplicationName(__title__)
