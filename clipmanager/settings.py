@@ -46,7 +46,7 @@ class Settings(QObject):
         :return: String list separated by a semicolon, keepassxc;chromium.
         :rtype: str
         """
-        return self.settings.value('exclude', str(''))
+        return self.settings.value('exclude_app', str(''))
 
     def set_exclude(self, value):
         """Set application exclusion string list.
@@ -61,7 +61,7 @@ class Settings(QObject):
         exclude = ';'.join(applications)
         if len(exclude) != 0 and not exclude.endswith(';'):
             exclude += ';'
-        self.settings.setValue('exclude', str(exclude))
+        self.settings.setValue('exclude_app', str(exclude))
 
     def get_global_hot_key(self):
         """Get global hoy key shortcut.
@@ -69,59 +69,52 @@ class Settings(QObject):
         :return: Defaults to Ctrl+Shift+H.
         :rtype: str
         """
-        return str(self.settings.value('globalhotkey', 'Ctrl+Shift+H'))
+        return str(self.settings.value('global_hot_key', 'Ctrl+Shift+H'))
 
     def set_global_hot_key(self, value):
-        self.settings.setValue('globalhotkey', str(value))
+        self.settings.setValue('global_hot_key', str(value))
 
     def get_lines_to_display(self):
-        return int(self.settings.value('linestodisplay', 4))
+        return int(self.settings.value('line_count', 4))
 
     def set_lines_to_display(self, value):
-        self.settings.setValue('linestodisplay', int(value))
+        self.settings.setValue('line_count', int(value))
 
     def get_open_window_at(self):
-        return int(self.settings.value('openwindowat', 0))
+        return int(self.settings.value('open_at', 0))
 
     def set_open_window_at(self, value):
-        self.settings.setValue('openwindowat', int(value))
+        self.settings.setValue('open_at', int(value))
 
     def get_send_paste(self):
-        return int(self.settings.value('sendpaste', 1))
+        return int(self.settings.value('send_paste', 1))
 
     def set_send_paste(self, value):
-        self.settings.setValue('sendpaste', int(value))
+        self.settings.setValue('send_paste', int(value))
 
     def set_window_pos(self, value):
-        self.settings.setValue('windowpos', value)
+        self.settings.setValue('window_position', value)
 
     def get_window_pos(self):
-        return self.settings.value('windowpos', QPoint(0, 0))
+        return self.settings.value('window_position', QPoint(0, 0))
 
     def set_window_size(self, value):
-        self.settings.setValue('windowsize', value)
+        self.settings.setValue('window_size', value)
 
     def get_window_size(self):
-        return self.settings.value('windowsize', QSize(275, 230))
-
-    def get_word_wrap(self):
-        # return int(self.settings.value('wordwrap', 0))
-        return False
-
-    def set_word_wrap(self, value):
-        self.settings.setValue('wordwrap', int(value))
+        return self.settings.value('window_size', QSize(275, 230))
 
     def get_max_entries_value(self):
-        return int(self.settings.value('maxentriesvalue', 300))
+        return int(self.settings.value('max_entries', 300))
 
     def set_max_entries_value(self, value):
-        self.settings.setValue('maxentriesvalue', int(value))
+        self.settings.setValue('max_entries', int(value))
 
     def get_expire_value(self):
-        return int(self.settings.value('expirevalue', 14))
+        return int(self.settings.value('expire_at', 14))
 
     def set_expire_value(self, value):
-        self.settings.setValue('expirevalue', int(value))
+        self.settings.setValue('expire_at', int(value))
 
 
 settings = Settings()
