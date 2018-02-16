@@ -51,6 +51,7 @@ setup(
     extras_require={
         'tests': [
             'pytest',  # MIT
+            'pytest-qt',  # MIT
         ],
         'windows': [
             'cx_Freeze',  # PSF
