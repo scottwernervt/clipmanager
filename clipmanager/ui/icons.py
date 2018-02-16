@@ -27,9 +27,10 @@ def get_icon(name):
     if not icon.isNull():
         return icon
 
-    for i in os.listdir(icons_path)[::-1]:
-        if i.startswith(name):
-            path = os.path.join(icons_path, i)
-            return QIcon(path)
+    if os.path.exists(icons_path):  # icons folder does not exist for pytest
+        for i in os.listdir(icons_path)[::-1]:
+            if i.startswith(name):
+                path = os.path.join(icons_path, i)
+                return QIcon(path)
 
     return QIcon()
