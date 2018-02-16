@@ -6,7 +6,6 @@ from PySide.QtGui import (
     QDialogButtonBox,
     QFormLayout,
     QGroupBox,
-    QIcon,
     QKeySequence,
     QLineEdit,
     QSizePolicy,

@@ -1,7 +1,7 @@
 import logging
 
 from PySide.QtCore import QDateTime, Qt
-from PySide.QtSql import (QSqlQuery, QSqlTableModel)
+from PySide.QtSql import QSqlQuery, QSqlTableModel
 
 logger = logging.getLogger(__name__)
 

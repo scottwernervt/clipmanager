@@ -1,6 +1,5 @@
 import logging
 import textwrap
-import zlib
 
 logger = logging.getLogger(__name__)
 

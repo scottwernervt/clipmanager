@@ -3,7 +3,6 @@ from PySide.QtGui import (
     QDialog,
     QDialogButtonBox,
     QGridLayout,
-    QIcon,
     QTextCursor,
     QTextEdit,
 )
@@ -21,8 +20,8 @@ class PreviewDialog(QDialog):
 
         self.setWindowIcon(get_icon('clipmanager.ico'))
         self.setWindowTitle('Preview')
-        self.resize(QSize(500, 300))
         self.setAttribute(Qt.WA_DeleteOnClose)
+        self.resize(QSize(500, 300))
 
     def setup_ui(self, mime_data):
         """Preview display is determined by mime format.
@@ -33,14 +32,6 @@ class PreviewDialog(QDialog):
         :return: None
         :rtype: None
         """
-        # if mime_data.hasImage():
-        #     pass
-        #     image = QImage(mime_data.imageData())
-        #     # print type(image)
-        #     doc = QLabel()
-        #     pixmap = QPixmap.fromImage(image)
-        #     doc.setPixmap(pixmap)
-
         # Allow images to be loaded if html
         if mime_data.hasHtml():
             self.doc = QWebView(self)

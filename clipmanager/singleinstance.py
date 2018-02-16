@@ -1,8 +1,12 @@
-# TODO:
-# https://github.com/josephturnerjr/boatshoes/blob/master/boatshoes/SingleInstance.py
-# https://github.com/csuarez/emesene-1.6.3-fixed/blob/master/SingleInstance.py
+"""
+References
+- https://github.com/josephturnerjr/boatshoes/blob/master/boatshoes/SingleInstance.py
+- https://github.com/csuarez/emesene-1.6.3-fixed/blob/master/SingleInstance.py
+"""
 import logging
 import os
+
+from clipmanager import __name__, __org__
 
 if os.name == 'nt':
     from win32event import CreateMutex
@@ -11,8 +15,6 @@ if os.name == 'nt':
 else:
     import commands
     import os
-
-from clipmanager import __org__, __name__
 
 logger = logging.getLogger(__name__)
 

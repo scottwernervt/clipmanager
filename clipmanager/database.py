@@ -45,6 +45,7 @@ class Database(QObject):
         db_path = os.path.join(storage_path, 'contents.db')
         logger.info(db_path)
 
+        # noinspection PyTypeChecker,PyCallByClass
         db = QSqlDatabase.addDatabase('QSQLITE')
         db.setDatabaseName(db_path)
 

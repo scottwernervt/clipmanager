@@ -209,7 +209,6 @@ class MainWindow(QMainWindow):
         else:
             # Desktop number based on cursor
             desktop = QDesktopWidget()
-            current_screen = desktop.screenNumber(QCursor().pos())
 
             # Determine global coordinates by summing screen(s) coordinates
             x_max = 0
