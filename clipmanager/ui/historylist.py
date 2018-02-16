@@ -16,7 +16,6 @@ from PySide.QtGui import (
     QTextOption,
 )
 
-from clipmanager.settings import settings
 from clipmanager.ui.icons import get_icon
 
 logger = logging.getLogger(__name__)
@@ -118,25 +117,22 @@ class HistoryListView(QListView):
         :return:
         :rtype: QListView.keyPressEvent()
         """
-        # Catch select all <CTRL><A> on list
+        # Select all (Ctrl+A)
         if (event.modifiers() == Qt.ControlModifier) and (
                 event.key() == Qt.Key_A):
             return QListView.keyPressEvent(self, event)
-
         # Scroll list view to the right (word wrap disabled)
         elif event.key() == Qt.Key_Right:
             value = self.horizontalScrollBar().value()
             self.horizontalScrollBar().setValue(value + 10)
-
         # Scroll list view to the left (word wrap disabled)
         elif event.key() == Qt.Key_Left:
             value = self.horizontalScrollBar().value()
             self.horizontalScrollBar().setValue(value - 10)
-
         # Give focus to search box if user starts typing letters
         elif event.text():
-            self.parent.search_box.setText(self.parent.search_box.text() \
-                                           + event.text())
+            self.parent.search_box.setText(
+                self.parent.search_box.text() + event.text())
             self.parent.search_box.setFocus(Qt.ActiveWindowFocusReason)
 
         return QListView.keyPressEvent(self, event)
@@ -180,13 +176,13 @@ class HistoryListView(QListView):
         selection_rows = set(idx.row() for idx in
                              selection_model.selectedIndexes())
 
-        # delete_item from data table
+        # delete from data table
         parent_indexes = [self.model().index(row, 0) for row in selection_rows]
         parent_ids = filter(lambda p: p is not None,
                             [self.model().data(idx) for idx in parent_indexes])
         self.parent.data_model.delete(parent_ids)
 
-        # delete_item from main table and view
+        # delete from main table and view
         for k, g in groupby(enumerate(selection_rows), lambda (i, x): i - x):
             rows = map(itemgetter(1), g)
             self.model().removeRows(min(rows), len(rows))
@@ -224,24 +220,17 @@ class HistoryListItemDelegate(QStyledItemDelegate):
 
         painter.save()
 
-        # Draw selection highlight
+        # draw selection highlight
         if option.state & QStyle.State_Selected:
             painter.setPen(QPen(option.palette.highlightedText(), 0))
             painter.fillRect(option.rect, option.palette.highlight())
 
-        # if index.data() == 'application/x-qt-image':
-        #     parent_index = QModelIndex(self.model().index(0, ID))
-        #     print parent_index.column()
-
         # Set alignment and enable word wrap if applicable
         text_option = QTextOption()
         text_option.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        if settings.get_word_wrap():
-            text_option.setWrapMode(QTextOption.WrapAnywhere)
-        else:
-            text_option.setWrapMode(QTextOption.NoWrap)
+        text_option.setWrapMode(QTextOption.NoWrap)
 
-        # Add padding to left and right side of text
+        # add left and right padding to text
         text_rect = option.rect
         text_rect.setLeft(text_rect.left() + 5)
         text_rect.setRight(text_rect.right() - 5)
@@ -274,23 +263,17 @@ class HistoryListItemDelegate(QStyledItemDelegate):
         if not index.isValid():
             return QStyledItemDelegate.sizeHint(self, option, index)
 
-        doc = QTextDocument()  # Inserting self creates a memory leak!
+        # WARNING: Inserting self creates a memory leak!
+        doc = QTextDocument()
 
-        # Set alignment and enable word wrap if applicable
         text_option = QTextOption()
         text_option.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-
-        # Reimplemented as lines to display canFetchMore be ignored if word
-        # wrap forces an extra line to be created
-        if settings.get_word_wrap():
-            text_option.setWrapMode(QTextOption.WrapAnywhere)
-        else:
-            text_option.setWrapMode(QTextOption.NoWrap)
+        text_option.setWrapMode(QTextOption.NoWrap)
 
         doc.setDefaultTextOption(text_option)
         doc.setPlainText(index.data())
 
-        # Add some padding to each item, + 10
+        # add padding to each item
         return QSize(doc.size().width(), doc.size().height() + 5)
 
     # def sizeHint(self, option, index):
