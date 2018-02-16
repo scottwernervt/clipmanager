@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class ClipboardManager(QObject):
     """Handles communication between all clipboards and main window.
 
-    Source: http://bazaar.launchpad.net/~glipper-drivers/glipper/trunk/view/head:/glipper/Clipboards.py
+    Source: http://bazaar.launchpad.net/~glipper-drivers/glipper/Clipboards.py
     """
 
     def __init__(self, parent=None):

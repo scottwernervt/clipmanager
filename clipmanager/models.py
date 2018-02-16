@@ -114,7 +114,8 @@ class MainSqlTableModel(QSqlTableModel):
 
         return Qt.ItemFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
 
-    def create(self, title, title_short, checksum, created_at):
+    @staticmethod
+    def create(title, title_short, checksum, created_at):
         """Insert new row into the main table.
 
         :param title: Full title of clipboard contents.

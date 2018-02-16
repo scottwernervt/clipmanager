@@ -1,5 +1,5 @@
 """
-Source: https://github.com/ActivityWatch/aw-watcher-x11/blob/master/aw_watcher_x11/xprop.py
+Source: https://github.com/ActivityWatch/aw-watcher-x11/aw_watcher_x11/xprop.py
 License: None
 """
 import logging

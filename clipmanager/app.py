@@ -40,13 +40,13 @@ def _setup_logger(logging_level='INFO'):
 class Application(QApplication):
     """Application event loop which spawns the main window."""
 
-    def __init__(self, args):
+    def __init__(self, app_args):
         """Initialize application and launch main window.
 
-        :param args: 'minimize' on launch
-        :type args: list
+        :param app_args: 'minimize' on launch
+        :type app_args: list
         """
-        super(Application, self).__init__(args)
+        super(Application, self).__init__(app_args)
 
         self.setApplicationName(__url__)
         self.setOrganizationName(__org__)
@@ -56,7 +56,7 @@ class Application(QApplication):
         # prevent application from exiting if minimized "closed"
         self.setQuitOnLastWindowClosed(False)
 
-        if 'minimize' in args:
+        if 'minimize' in app_args:
             self.mw = MainWindow(minimize=True)
         else:
             self.mw = MainWindow(minimize=False)

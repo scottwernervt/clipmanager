@@ -70,7 +70,7 @@ class X11EventPoller(QObject):
             self.keyPressed.emit(event, data)
 
     def destroy(self):
-        # TODO: Fatal Python error: This thread state must be current when releasing
+        # TODO: This thread state must be current when releasing.
         self._thread.terminate()
         self._thread.wait()
 

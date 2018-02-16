@@ -199,7 +199,7 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
     def _unwrap_window_id(window_id):
         try:
             return int(window_id)
-        except:
+        except Exception as err:
             ctypes.pythonapi.PyCObject_AsVoidPtr.restype = ctypes.c_void_p
             ctypes.pythonapi.PyCObject_AsVoidPtr.argtypes = [ctypes.py_object]
             return int(ctypes.pythonapi.PyCObject_AsVoidPtr(window_id))

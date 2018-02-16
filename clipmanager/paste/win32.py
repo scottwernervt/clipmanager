@@ -1,6 +1,4 @@
-"""
-Source: http://stackoverflow.com/questions/13289777/how-can-i-send-keyboard-commands-hold-release-simultanous-with-a-python-script
-"""
+"""Source: http://stackoverflow.com/questions/13289777/"""
 import ctypes
 import logging
 
