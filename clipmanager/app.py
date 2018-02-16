@@ -97,7 +97,6 @@ if __name__ == '__main__':
     QCoreApplication.setOrganizationName(__org__)
     QCoreApplication.setApplicationName(__title__)
     QCoreApplication.setApplicationVersion(__version__)
-    QCoreApplication.setOrganizationDomain(__url__)
 
     app = Application(sys.argv)
     sys.exit(app.exec_())
