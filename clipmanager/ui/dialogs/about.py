@@ -26,7 +26,8 @@ class AboutDialog(QDialog):
         app_url.setTextInteractionFlags(Qt.TextBrowserInteraction)
         app_url.setOpenExternalLinks(True)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        self.button_box.setFocus()
 
         layout = QGridLayout()
 
@@ -38,11 +39,11 @@ class AboutDialog(QDialog):
         layout.addWidget(QLabel(__license__), 2, 1)
         layout.addWidget(QLabel('Url:'), 4, 0)
         layout.addWidget(app_url, 4, 1)
-        layout.addWidget(button_box, 5, 0, 1, 4)
+        layout.addWidget(self.button_box, 5, 0, 1, 4)
 
         self.setLayout(layout)
 
-        button_box.rejected.connect(self.close)
+        self.button_box.rejected.connect(self.close)
 
     def close(self):
         """Close dialog.

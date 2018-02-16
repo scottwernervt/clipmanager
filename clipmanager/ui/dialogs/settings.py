@@ -91,7 +91,7 @@ class SettingsDialog(QDialog):
         ignore_layout.addWidget(self.exclude_list)
         ignore_box.setLayout(ignore_layout)
 
-        dialog_button_box = QDialogButtonBox(
+        self.button_box = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
 
         main_layout = QVBoxLayout(self)
@@ -99,14 +99,14 @@ class SettingsDialog(QDialog):
         main_layout.addWidget(self.paste_check)
         main_layout.addWidget(manage_box)
         main_layout.addWidget(ignore_box)
-        main_layout.addWidget(dialog_button_box)
+        main_layout.addWidget(self.button_box)
         self.setLayout(main_layout)
 
         # X11: Give focus for window managers, e.g. i3.
         self.setFocus(Qt.PopupFocusReason)
 
-        dialog_button_box.accepted.connect(self.save)
-        dialog_button_box.rejected.connect(self.cancel)
+        self.button_box.accepted.connect(self.save)
+        self.button_box.rejected.connect(self.cancel)
 
     def save(self):
         """Save settings and and close the dialog.

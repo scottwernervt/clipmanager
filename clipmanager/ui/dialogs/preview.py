@@ -59,22 +59,19 @@ class PreviewDialog(QDialog):
                     'Invalid data formats: %s' % ','.join(mime_data.formats())
                 )
 
-            # Move cursor to top causing scrollbar to move to top
-            doc.moveCursor(QTextCursor.Start)
+            doc.moveCursor(QTextCursor.Start)   # scroll to top
             doc.ensureCursorVisible()
-            doc.setReadOnly(True)  # Do not support editing data yet
+            doc.setReadOnly(True)
 
-        close_button_box = QDialogButtonBox(QDialogButtonBox.Close)
-        close_button_box.setFocus()
+        self.button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        self.button_box.setFocus()
 
         layout = QGridLayout(self)
-
         layout.addWidget(doc, 0, 0)
-        layout.addWidget(close_button_box, 1, 0)
-
+        layout.addWidget(self.button_box, 1, 0)
         self.setLayout(layout)
 
-        close_button_box.rejected.connect(self.close)
+        self.button_box.rejected.connect(self.close)
 
     def close(self):
         """Close dialog.
