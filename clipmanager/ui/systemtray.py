@@ -4,7 +4,7 @@ from PySide.QtCore import QCoreApplication, SIGNAL, Slot
 from PySide.QtGui import QAction, QMenu, QSystemTrayIcon
 
 from clipmanager import __title__
-from clipmanager.settings import settings
+from clipmanager.settings import Settings
 from clipmanager.ui.dialogs.about import AboutDialog
 from clipmanager.ui.icons import get_icon
 
@@ -21,6 +21,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.setIcon(get_icon('clipmanager.ico'))
         self.setToolTip(__title__)
+        
+        self.settings = Settings()
 
         menu = QMenu(parent)
 
@@ -40,7 +42,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         disconnect_action = QAction('&Private mode', self)
         disconnect_action.setCheckable(True)
-        disconnect_action.setChecked(settings.get_disconnect())
+        disconnect_action.setChecked(self.settings.get_disconnect())
         disconnect_action.triggered.connect(self.toggle_private)
 
         menu.addAction(toggle_action)
@@ -85,9 +87,9 @@ class SystemTrayIcon(QSystemTrayIcon):
 
     @Slot()
     def toggle_private(self):
-        """Toggle and save private settings.
+        """Toggle and save private self.settings.
 
         :return: None
         :rtype: None
         """
-        settings.set_disconnect(not settings.get_disconnect())
+        self.settings.set_disconnect(not self.settings.get_disconnect())

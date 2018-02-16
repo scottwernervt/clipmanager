@@ -13,7 +13,7 @@ from PySide.QtGui import (
     QVBoxLayout,
 )
 
-from clipmanager.settings import settings
+from clipmanager.settings import Settings
 from clipmanager.ui.icons import get_icon
 
 
@@ -35,16 +35,18 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super(SettingsDialog, self).__init__(parent)
 
+        self.settings = Settings()
+
         self.setWindowTitle('Settings')
         self.setWindowIcon(get_icon('clipmanager.ico'))
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.key_combo_edit = HotKeyEdit(self)
-        self.key_combo_edit.setText(settings.get_global_hot_key())
+        self.key_combo_edit.setText(self.settings.get_global_hot_key())
 
         self.line_count_spin = QSpinBox(self)
         self.line_count_spin.setRange(1, 10)
-        self.line_count_spin.setValue(settings.get_lines_to_display())
+        self.line_count_spin.setValue(self.settings.get_lines_to_display())
 
         self.open_at_pos_combo = QComboBox(self)
         self.open_at_pos_combo.addItem('Mouse cursor', 0)
@@ -59,11 +61,11 @@ class SettingsDialog(QDialog):
 
         self.paste_check = QCheckBox('Paste in active window after selection')
         self.paste_check.setCheckState(
-            _qcheckbox_state(settings.get_send_paste())
+            _qcheckbox_state(self.settings.get_send_paste())
         )
 
         self.entries_edit = QLineEdit(self)
-        self.entries_edit.setText(str(settings.get_max_entries_value()))
+        self.entries_edit.setText(str(self.settings.get_max_entries_value()))
         self.entries_edit.setToolTip('Ignored if set to 0 days.')
         self.entries_edit.setFixedWidth(50)
 
@@ -71,7 +73,7 @@ class SettingsDialog(QDialog):
         self.expire_edit.setRange(0, 60)
         self.expire_edit.setSuffix(' days')
         self.expire_edit.setToolTip('Ignored if set to 0 days.')
-        self.expire_edit.setValue(settings.get_expire_value())
+        self.expire_edit.setValue(self.settings.get_expire_value())
 
         manage_form = QFormLayout()
         manage_form.setFieldGrowthPolicy(QFormLayout.FieldsStayAtSizeHint)
@@ -85,7 +87,7 @@ class SettingsDialog(QDialog):
         ignore_box = QGroupBox('Ignore the following applications:')
         self.exclude_list = QLineEdit(self)
         self.exclude_list.setPlaceholderText('BinaryName;WindowTitle;')
-        self.exclude_list.setText(settings.get_exclude())
+        self.exclude_list.setText(self.settings.get_exclude())
 
         ignore_layout = QVBoxLayout()
         ignore_layout.addWidget(self.exclude_list)
@@ -114,18 +116,18 @@ class SettingsDialog(QDialog):
         :return: None
         :rtype: None
         """
-        settings.set_global_hot_key(self.key_combo_edit.text())
-        settings.set_lines_to_display(self.line_count_spin.value())
-        settings.set_send_paste(self.paste_check.isChecked())
-        settings.set_exclude(self.exclude_list.text())
-        settings.set_max_entries_value(self.entries_edit.text())
-        settings.set_expire_value(self.expire_edit.value())
+        self.settings.set_global_hot_key(self.key_combo_edit.text())
+        self.settings.set_lines_to_display(self.line_count_spin.value())
+        self.settings.set_send_paste(self.paste_check.isChecked())
+        self.settings.set_exclude(self.exclude_list.text())
+        self.settings.set_max_entries_value(self.entries_edit.text())
+        self.settings.set_expire_value(self.expire_edit.value())
 
         open_at_index = self.open_at_pos_combo.currentIndex()
         open_at_value = self.open_at_pos_combo.itemData(open_at_index)
-        settings.set_open_window_at(open_at_value)
+        self.settings.set_open_window_at(open_at_value)
 
-        settings.sync()
+        self.settings.sync()
         self.done(True)
 
     def cancel(self):

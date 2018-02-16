@@ -14,12 +14,12 @@ class Settings(QObject):
     def __init__(self, parent=None):
         super(QObject, self).__init__(parent)
 
-        self.settings = QSettings(__org__, __title__)
+        self.q_settings = QSettings()
 
     def sync(self):
         """Sync settings to storage method.
         """
-        self.settings.sync()
+        self.q_settings.sync()
 
     def get_disconnect(self):
         """Get disconnect from clipboard setting.
@@ -27,7 +27,7 @@ class Settings(QObject):
         :return: True if enabled, False if disabled.
         :rtype: int
         """
-        return int(self.settings.value('disconnect', 0))
+        return int(self.q_settings.value('disconnect', 0))
 
     def set_disconnect(self, value):
         """Set disconnect setting value.
@@ -38,7 +38,7 @@ class Settings(QObject):
         :return: None
         :rtype: None
         """
-        self.settings.setValue('disconnect', int(value))
+        self.q_settings.setValue('disconnect', int(value))
 
     def get_exclude(self):
         """Get application exclusion string list.
@@ -46,7 +46,7 @@ class Settings(QObject):
         :return: String list separated by a semicolon, keepassxc;chromium.
         :rtype: str
         """
-        return self.settings.value('exclude_app', str(''))
+        return self.q_settings.value('exclude_app', str(''))
 
     def set_exclude(self, value):
         """Set application exclusion string list.
@@ -61,7 +61,7 @@ class Settings(QObject):
         exclude = ';'.join(applications)
         if len(exclude) != 0 and not exclude.endswith(';'):
             exclude += ';'
-        self.settings.setValue('exclude_app', str(exclude))
+        self.q_settings.setValue('exclude_app', str(exclude))
 
     def get_global_hot_key(self):
         """Get global hoy key shortcut.
@@ -69,52 +69,52 @@ class Settings(QObject):
         :return: Defaults to Ctrl+Shift+H.
         :rtype: str
         """
-        return str(self.settings.value('global_hot_key', 'Ctrl+Shift+H'))
+        return str(self.q_settings.value('global_hot_key', 'Ctrl+Shift+H'))
 
     def set_global_hot_key(self, value):
-        self.settings.setValue('global_hot_key', str(value))
+        self.q_settings.setValue('global_hot_key', str(value))
 
     def get_lines_to_display(self):
-        return int(self.settings.value('line_count', 4))
+        return int(self.q_settings.value('line_count', 4))
 
     def set_lines_to_display(self, value):
-        self.settings.setValue('line_count', int(value))
+        self.q_settings.setValue('line_count', int(value))
 
     def get_open_window_at(self):
-        return int(self.settings.value('open_at', 0))
+        return int(self.q_settings.value('open_at', 0))
 
     def set_open_window_at(self, value):
-        self.settings.setValue('open_at', int(value))
+        self.q_settings.setValue('open_at', int(value))
 
     def get_send_paste(self):
-        return int(self.settings.value('send_paste', 1))
+        return int(self.q_settings.value('send_paste', 1))
 
     def set_send_paste(self, value):
-        self.settings.setValue('send_paste', int(value))
+        self.q_settings.setValue('send_paste', int(value))
 
     def set_window_pos(self, value):
-        self.settings.setValue('window_position', value)
+        self.q_settings.setValue('window_position', value)
 
     def get_window_pos(self):
-        return self.settings.value('window_position', QPoint(0, 0))
+        return self.q_settings.value('window_position', QPoint(0, 0))
 
     def set_window_size(self, value):
-        self.settings.setValue('window_size', value)
+        self.q_settings.setValue('window_size', value)
 
     def get_window_size(self):
-        return self.settings.value('window_size', QSize(275, 230))
+        return self.q_settings.value('window_size', QSize(275, 230))
 
     def get_max_entries_value(self):
-        return int(self.settings.value('max_entries', 300))
+        return int(self.q_settings.value('max_entries', 300))
 
     def set_max_entries_value(self, value):
-        self.settings.setValue('max_entries', int(value))
+        self.q_settings.setValue('max_entries', int(value))
 
     def get_expire_value(self):
-        return int(self.settings.value('expire_at', 14))
+        return int(self.q_settings.value('expire_at', 14))
 
     def set_expire_value(self, value):
-        self.settings.setValue('expire_at', int(value))
+        self.q_settings.setValue('expire_at', int(value))
 
-
-settings = Settings()
+    def clear(self):
+        self.q_settings.clear()

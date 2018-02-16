@@ -30,7 +30,7 @@ from clipmanager.clipboard import ClipboardManager
 from clipmanager.database import Database
 from clipmanager.defs import MIME_SUPPORTED
 from clipmanager.models import DataSqlTableModel, MainSqlTableModel
-from clipmanager.settings import settings
+from clipmanager.settings import Settings
 from clipmanager.ui.dialogs.preview import PreviewDialog
 from clipmanager.ui.dialogs.settings import SettingsDialog
 from clipmanager.ui.historylist import HistoryListView
@@ -71,6 +71,8 @@ class MainWindow(QMainWindow):
         self.system_tray.activated.connect(self._on_system_tray_clicked)
         self.system_tray.show()
 
+        self.settings = Settings()
+
         self.main_widget = MainWidget(self)
         self.setCentralWidget(self.main_widget)
 
@@ -109,8 +111,8 @@ class MainWindow(QMainWindow):
         """
         event.ignore()
 
-        settings.set_window_pos(self.pos())
-        settings.set_window_size(self.size())
+        self.settings.set_window_pos(self.pos())
+        self.settings.set_window_size(self.size())
 
         self.hide()
 
@@ -120,7 +122,7 @@ class MainWindow(QMainWindow):
         If binding fails then display a message in system tray notification
         tray.
         """
-        key_sequence = settings.get_global_hot_key()  # Ctrl+Shift+h
+        key_sequence = self.settings.get_global_hot_key()  # Ctrl+Shift+h
         if key_sequence:
             self.hotkey.unregister(winid=self.winId())
             self.hotkey.register(key_sequence, self.toggle_window,
@@ -145,9 +147,9 @@ class MainWindow(QMainWindow):
             self.hotkey.unregister(winid=self.winId())
             self.hotkey.destroy()
 
-        settings.set_window_pos(self.pos())
-        settings.set_window_size(self.size())
-        settings.sync()
+        self.settings.set_window_pos(self.pos())
+        self.settings.set_window_size(self.size())
+        self.settings.sync()
 
     @Slot(QSystemTrayIcon.ActivationReason)
     def _on_system_tray_clicked(self, activation_reason):
@@ -199,12 +201,12 @@ class MainWindow(QMainWindow):
         :return: None
         :rtype: None
         """
-        window_size = settings.get_window_size()
+        window_size = self.settings.get_window_size()
 
         # Hide window if visible and leave function
         if self.isVisible():
-            settings.set_window_pos(self.pos())
-            settings.set_window_size(self.size())
+            self.settings.set_window_pos(self.pos())
+            self.settings.set_window_size(self.size())
             self.hide()
         else:
             # Desktop number based on cursor
@@ -223,13 +225,13 @@ class MainWindow(QMainWindow):
             # Minimum x and y screen coordinates
             x_min, y_min, __, __ = desktop.availableGeometry().getCoords()
 
-            open_window_at = settings.get_open_window_at()
+            open_window_at = self.settings.get_open_window_at()
             if open_window_at == 2:  # 2: System tray
                 x = self.system_tray.geometry().x()
                 y = self.system_tray.geometry().y()
             elif open_window_at == 1:  # 1: Last position
-                x = settings.get_window_pos().x()
-                y = settings.get_window_pos().y()
+                x = self.settings.get_window_pos().x()
+                y = self.settings.get_window_pos().y()
             else:  # 0: At mouse cursor
                 x = QCursor().pos().x()
                 y = QCursor().pos().y()
@@ -420,7 +422,7 @@ class MainWidget(QWidget):
         :return: None
         :rtype: None
         """
-        expire_at = settings.get_expire_value()
+        expire_at = self.settings.get_expire_value()
         if int(expire_at) == 0:
             return
 
@@ -456,7 +458,7 @@ class MainWidget(QWidget):
         :return: None
         :rtype: None
         """
-        max_entries = settings.get_max_entries_value()
+        max_entries = self.settings.get_max_entries_value()
         if max_entries == 0:
             return
 
@@ -507,7 +509,7 @@ class MainWidget(QWidget):
         :return: True, if successfully added.
         :rtype: bool
         """
-        if settings.get_disconnect():
+        if self.settings.get_disconnect():
             return False
         elif self.ignore_created:
             self.ignore_created = False
@@ -517,7 +519,7 @@ class MainWidget(QWidget):
         window_names = self.window_owner()
         logger.debug('%s', window_names)
 
-        ignore_list = settings.get_exclude().lower().split(';')
+        ignore_list = self.settings.get_exclude().lower().split(';')
         if any(str(i) in window_names for i in ignore_list):
             logger.info('Ignoring copy from application.')
             return False
@@ -534,7 +536,7 @@ class MainWidget(QWidget):
 
         title_short = format_title(title)
         title_short = truncate_lines(title_short,
-                                     settings.get_lines_to_display())
+                                     self.settings.get_lines_to_display())
         created_at = QDateTime.currentMSecsSinceEpoch()
 
         checksum = self.get_item_checksum(mime_data)
@@ -610,7 +612,7 @@ class MainWidget(QWidget):
 
         self.clipboard_manager.set_text(mime_data)
 
-        if settings.get_send_paste():
+        if self.settings.get_send_paste():
             self.emit(SIGNAL('pasteClipboard()'))
 
         self.main_model.setData(
