@@ -582,8 +582,7 @@ class MainWidget(QWidget):
         for mime_format, byte_data in self.data_model.read(parent_id):
             mime_data.setData(mime_format, byte_data)
 
-        preview_dialog = PreviewDialog(self)
-        preview_dialog.setup_ui(mime_data)
+        preview_dialog = PreviewDialog(mime_data, self)
         preview_dialog.exec_()
         del preview_dialog
 
