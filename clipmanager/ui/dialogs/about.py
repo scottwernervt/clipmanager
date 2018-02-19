@@ -1,7 +1,7 @@
-from PySide.QtCore import QCoreApplication, Qt
+from PySide.QtCore import QCoreApplication, Qt, Slot
 from PySide.QtGui import QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel
 
-from clipmanager import __license__
+from clipmanager import __license__, __url__
 from clipmanager.ui.icons import get_icon
 
 
@@ -19,9 +19,8 @@ class AboutDialog(QDialog):
 
         app_name = QCoreApplication.applicationName()
         app_version = QCoreApplication.applicationVersion()
-        app_domain = QCoreApplication.organizationDomain()
 
-        app_url = QLabel('<a href="%s">%s</a>' % (app_domain, app_domain))
+        app_url = QLabel('<a href="%s">%s</a>' % (__url__, __url__))
         app_url.setTextFormat(Qt.RichText)
         app_url.setTextInteractionFlags(Qt.TextBrowserInteraction)
         app_url.setOpenExternalLinks(True)
@@ -45,6 +44,7 @@ class AboutDialog(QDialog):
 
         self.button_box.rejected.connect(self.close)
 
+    @Slot()
     def close(self):
         """Close dialog.
 

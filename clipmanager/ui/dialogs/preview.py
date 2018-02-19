@@ -1,4 +1,4 @@
-from PySide.QtCore import QSize, Qt
+from PySide.QtCore import QSize, Qt, Slot
 from PySide.QtGui import (
     QDialog,
     QDialogButtonBox,
@@ -59,7 +59,7 @@ class PreviewDialog(QDialog):
                     'Invalid data formats: %s' % ','.join(mime_data.formats())
                 )
 
-            doc.moveCursor(QTextCursor.Start)   # scroll to top
+            doc.moveCursor(QTextCursor.Start)  # scroll to top
             doc.ensureCursorVisible()
             doc.setReadOnly(True)
 
@@ -73,6 +73,7 @@ class PreviewDialog(QDialog):
 
         self.button_box.rejected.connect(self.close)
 
+    @Slot()
     def close(self):
         """Close dialog.
 

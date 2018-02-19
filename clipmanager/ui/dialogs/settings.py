@@ -1,4 +1,4 @@
-from PySide.QtCore import Qt
+from PySide.QtCore import Qt, Slot
 from PySide.QtGui import (
     QCheckBox,
     QComboBox,
@@ -110,6 +110,7 @@ class SettingsDialog(QDialog):
         self.button_box.accepted.connect(self.save)
         self.button_box.rejected.connect(self.cancel)
 
+    @Slot()
     def save(self):
         """Save settings and and close the dialog.
 
@@ -130,6 +131,7 @@ class SettingsDialog(QDialog):
         self.settings.sync()
         self.done(True)
 
+    @Slot()
     def cancel(self):
         """Do not save settings and close the dialog.
 

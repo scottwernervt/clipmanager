@@ -7,4 +7,3 @@ __org__ = 'Werner'
 __email__ = 'scott.werner.vt@gmail.com'
 __description__ = 'Manage the system\'s clipboard history.'
 __url__ = 'https://github.com/scottwernervt/clipmanager/'
-
