@@ -464,15 +464,6 @@ class MainWidget(QWidget):
 
         self.main_model.submitAll()
 
-    @Slot()
-    def emit_open_settings(self):
-        """Emit signal to open settings dialog.
-
-        :return: None
-        :rtype: None
-        """
-        self.open_settings.emit()
-
     @Slot(str)
     def check_selection(self):
         """Prevent user selection from disappearing during a proxy filter.
@@ -610,3 +601,12 @@ class MainWidget(QWidget):
                                   self.main_model.CREATED_AT),
             QDateTime.currentMSecsSinceEpoch())
         self.main_model.submitAll()
+
+    @Slot()
+    def emit_open_settings(self):
+        """Emit signal to open settings dialog.
+
+        :return: None
+        :rtype: None
+        """
+        self.open_settings.emit()
