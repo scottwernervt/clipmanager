@@ -272,6 +272,8 @@ class MainWidget(QWidget):
 
         self.parent = parent
 
+        self.settings = Settings()
+
         self.database = Database(self)
         self.database.create_tables()
 
@@ -306,8 +308,7 @@ class MainWidget(QWidget):
 
         self.setLayout(layout)
 
-        self.connect(self.clipboard_manager, SIGNAL('newItem(QMimeData)'),
-                     self.new_item)
+        self.clipboard_manager.new_item.connect(self.new_item)
 
         self.connect(self.search_box, SIGNAL('returnPressed(QModelIndex)'),
                      self.set_clipboard)
