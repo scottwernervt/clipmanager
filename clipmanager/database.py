@@ -72,6 +72,16 @@ class Database(QObject):
         if query_data.lastError().isValid():
             logger.error(query_data.lastError().text())
 
+        return True
+
+    def open(self):
+        """Alias for QSqlDatabase.open()
+
+        :return: True if connection open.
+        :rtype: bool
+        """
+        return self.connection.open()
+
     def close(self):
         """Perform vacuum on database and then close.
 
