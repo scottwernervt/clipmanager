@@ -10,7 +10,7 @@ from PySide.QtCore import (
     QTextCodec,
     QTextEncoder,
     Qt,
-    SIGNAL,
+    Signal,
     Slot,
 )
 from PySide.QtGui import (
@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
             )
 
         self.system_tray = SystemTrayIcon(self)
-        self.system_tray.activated.connect(self._on_system_tray_clicked)
+        self.system_tray.activated.connect(self.system_tray_activate)
         self.system_tray.show()
 
         self.settings = Settings()
@@ -85,17 +85,11 @@ class MainWindow(QMainWindow):
 
         self.register_hot_key()
 
-        self.connect(self.system_tray, SIGNAL('toggleWindow()'),
-                     self.toggle_window)
+        self.system_tray.toggle_window.connect(self.toggle_window)
+        self.system_tray.open_settings.connect(self.open_settings)
 
-        self.connect(self.system_tray, SIGNAL('openSettings()'),
-                     self.open_settings)
-
-        self.connect(self.main_widget, SIGNAL('openSettings()'),
-                     self.open_settings)
-
-        self.connect(self.main_widget, SIGNAL('pasteClipboard()'),
-                     self.paste_clipboard)
+        self.main_widget.open_settings.connect(self.open_settings)
+        self.main_widget.paste_clipboard.connect(self.paste_clipboard)
 
     def closeEvent(self, event):
         """Capture close event and hide main window.
@@ -152,7 +146,7 @@ class MainWindow(QMainWindow):
         self.settings.sync()
 
     @Slot(QSystemTrayIcon.ActivationReason)
-    def _on_system_tray_clicked(self, activation_reason):
+    def system_tray_activate(self, activation_reason):
         """Toggle window when system tray icon is clicked.
 
         :param activation_reason: Clicked or double clicked.
@@ -167,17 +161,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def open_settings(self):
-        """Open settings dialog.
+        """Launch settings dialog.
 
-        Prior to opening dialog, the global hot key is unbinded and then binded
-        in case user changes it. The model view is updated to reflect changes
-        in lines to display and if word wrap is enabled.
+        Before opening, unbind global hot key and rebind after dialog is closed.
+        Model view is also updated to reflect lines to display.
+
+        :return:
+        :rtype:
         """
         # Windows allow's the user to open extra settings dialogs from system
         # tray menu even though dialog is modal
         self.hotkey.unregister(winid=self.winId())
 
-        # PreviewDialog(self) so it opens at main window
         settings_dialog = SettingsDialog(self)
         settings_dialog.exec_()
 
@@ -266,6 +261,8 @@ class MainWindow(QMainWindow):
 
 class MainWidget(QWidget):
     """Main widget container for main window."""
+    open_settings = Signal()
+    paste_clipboard = Signal()
 
     def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
@@ -310,21 +307,13 @@ class MainWidget(QWidget):
 
         self.clipboard_manager.new_item.connect(self.new_item)
 
-        self.connect(self.search_box, SIGNAL('returnPressed(QModelIndex)'),
-                     self.set_clipboard)
+        self.search_box.returnPressed.connect(self.set_clipboard)
+        self.search_box.textChanged.connect(
+            self.search_proxy.setFilterFixedString)
+        self.search_box.textChanged.connect(self.check_selection)
 
-        self.connect(self.history_view, SIGNAL('setClipboard(QModelIndex)'),
-                     self.set_clipboard)
-
-        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
-                     self.search_proxy.setFilterFixedString)
-        self.connect(self.search_box, SIGNAL('textChanged(QString)'),
-                     self.check_selection)
-
-        self.connect(self.history_view, SIGNAL('openSettings()'),
-                     self.emit_open_settings)
-        self.connect(self.history_view, SIGNAL('openPreview(QModelIndex)'),
-                     self.open_preview_dialog)
+        self.history_view.set_clipboard.connect(self.set_clipboard)
+        self.history_view.open_preview.connect(self.open_preview)
 
     def create_item_title(self, mime_data):
         """Create full title from clipboard mime data.
@@ -482,7 +471,7 @@ class MainWidget(QWidget):
         :return: None
         :rtype: None
         """
-        self.emit(SIGNAL('openSettings()'))
+        self.open_settings.emit()
 
     @Slot(str)
     def check_selection(self):
@@ -567,7 +556,7 @@ class MainWidget(QWidget):
         return True
 
     @Slot(QModelIndex)
-    def open_preview_dialog(self, selection_index):
+    def open_preview(self, selection_index):
         """"Open preview dialog for selected item.
 
         :param selection_index: Selected row index from history list view.
@@ -614,7 +603,7 @@ class MainWidget(QWidget):
         self.clipboard_manager.set_text(mime_data)
 
         if self.settings.get_send_paste():
-            self.emit(SIGNAL('pasteClipboard()'))
+            self.paste_clipboard.emit()
 
         self.main_model.setData(
             self.main_model.index(model_index.row(),

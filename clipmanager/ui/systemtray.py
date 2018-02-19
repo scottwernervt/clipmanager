@@ -1,6 +1,6 @@
 import logging
 
-from PySide.QtCore import QCoreApplication, SIGNAL, Slot
+from PySide.QtCore import QCoreApplication, Signal, Slot
 from PySide.QtGui import QAction, QMenu, QSystemTrayIcon
 
 from clipmanager import __title__
@@ -13,15 +13,17 @@ logger = logging.getLogger(__name__)
 
 class SystemTrayIcon(QSystemTrayIcon):
     """Application system tray icon with right click menu."""
+    toggle_window = Signal()
+    open_settings = Signal()
 
     def __init__(self, parent=None):
         super(SystemTrayIcon, self).__init__(parent)
 
         self.parent = parent
 
-        self.setIcon(get_icon('clipmanager.ico'))
         self.setToolTip(__title__)
-        
+        self.setIcon(get_icon('clipmanager.ico'))
+
         self.settings = Settings()
 
         menu = QMenu(parent)
@@ -56,13 +58,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.setContextMenu(menu)
 
     @Slot()
-    def emit_toggle_window(self):
-        """Emit signal to toggle the main window.
+    def toggle_private(self):
+        """Toggle and save private self.settings.
 
         :return: None
         :rtype: None
         """
-        self.emit(SIGNAL('toggleWindow()'))
+        self.settings.set_disconnect(not self.settings.get_disconnect())
 
     @Slot()
     def open_about(self):
@@ -77,19 +79,19 @@ class SystemTrayIcon(QSystemTrayIcon):
         del about
 
     @Slot()
+    def emit_toggle_window(self):
+        """Emit signal to toggle the main window.
+
+        :return: None
+        :rtype: None
+        """
+        self.toggle_window.emit()
+
+    @Slot()
     def emit_open_settings(self):
         """Emit signal to open the settings dialog.
 
         :return: None
         :rtype: None
         """
-        self.emit(SIGNAL('openSettings()'))
-
-    @Slot()
-    def toggle_private(self):
-        """Toggle and save private self.settings.
-
-        :return: None
-        :rtype: None
-        """
-        self.settings.set_disconnect(not self.settings.get_disconnect())
+        self.open_settings.emit()

@@ -1,7 +1,5 @@
 from PySide.QtCore import QObject, QPoint, QSettings, QSize
 
-from clipmanager import __org__, __title__
-
 
 class Settings(QObject):
     """Allows other modules to access application settings.

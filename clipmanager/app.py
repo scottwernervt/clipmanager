@@ -6,7 +6,7 @@ import os
 import sys
 from logging.handlers import RotatingFileHandler
 
-from PySide.QtCore import QCoreApplication, QDir, QEvent, SIGNAL, Slot
+from PySide.QtCore import QCoreApplication, QDir, QEvent, Slot
 from PySide.QtGui import QApplication
 
 from clipmanager import (__org__, __title__, __url__, __version__)
@@ -61,10 +61,10 @@ class Application(QApplication):
         else:
             self.mw = MainWindow(minimize=False)
 
-        self.connect(self, SIGNAL('aboutToQuit()'), self.about_to_quit)
+        self.aboutToQuit.connect(self.destroy)
 
     @Slot()
-    def about_to_quit(self):
+    def destroy(self):
         """Clean up and set clipboard contents to OS clipboard.
 
         The basic concept behind this is that by default copying something

@@ -2,7 +2,14 @@ import logging
 from itertools import groupby
 from operator import itemgetter
 
-from PySide.QtCore import QCoreApplication, QSize, Qt, SIGNAL, Slot
+from PySide.QtCore import (
+    QCoreApplication,
+    QModelIndex,
+    QSize,
+    Qt,
+    Signal,
+    Slot,
+)
 from PySide.QtGui import (
     QAbstractItemView,
     QAction,
@@ -23,6 +30,8 @@ logger = logging.getLogger(__name__)
 
 class HistoryListView(QListView):
     """Clipboard history list."""
+    set_clipboard = Signal(QModelIndex)
+    open_preview = Signal(QModelIndex)
 
     def __init__(self, parent=None):
         super(HistoryListView, self).__init__(parent)
@@ -76,19 +85,6 @@ class HistoryListView(QListView):
         self.addAction(paste_action)
         self.addAction(preview_action)
         self.addAction(delete_action)
-
-    def resizeEvent(self, event):
-        """Reset list view when word wrap setting changed.
-
-        :param event: Resize event.
-        :type event: QResizeEvent
-
-        :return: Resize event.
-        :rtype: QListView.resizeEvent
-        """
-        self.emit(SIGNAL('layoutChanged()'))
-        self.reset()
-        return QListView.resizeEvent(self, event)
 
     def contextMenuEvent(self, event):
         """Open context menu.
@@ -146,7 +142,7 @@ class HistoryListView(QListView):
         """
         indexes = self.selectionModel().selectedIndexes()
         if len(indexes) == 1:
-            self.emit(SIGNAL('setClipboard(QModelIndex)'), indexes[0])
+            self.set_clipboard.emit(indexes[0])
 
     @Slot()
     def emit_open_preview(self):
@@ -157,7 +153,7 @@ class HistoryListView(QListView):
         """
         indexes = self.selectionModel().selectedIndexes()
         if len(indexes) == 1:
-            self.emit(SIGNAL('openPreview(QModelIndex)'), indexes[0])
+            self.open_preview.emit(indexes[0])
 
     @Slot()
     def delete_item(self):

@@ -94,5 +94,3 @@ class TestSettingsDialog:
         button = dialog.button_box.button(QDialogButtonBox.Save)
         qtbot.mouseClick(button, Qt.LeftButton)
         assert self.settings.get_exclude() == 'app1;app2;'
-
-
