@@ -5,10 +5,13 @@ python:
 
 before_install:
   - sudo apt-get -qq update
-  - pip install wheel
   # http://pyside.readthedocs.io/en/latest/building/linux.html
   - sudo apt-get install build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev
+  - sudo apt-get install xvfb
   - sudo apt-get install -y python-pyside
+
+install:
+  - pip install -U tox pip setuptools
 
 script:
   - python -c "from PySide.QtGui import *"
