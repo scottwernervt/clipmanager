@@ -9,7 +9,6 @@ before_install:
   # http://pyside.readthedocs.io/en/latest/building/linux.html
   - sudo apt-get install build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev
   - sudo apt-get install -y python-pyside
-  - python ~/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin/pyside_postinstall.py -install
 
 script:
   - python -c "from PySide.QtGui import *"
