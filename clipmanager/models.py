@@ -69,33 +69,16 @@ class MainSqlTableModel(QSqlTableModel):
             return None
 
         row = index.row()
-        column = index.column()
 
-        if role == Qt.DisplayRole and column == self.ID:
-            return int(QSqlTableModel.data(self, index))
-
-        if role == Qt.DisplayRole and column == self.TITLE:
-            return unicode(QSqlTableModel.data(self, index))
-
-        if role == Qt.DisplayRole and column == self.TITLE_SHORT:
-            return unicode(QSqlTableModel.data(self, index))
-
-        if role == Qt.DisplayRole and column == self.CREATED_AT:
-            return int(QSqlTableModel.data(self, index))
-
-        if role == Qt.DisplayRole and column == self.CHECKSUM:
-            return unicode(QSqlTableModel.data(self, index))
-
-        if role == Qt.ToolTipRole and column == self.TITLE_SHORT:
+        if role == Qt.DisplayRole:
+            return QSqlTableModel.data(self, index)
+        elif role == Qt.ToolTipRole:
             date_index = self.index(row, self.CREATED_AT)
-
             time_stamp = QDateTime()
             time_stamp.setMSecsSinceEpoch(QSqlTableModel.data(self, date_index))
             date_string = time_stamp.toString(Qt.SystemLocaleShortDate)
             return 'Last used: %s' % date_string
-
-        # Used to display icons
-        if role == Qt.DecorationRole:
+        elif role == Qt.DecorationRole:  # future image icon
             return None
 
         return None
