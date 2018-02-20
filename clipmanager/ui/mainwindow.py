@@ -3,7 +3,6 @@ import logging
 import zlib
 
 from PySide.QtCore import (
-    QByteArray,
     QDateTime,
     QMimeData,
     QModelIndex,
@@ -119,8 +118,8 @@ class MainWindow(QMainWindow):
         key_sequence = self.settings.get_global_hot_key()  # Ctrl+Shift+h
         if key_sequence:
             self.hotkey.unregister(winid=self.winId())
-            self.hotkey.register(key_sequence, self.toggle_window,
-                                 self.winId())
+            return self.hotkey.register(key_sequence, self.toggle_window,
+                                        self.winId())
         else:
             self.system_tray.showMessage(
                 'Global Hot Key',
@@ -128,6 +127,7 @@ class MainWindow(QMainWindow):
                 icon=QSystemTrayIcon.Warning,
                 msecs=10000
             )
+            return False
 
     def destroy(self):
         """Perform cleanup before exiting the application.
