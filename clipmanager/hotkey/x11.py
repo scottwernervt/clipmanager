@@ -7,6 +7,7 @@ from PySide.QtCore import QObject, QThread, QTimer, Qt, Signal
 from PySide.QtGui import QApplication, QKeySequence
 from Xlib import X, XK
 from Xlib.display import Display
+from Xlib.error import ConnectionClosedError
 from Xlib.ext import record
 from Xlib.protocol import rq
 
@@ -47,8 +48,12 @@ class X11EventPoller(QObject):
                 'client_died': False,
             }]
         )
-        self._display.record_enable_context(ctx, self._record_callback)
-        self._display.record_free_context(ctx)
+        try:
+            self._display.record_enable_context(ctx, self._record_callback)
+            self._display.record_free_context(ctx)
+        except ConnectionClosedError:
+            # prevent tox InvocationError when display connection closed
+            pass
 
     def _record_callback(self, reply):
         QApplication.processEvents()
