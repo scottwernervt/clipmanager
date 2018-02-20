@@ -62,6 +62,7 @@ setup(
     ],
     tests_require=[
         'pytest',  # MIT
+        'pytest-qt',  # MIT
     ],
     packages=find_packages(exclude=['contrib', 'tests*']),
     include_package_data=True,
