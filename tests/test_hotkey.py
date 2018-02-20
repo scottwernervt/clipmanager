@@ -4,6 +4,9 @@ from PySide.QtGui import QMainWindow
 
 from clipmanager import hotkey
 
+pytestmark = pytest.mark.skip(
+    '#9: Fatal Python error: This thread state must be current when releasing')
+
 
 @pytest.fixture()
 def main_window(qtbot):
