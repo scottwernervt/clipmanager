@@ -531,7 +531,7 @@ class MainWidget(QWidget):
 
         for mime_format in MIME_SUPPORTED:
             if mime_data.hasFormat(mime_format):
-                byte_data = QByteArray(mime_data.data(mime_format))
+                byte_data = mime_data.data(mime_format)
                 self.data_model.create(parent_id, mime_format, byte_data)
 
         self.purge_max_entries()
