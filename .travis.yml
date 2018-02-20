@@ -3,6 +3,8 @@ language: python
 python:
   - '2.7'
 
+sudo: required
+
 before_install:
   - sudo apt-get -qq update
   # http://pyside.readthedocs.io/en/latest/building/linux.html
