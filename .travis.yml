@@ -8,13 +8,13 @@ sudo: required
 before_install:
   - sudo apt-get -qq update
   # http://pyside.readthedocs.io/en/latest/building/linux.html
-  - sudo apt-get install build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev
-  - sudo apt-get install xvfb
-  - sudo apt-get install python-pyside
+  - sudo apt-get install -y build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev
+  - sudo apt-get install -y xvfb
+  - sudo apt-get install -y python-pyside
 
 install:
-  - pip install -U tox pip setuptools wheel
-  - pip install tox-travis
+  - pip install pip setuptools wheel
+  - pip install tox tox-travis
 
 script:
   - tox
