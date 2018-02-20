@@ -21,10 +21,6 @@ def main_widget(qtbot):
 
 
 class TestMainWindow:
-    def test_register_hot_key(self, main_window):
-        qtbot, window = main_window
-        assert window.register_hot_key()
-
     def test_close_event(self, main_window):
         qtbot, window = main_window
         window.show()
