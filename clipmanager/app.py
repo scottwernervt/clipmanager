@@ -1,146 +1,102 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python2
 
 import logging
-import logging.config
 import optparse
+import os
+import sys
+from logging.handlers import RotatingFileHandler
 
-from PySide import QtCore
-from PySide import QtGui
+from PySide.QtCore import QCoreApplication, QDir, QEvent, Slot
+from PySide.QtGui import QApplication
 
-from defs import APP_DOMAIN
-from defs import APP_NAME
-from defs import APP_ORG
-from defs import APP_VERSION
-from mainwindow import MainWindow
-from singleinstance import SingleInstance
+from clipmanager import (__org__, __title__, __url__, __version__)
+from clipmanager.singleinstance import SingleInstance
+from clipmanager.ui.mainwindow import MainWindow
 
-LOGGING_LEVELS = {'critical': 'CRITICAL',
-                  'error': 'ERROR',
-                  'warning': 'WARNING',
-                  'info': 'INFO',
-                  'debug': 'DEBUG'}
+package = os.path.dirname(os.path.abspath(__file__))
+installation_directory = os.path.join(package, '..')
+sys.path.insert(0, installation_directory)
 
 
-def setup_logging(logging_level):
-    log_file_path = '%s/%s%s.log' % (QtCore.QDir.tempPath(), APP_ORG, APP_NAME)
-    dict_log_config = {
-        'version': 1,
-        'handlers': {
-            'file_handler': {
-                'class': 'logging.handlers.RotatingFileHandler',
-                'formatter': 'custom_format',
-                'filename': log_file_path,
-                'maxBytes': 1048576,
-                'backupCount': 0,
-            },
-            'stream_handler': {
-                'class': 'logging.StreamHandler',
-                'formatter': 'custom_format',
-                'stream': 'ext://sys.stdout',
-            }
-        },
-        'loggers': {
-            '': {
-                'handlers': ['file_handler', 'stream_handler'],
-                'level': logging_level,  # INFO/DEBUG
-            }
-        },
-        'formatters': {
-            'custom_format': {
-                'format': '%(asctime)s - %(levelname)s - %(module)s.%(funcName)s:%(lineno)s - %(message)s'
-            }
-        }
-    }
+def _setup_logger(logging_level='INFO'):
+    log_path = os.path.join(QDir.tempPath(), __title__.lower() + '.log')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(name)s - %(message)s')
 
-    logging.config.dictConfig(dict_log_config)
-    logging.info(log_file_path)
+    logger = logging.getLogger('clipmanager')
+    logger.setLevel(logging_level)
+
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging_level)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+    file_handler = RotatingFileHandler(log_path, maxBytes=1048576)
+    file_handler.setLevel(logging_level)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
 
-class MainApp(QtGui.QApplication):
-    """Application event loop thats spawns the main window.
-    """
+class Application(QApplication):
+    """Application event loop which spawns the main window."""
 
-    def __init__(self, args):
-        super(MainApp, self).__init__(args)
-        """Initialize application properties and open main window.
+    def __init__(self, app_args):
+        """Initialize application and launch main window.
 
-        Args:
-            args (list): sys.argv
+        :param app_args: 'minimize' on launch
+        :type app_args: list
         """
-        # Prevent a dialog from exiting if main window not visible
+        super(Application, self).__init__(app_args)
+
+        self.setApplicationName(__url__)
+        self.setOrganizationName(__org__)
+        self.setApplicationName(__title__)
+        self.setApplicationVersion(__version__)
+
+        # prevent application from exiting if minimized "closed"
         self.setQuitOnLastWindowClosed(False)
 
-        # Set application properties
-        self.setApplicationName(APP_DOMAIN)
-        self.setOrganizationName(APP_ORG)
-        self.setApplicationName(APP_NAME)
-        self.setApplicationVersion(APP_VERSION)
-
-        # Create main window
-        if 'minimize' in args:
+        if 'minimize' in app_args:
             self.mw = MainWindow(minimize=True)
         else:
             self.mw = MainWindow(minimize=False)
 
-        # Perform clean up actions when quit message signaled
-        self.connect(self, QtCore.SIGNAL('aboutToQuit()'), self._on_quit)
+        self.aboutToQuit.connect(self.destroy)
 
-    @QtCore.Slot()
-    def _on_quit(self):
-        """Cleanup application and copy clipboard data to OS clipboard.
+    @Slot()
+    def destroy(self):
+        """Clean up and set clipboard contents to OS clipboard.
 
-        Makes a copy of the clipboard pointer data into the OS clipboard. The 
-        basic concept behind this is that by default copying something into the
-        clipboard only copies a reference/pointer to the source application. 
-        Then when another application wants to paste the data from the 
-        clipboard  it requests the data from the source application.
+        The basic concept behind this is that by default copying something
+        into the clipboard only copies a reference/pointer to the source
+        application. Then when another application wants to paste the data
+        from the clipboard it requests the data from the source application.
 
-        Args:
-            None
-
-        Returns:
-            None
+        :return: None
+        :rtype: None
         """
-        self.mw.clean_up()
+        clipboard = QApplication.clipboard()
+        event = QEvent(QEvent.Clipboard)
+        QApplication.sendEvent(clipboard, event)
 
-        # Copy and remove pointer
-        clipboard = QtGui.QApplication.clipboard()
-        event = QtCore.QEvent(QtCore.QEvent.Clipboard)
-        QtGui.QApplication.sendEvent(clipboard, event)
-        logging.debug('Exiting...')
-
-
-def main(argv):
-    # Allow user to set a logging level if issues
-    parser = optparse.OptionParser()
-    parser.add_option('-l', '--logging-level', help='Logging level')
-    (options, args) = parser.parse_args()
-    logging.debug(options)
-    logging.debug(args)
-
-    # If user does not specify an option then lower will fail
-    try:
-        log_option = options.logging_level.lower()
-    except AttributeError:
-        log_option = options.logging_level
-
-    logging_level = LOGGING_LEVELS.get(log_option, 'INFO')
-    setup_logging(logging_level)
-
-    single_instance = SingleInstance()
-    if single_instance.is_running():
-        logging.warn('Application already running!')
-        return -1
-
-    app = MainApp(argv)
-    run = app.exec_()
-
-    logging.debug('Exit code: %s' % run)
-    return run
+        self.mw.destroy()
 
 
 if __name__ == '__main__':
-    import sys
+    parser = optparse.OptionParser()
+    parser.add_option('-l', '--logging-level', default='INFO',
+                      help='Logging level')
+    (options, args) = parser.parse_args()
 
-    sys.exit(main(sys.argv))
+    _setup_logger(options.logging_level)
+
+    single_instance = SingleInstance()
+    if single_instance.is_running():
+        sys.exit(1056)
+
+    QCoreApplication.setOrganizationName(__org__)
+    QCoreApplication.setApplicationName(__title__)
+    QCoreApplication.setApplicationVersion(__version__)
+
+    app = Application(sys.argv)
+    sys.exit(app.exec_())

@@ -1,14 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# TEST LINUX:
-# https://github.com/josephturnerjr/boatshoes/blob/master/boatshoes/SingleInstance.py
-# https://github.com/csuarez/emesene-1.6.3-fixed/blob/master/SingleInstance.py
-
 import logging
-import sys
+import os
+import tempfile
 
-if sys.platform.startswith('win32'):
+from clipmanager import __name__, __org__
+
+if os.name == 'nt':
     from win32event import CreateMutex
     from win32api import CloseHandle, GetLastError
     from winerror import ERROR_ALREADY_EXISTS
@@ -16,32 +12,38 @@ else:
     import commands
     import os
 
-from defs import APP_ORG
-from defs import APP_NAME
-
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-class SingleInstance(object):
-    """Limits application to single instance on Windows and Linux.
+class SingleInstance:
+    """Limits application to a single instance.
+
+    References
+    - https://github.com/josephturnerjr/boatshoes/blob/master/boatshoes/SingleInstance.py
+    - https://github.com/csuarez/emesene-1.6.3-fixed/blob/master/SingleInstance.py
     """
 
     def __init__(self):
         self.last_error = False
+        self.pid_path = os.path.normpath(
+            os.path.join(
+                tempfile.gettempdir(),
+                '%s-%s.lock' % (__name__.lower(), self._get_username())
+            )
+        )
 
-        if sys.platform.startswith('win32'):
+        if os.name == 'nt':
             # HANDLE WINAPI CreateMutex(
             #   _In_opt_  LPSECURITY_ATTRIBUTES lpMutexAttributes,
             #   _In_      BOOL bInitialOwner,
             #   _In_opt_  LPCTSTR lpName
             # );
-            # 
+            #
             # DWORD WINAPI GetLastError(void);
-            self.mutex_name = '%s.%s' % (APP_ORG, APP_NAME)
+            self.mutex_name = '%s.%s' % (__org__, __name__)
             self.mutex = CreateMutex(None, False, self.mutex_name)
             self.last_error = GetLastError()
         else:
-            self.pid_path = '/tmp/%s.pid' % APP_NAME.lower()
             if os.path.exists(self.pid_path):
                 pid = open(self.pid_path, 'r').read().strip()
                 pid_running = commands.getoutput('ls /proc | grep %s' % pid)
@@ -54,33 +56,40 @@ class SingleInstance(object):
                 f.write(str(os.getpid()))
                 f.close()
 
+    def __del__(self):
+        self.destroy()
+
+    @staticmethod
+    def _get_username():
+        return os.getenv('USERNAME') or os.getenv('USER')
+
     def is_running(self):
         """Check if application is running.
 
-        Returns:
-            True/False (bool): Instance of app is or is not running
+        :return: True if instance is running.
+        :rtype: bool
         """
-        if sys.platform.startswith('win32'):
+        if os.name == 'nt':
             # ERROR_ALREADY_EXISTS
             # 183 (0xB7)
             # Cannot create a file when that file already exists.
-            return (self.last_error == ERROR_ALREADY_EXISTS)
+            return self.last_error == ERROR_ALREADY_EXISTS
         else:
             return self.last_error
 
-    def __del__(self):
-        """Close out mutex handle on exit. Note, handle automatically closed if
-        process is terminated.
+    def destroy(self):
+        """Close mutex handle or delete pid file.
+
+        :return: None
+        :rtype: None
         """
-        if sys.platform.startswith('win32'):
-            if self.mutex:
-                # BOOL WINAPI CloseHandle(
-                #   _In_  HANDLE hObject
-                # );
-                CloseHandle(self.mutex)
+        if os.name == 'nt' and self.mutex:
+            # BOOL WINAPI CloseHandle(
+            #   _In_  HANDLE hObject
+            # );
+            CloseHandle(self.mutex)
         else:
-            if not self.last_error:
-                try:
-                    os.unlink(self.pid_path)
-                except OSError as err:
-                    logging.error(err)
+            try:
+                os.unlink(self.pid_path)
+            except OSError as err:
+                logger.error(err)

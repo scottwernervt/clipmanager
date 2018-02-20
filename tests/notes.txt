@@ -1,9 +1,0 @@
-http://halfcooked.svn.sourceforge.net/viewvc/halfcooked/tags/release-0.4/gerald/tests/test_mysql_schema.py?revision=131&view=markup
-
-http://ftp.ics.uci.edu/pub/centos0/ics-custom-build/BUILD/PyQt-x11-gpl-4.7.2/contrib/pymodeltest/modeltest.py
-
-http://www.voom.net/pyqt-qtest-example
-
-	https://voom.kilnhg.com/Code/Make-Stuff-Happen/Group/PyQtTestExample/Files/src/MargaritaMixer.py
-
-	https://voom.kilnhg.com/Code/Make-Stuff-Happen/Group/PyQtTestExample/Files/src/MargaritaMixerTest.py

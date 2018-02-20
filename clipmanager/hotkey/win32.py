@@ -13,7 +13,7 @@ from PySide.QtCore import QTimer, Qt
 from clipmanager.hotkey.base import GlobalHotkeyManagerBase
 from clipmanager.hotkey.hook import hotpatch, unhotpatch
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 VK_LBUTTON = 0x01  # Left mouse button
 VK_RBUTTON = 0x02  # Right mouse button
@@ -167,7 +167,8 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
 
         return self._TranslateMessageReal(pmsg)
 
-    def destroy(self):
+    @staticmethod
+    def destroy():
         unhotpatch(ctypes.windll.user32.TranslateMessage)
 
     def __del__(self):
@@ -198,7 +199,7 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
     def _unwrap_window_id(window_id):
         try:
             return int(window_id)
-        except:
+        except Exception as err:
             ctypes.pythonapi.PyCObject_AsVoidPtr.restype = ctypes.c_void_p
             ctypes.pythonapi.PyCObject_AsVoidPtr.argtypes = [ctypes.py_object]
             return int(ctypes.pythonapi.PyCObject_AsVoidPtr(window_id))

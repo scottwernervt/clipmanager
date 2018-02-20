@@ -9,11 +9,17 @@ ROOT = os.path.abspath(os.path.dirname(__file__))
 VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
 
 install_requires = ['PySide']
+data_files = []
 
 if os.name == 'nt':
     install_requires.append('pywin32')
 elif os.name == 'posix':
     install_requires.append('python-xlib')
+    data_files.extend([
+        ('share/applications', ['clipmanager.desktop']),
+        ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
+        ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
+    ])
 
 
 def get_version():
@@ -45,6 +51,7 @@ setup(
     extras_require={
         'tests': [
             'pytest',  # MIT
+            'pytest-qt',  # MIT
         ],
         'windows': [
             'cx_Freeze',  # PSF
@@ -55,16 +62,10 @@ setup(
     ],
     tests_require=[
         'pytest',  # MIT
+        'pytest-qt',  # MIT
     ],
     packages=find_packages(exclude=['contrib', 'tests*']),
     include_package_data=True,
-    package_data={
-        'clipmanager': ['*.txt'],
-        'clipmanager': ['icons/*.png', 'icons/*.ico'],
-    },
-    data_files=[
-        ('share/applications', ['clipmanager.desktop']),
-        ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
-        ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
-    ],
+    package_data={'clipmanager': ['icons/*.png', 'icons/*.ico']},
+    data_files=data_files,
 )

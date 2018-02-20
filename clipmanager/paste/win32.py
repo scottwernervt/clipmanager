@@ -1,12 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+"""Source: http://stackoverflow.com/questions/13289777/"""
 import ctypes
 import logging
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-# SOURCE: http://stackoverflow.com/questions/13289777/how-can-i-send-keyboard-commands-hold-release-simultanous-with-a-python-script
 SendInput = ctypes.windll.user32.SendInput
 PUL = ctypes.POINTER(ctypes.c_ulong)
 
@@ -61,11 +58,8 @@ def _release_key(hex_key_code):
     ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
 
 
-def send_event():
-    logging.info('Paste action sent.')
+def paste_action():
     _press_key(0x11)  # CTRL
     _press_key(0x56)  # V
     _release_key(0x56)
     _release_key(0x11)
-
-    return True
