@@ -107,8 +107,7 @@ class TestDataSqlTableModel:
         assert mime_data.text() == 'plain-text'
 
     def test_delete(self, data_table):
-        parent_ids = [1]
-        data_table.delete(parent_ids)
-
+        data_table.delete([1])
         mime_data = data_table.read(1)
+
         assert len(mime_data) == 0
