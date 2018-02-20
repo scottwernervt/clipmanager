@@ -14,14 +14,13 @@ def main_table():
     db.create_tables()
 
     main = MainSqlTableModel()
-    for item in ['a', 'b', 'c', 'd']:
-        r = main.record()
-        r.setValue('title', item.upper())
-        r.setValue('short_title', item)
-        r.setValue('checksum', zlib.crc32(item))
-        r.setValue('created_at', QDateTime.currentMSecsSinceEpoch())
-        if not main.insertRecord(-1, r):
-            assert False
+    r = main.record()
+    r.setValue('title', 'A')
+    r.setValue('short_title', 'a')
+    r.setValue('checksum', zlib.crc32('A'))
+    r.setValue('created_at', QDateTime.currentMSecsSinceEpoch())
+    if not main.insertRecord(-1, r):
+        assert False
 
     main.submitAll()
 
