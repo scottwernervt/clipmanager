@@ -3,6 +3,8 @@ from PySide.QtGui import QCloseEvent, QSystemTrayIcon
 
 from clipmanager.ui.mainwindow import MainWidget, MainWindow
 
+pytestmark = pytest.mark.skip('MainWindow tests lock up.')
+
 
 @pytest.fixture()
 def main_window(qtbot):
@@ -17,6 +19,7 @@ def main_widget(qtbot):
     mw = MainWidget()
     mw.show()
     qtbot.addWidget(mw)
+
     return qtbot, mw
 
 
@@ -33,9 +36,3 @@ class TestMainWindow:
         window.hide()
         window.system_tray_activate(QSystemTrayIcon.Trigger)
         assert window.isVisible()
-
-
-@pytest.mark.skip(reason='TODO: Create tests for main widget.')
-class TestMainWidget:
-    def test_todo(self, main_widget):
-        qtbot, widget = main_widget
