@@ -54,37 +54,35 @@ class HistoryListView(QListView):
 
         self.menu = QMenu(self)
 
-        paste_action = QAction(get_icon('edit-paste'), 'Paste', self)
-        paste_action.setShortcut(QKeySequence(Qt.Key_Return))
-        paste_action.triggered.connect(self.emit_set_clipboard)
-        self.paste_action = paste_action
+        self.paste_action = QAction(get_icon('edit-paste'), 'Paste', self)
+        self.paste_action.setShortcut(QKeySequence(Qt.Key_Return))
+        self.paste_action.triggered.connect(self.emit_set_clipboard)
 
-        preview_action = QAction(
+        self.preview_action = QAction(
             get_icon('document-print-preview'),
             'Preview',
             self
         )
-        preview_action.setShortcut(QKeySequence(Qt.Key_F11))
-        preview_action.triggered.connect(self.emit_open_preview)
-        self.preview_action = preview_action
+        self.preview_action.setShortcut(QKeySequence(Qt.Key_F11))
+        self.preview_action.triggered.connect(self.emit_open_preview)
 
-        delete_action = QAction(get_icon('list-remove'), 'Delete', self)
-        delete_action.setShortcut(QKeySequence.Delete)
-        delete_action.triggered.connect(self.delete_item)
+        self.delete_action = QAction(get_icon('list-remove'), 'Delete', self)
+        self.delete_action.setShortcut(QKeySequence.Delete)
+        self.delete_action.triggered.connect(self.delete_item)
 
         exit_action = QAction(get_icon('application-exit'), 'Quit', self)
         exit_action.triggered.connect(QCoreApplication.quit)
 
-        self.menu.addAction(paste_action)
-        self.menu.addAction(preview_action)
-        self.menu.addAction(delete_action)
+        self.menu.addAction(self.paste_action)
+        self.menu.addAction(self.preview_action)
+        self.menu.addAction(self.delete_action)
         self.menu.addSeparator()
         self.menu.addAction(exit_action)
 
         # keyboard shortcuts work on selected items without menu
-        self.addAction(paste_action)
-        self.addAction(preview_action)
-        self.addAction(delete_action)
+        self.addAction(self.paste_action)
+        self.addAction(self.preview_action)
+        self.addAction(self.delete_action)
 
     def contextMenuEvent(self, event):
         """Open context menu.
@@ -95,12 +93,19 @@ class HistoryListView(QListView):
         :return: None
         :rtype: None
         """
-        if len(self.selectionModel().selectedIndexes()) > 1:
+        selection_count = len(self.selectionModel().selectedIndexes())
+        if selection_count == 0:
             self.paste_action.setDisabled(True)
             self.preview_action.setDisabled(True)
-        else:
+            self.delete_action.setDisabled(True)
+        elif selection_count == 1:
             self.paste_action.setDisabled(False)
             self.preview_action.setDisabled(False)
+            self.delete_action.setDisabled(False)
+        else:
+            self.paste_action.setDisabled(True)
+            self.preview_action.setDisabled(True)
+            self.delete_action.setDisabled(False)
 
         self.menu.exec_(event.globalPos())
 
