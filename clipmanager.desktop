@@ -1,11 +1,10 @@
 [Desktop Entry]
-Encoding=UTF-8
-Name=ClipManager
 Version=0.3
+Name=ClipManager
+GenericName=Clipboard manager
 Comment=Manage clipboard history
-GenericName=ClipManager
+Icon=clipmanager
 Terminal=false
 Type=Application
 Exec=clipmanager
-Icon=clipmanager.png
-Categories=Application;Accessories;
+Categories=Utility;
