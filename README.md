@@ -1,5 +1,8 @@
 # ClipManager
-Cross-platform (Windows and Linux) GUI application to manage the history of the system's clipboard. 
+
+[![travis build status](https://travis-ci.org/scottwernervt/clipmanager.svg?branch=master)](https://travis-ci.org/scottwernervt/clipmanager)
+
+Cross-platform (Windows and Linux) GUI application to manage the system's clipboard history.
 
 ![ClipManager main screenshot](http://i.imgur.com/myDxq5r.png "ClipManager main screenshot")
 
@@ -8,19 +11,6 @@ Cross-platform (Windows and Linux) GUI application to manage the history of the 
 ## Installation
 
 ### Windows
-Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.org/mercnet/clipmanager/downloads/clipmanager-setup-0.3.exe).
-
-### Ubuntu
-[launchpad.net](https://launchpad.net/~mercnet/+archive/clipmanager)
-
-    sudo add-apt-repository ppa:mercnet/clipmanager
-    sudo apt-get install clipmanager
-
-### Arch
-[aur.archlinux.org](https://aur.archlinux.org/packages/clipmanager) | [Install Yaourt](https://wiki.archlinux.org/index.php/Yaourt#Installation)
-
-    yaourt -S clipmanager
-
 
 ## Build Requirements
 
@@ -43,7 +33,7 @@ Download the latest installer at [clipmanager-setup-0.3.exe](https://bitbucket.o
 
 ### ClipManager is not using my GTK theme
 
-$ ln -s icon/theme/directory $HOME/.icons/hicolor
+`$ ln -s icon/theme/directory $HOME/.icons/hicolor`
 
 ## Inspiration
 * [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
