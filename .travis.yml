@@ -13,9 +13,9 @@ before_install:
   - sudo apt-get install -y python-pyside
 
 install:
-  - pip install pip setuptools wheel
-  - pip install tox tox-travis
-  - pip install pyside
+  - pip install -U pip setuptools wheel
+  - pip install -U tox tox-travis
+  - pip install pyside pytest pytest-qt python-xlib
 
 script:
-  - pytest --verbose
+  - travis_wait 40 pytest --verbose
