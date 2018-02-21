@@ -16,10 +16,12 @@ clipboard history.
 
 Requirements
 ------------
-- Python 2.7
-- PySide
-- python-xlib (optional: for linux)
-- pywin32 (optional: for windows)
+* Python 2.7
+* PySide
+* python-xlib (optional: for linux)
+* pywin32 (optional: for windows)
+* cx_Freeze (optional: build executable)
+* Inno Setup (optional: windows installer package)
 
 Installation
 ------------
@@ -28,18 +30,11 @@ Installation
 Development
 -----------
 
-#### Arch
+^^^^^
+Linux
+^^^^^
 * [qt4](https://www.archlinux.org/packages/extra/x86_64/qt4/)
 * [qtwebkit](https://aur.archlinux.org/packages/qtwebkit/)
-
-### Windows
-* [pywin32](http://sourceforge.net/projects/pywin32/files/) - [#661 DLL load failed on Python 3.4b1](https://sourceforge.net/p/pywin32/bugs/661/)
- 
-    `copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32`
-
-* [cx_Freeze](http://cx-freeze.sourceforge.net/) to create an executable or binary.
-* [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
-
 
 Help
 ----
@@ -50,20 +45,20 @@ PyWin32: DLL load failed on Python 3.4b1
 
 `#661 DLL load failed on Python 3.4b1 <https://sourceforge.net/p/pywin32/bugs/661/)>`_
 
-::
+.. code:: bash
 
-    copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32`
+    copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32
 
 =====================================
 ClipManager is not using my GTK theme
 =====================================
 
-::
+.. code:: bash
 
     $ ln -s icon/theme/directory $HOME/.icons/hicolor
 
 Inspiration
 -----------
-- [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
-- [Glipper](https://launchpad.net/glipper)
-- [Clipit](http://clipit.rspwn.com/)
+* `Ditto Clipboard Manager <http://ditto-cp.sourceforge.net/>`_
+* `Glipper <https://launchpad.net/glipper>`_
+* `Clipit <http://clipit.rspwn.com/>`_
