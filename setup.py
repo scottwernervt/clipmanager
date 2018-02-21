@@ -54,7 +54,7 @@ setup(
     author='Scott Werner',
     author_email='scott.werner.vt@gmail.com',
     description="Manage the system's clipboard history.",
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     license='BSD',
     platforms='Posix; Windows',
     keywords=' '.join([
