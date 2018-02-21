@@ -16,7 +16,6 @@ before_install:
 
 install:
   - pip install -U pip setuptools wheel
-  - pip install -U tox tox-travis
   - pip install pyside pytest pytest-qt python-xlib
 
 script:
