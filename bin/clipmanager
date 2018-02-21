@@ -5,9 +5,13 @@ ClipManager - Manage clipboard history
 Copyright (c) 2018, Scott Werner
 All rights reserved.
 """
+import os
 import sys
 
+import clipmanager
+
 # Some non-standard install paths may need to be added
+sys.path.insert(0, os.path.dirname(clipmanager.__file__))
 sys.path.append('/usr/lib/python2.7/site-packages')
 
 if __name__ == '__main__':
