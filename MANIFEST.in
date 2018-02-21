@@ -1,7 +1,9 @@
 include clipmanager.desktop
-include clipmanager-autostart.desktop
+
+recursive-include tests *
 recursive-include clipmanager/icons *.*
+
 prune build
+
 prune dist
-prune tests
-recursive-exclude .gnupg *
+global-exclude *.pyc *.ini *.json .git* *.gnupg
