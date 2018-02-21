@@ -15,6 +15,7 @@ before_install:
 install:
   - pip install pip setuptools wheel
   - pip install tox tox-travis
+  - pip install pyside
 
 script:
   - pytest --verbose
