@@ -34,9 +34,8 @@ if os.name == 'nt':
 elif os.name == 'posix':
     install_requires.append('python-xlib')
     data_files.extend([
-        # ('share/applications', ['clipmanager.desktop']),
-        # ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
-        # ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
+        ('share/applications', ['clipmanager.desktop']),
+        ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
     ])
 
 
