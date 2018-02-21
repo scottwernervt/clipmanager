@@ -8,7 +8,7 @@ All rights reserved.
 import sys
 
 # Some non-standard install paths may need to be added
-# sys.path.append('/usr/lib/python2.7/site-packages')
+sys.path.append('/usr/lib/python2.7/site-packages')
 
 if __name__ == '__main__':
     from clipmanager.app import main
