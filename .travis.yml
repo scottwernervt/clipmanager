@@ -3,16 +3,16 @@ language: python
 python:
   - '2.7'
 
-cache: pip
+cache:
+  - pip
 
 sudo: required
 
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y build-essential git cmake
     # http://pyside.readthedocs.io/en/latest/building/linux.html
-  - sudo apt-get install libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev libqt4-sql-sqlite
-  - sudo apt-get install -y xvfb
+  - sudo apt-get install build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev libqt4-sql-sqlite
+  - sudo apt-get install xvfb
 
 install:
   - pip install -U pip setuptools wheel
@@ -20,4 +20,4 @@ install:
   - pip install pyside pytest pytest-qt python-xlib
 
 script:
-  - xvfb-run pytest --verbose
+  - xvfb-run python setup.py test -a --verbose
