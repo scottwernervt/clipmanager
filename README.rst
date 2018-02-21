@@ -1,24 +1,32 @@
-# ClipManager
+ClipManager
+===========
 
-[![travis build status](https://travis-ci.org/scottwernervt/clipmanager.svg?branch=master)](https://travis-ci.org/scottwernervt/clipmanager)
+.. image:: https://travis-ci.org/scottwernervt/clipmanager.svg?branch=master
+    :target: https://travis-ci.org/scottwernervt/clipmanager
 
-Cross-platform (Windows and Linux) GUI application to manage the system's clipboard history.
+.. image:: https://img.shields.io/badge/license-BSD-blue.svg
+    :target: /LICENSE
 
-![ClipManager main screenshot](http://i.imgur.com/myDxq5r.png "ClipManager main screenshot")
+Cross-platform (Windows and Linux) GUI application to manage the system's
+clipboard history.
 
-[Application settings](http://i.imgur.com/3VVXFI4.png) and [history preview](http://i.imgur.com/DeaeSqp.png) screenshots.
-
+.. image:: http://i.imgur.com/myDxq5r.png
+    :alt: Main screenshot
+   :target: http://i.imgur.com/myDxq5r.png
 
 Requirements
 ------------
+- Python 2.7
+- PySide
+- python-xlib (optional: for linux)
+- pywin32 (optional: for windows)
 
-## Installation
+Installation
+------------
 
-### Windows
 
-## Build Requirements
-
-### Linux
+Development
+-----------
 
 #### Arch
 * [qt4](https://www.archlinux.org/packages/extra/x86_64/qt4/)
@@ -33,13 +41,29 @@ Requirements
 * [Inno Setup](http://www.jrsoftware.org/isinfo.php) to create a Windows installer package.
 
 
-## Help
+Help
+----
 
-### ClipManager is not using my GTK theme
+========================================
+PyWin32: DLL load failed on Python 3.4b1
+========================================
 
-`$ ln -s icon/theme/directory $HOME/.icons/hicolor`
+`#661 DLL load failed on Python 3.4b1 <https://sourceforge.net/p/pywin32/bugs/661/)>`_
 
-## Inspiration
-* [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
-* [Glipper](https://launchpad.net/glipper)
-* [Clipit](http://clipit.rspwn.com/)
+::
+
+    copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32`
+
+=====================================
+ClipManager is not using my GTK theme
+=====================================
+
+::
+
+    $ ln -s icon/theme/directory $HOME/.icons/hicolor
+
+Inspiration
+-----------
+- [Ditto Clipboard Manager](http://ditto-cp.sourceforge.net/)
+- [Glipper](https://launchpad.net/glipper)
+- [Clipit](http://clipit.rspwn.com/)
