@@ -8,6 +8,10 @@ Cross-platform (Windows and Linux) GUI application to manage the system's clipbo
 
 [Application settings](http://i.imgur.com/3VVXFI4.png) and [history preview](http://i.imgur.com/DeaeSqp.png) screenshots.
 
+
+Requirements
+------------
+
 ## Installation
 
 ### Windows
