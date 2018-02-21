@@ -6,6 +6,8 @@ from PySide.QtGui import QIcon
 # windows executable path
 app_path = os.path.dirname(os.path.join(sys.argv[0]))
 icons_path = os.path.join(app_path, 'icons')
+print('app_path', app_path)
+print('icons_path', icons_path)
 
 
 def get_icon(name):
