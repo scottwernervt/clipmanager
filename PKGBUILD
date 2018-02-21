@@ -1,10 +1,10 @@
 # Maintainer: Scott Werner <scott.werner.vt@gmail.com>
 
 pkgname=clipmanager
-pkgver=0.3
+pkgver=0.4
 pkgrel=0
-pkgdesc="Manage the system's clipboard history."
-url="https://bitbucket.org/mercnet/clipmanager"
+pkgdesc="Manage clipboard history."
+url="https://github.com/scottwernervt/clipmanager"
 arch=('any')
 license=('BSD')
 depends=('python2'

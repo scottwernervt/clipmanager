@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "ClipManager"
-#define MyAppVersion "0.3"
+#define MyAppVersion "0.4"
 #define MyAppPublisher "Werner"
 #define MyAppURL "scott.werner.vt@gmail.com"
 #define MyAppExeName "clipmanager.exe"
@@ -24,7 +24,7 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=clipmanager\license.txt
 OutputDir=dist
-OutputBaseFilename=clipmanager-setup-0.3
+OutputBaseFilename=clipmanager-setup-0.4
 SetupIconFile=clipmanager\icons\clipmanager.ico
 Compression=lzma
 SolidCompression=yes
