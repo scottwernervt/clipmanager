@@ -82,7 +82,7 @@ class Application(QApplication):
         self.mw.destroy()
 
 
-if __name__ == '__main__':
+def main():
     parser = optparse.OptionParser()
     parser.add_option('-l', '--logging-level', default='INFO',
                       help='Logging level')
@@ -100,3 +100,7 @@ if __name__ == '__main__':
 
     app = Application(sys.argv)
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
