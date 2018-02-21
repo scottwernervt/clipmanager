@@ -20,4 +20,4 @@ install:
   - pip install pyside pytest pytest-qt python-xlib
 
 script:
-  - pytest --verbose
+  - xvfb-run pytest --verbose
