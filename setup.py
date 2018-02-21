@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 ROOT = os.path.abspath(os.path.dirname(__file__))
 VERSION_RE = re.compile(r'''__version__ = ['"]([0-9.]+)['"]''')
 
-install_requires = ['PySide']
+install_requires = ['pyside']
 data_files = []
 
 if os.name == 'nt':
@@ -18,7 +18,7 @@ elif os.name == 'posix':
     data_files.extend([
         ('share/applications', ['clipmanager.desktop']),
         ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
-        ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
+        # ('/etc/xdg/autostart', ['clipmanager-autostart.desktop'])
     ])
 
 
