@@ -17,4 +17,4 @@ install:
   - pip install tox tox-travis
 
 script:
-  - tox
+  - pytest --verbose
