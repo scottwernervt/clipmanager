@@ -20,4 +20,4 @@ install:
   - pip install pyside pytest pytest-qt python-xlib
 
 script:
-  - travis_wait 40 pytest --verbose
+  - pytest --verbose
