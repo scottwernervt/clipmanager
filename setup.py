@@ -84,4 +84,16 @@ setup(
     package_data={'clipmanager': ['icons/*.png', 'icons/*.ico']},
     data_files=data_files,
     cmdclass={'test': PyTest},
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Win32 (MS Windows)',
+        'Environment :: X11 Applications',
+        'Intended Audience :: End Users/Desktop',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: POSIX',
+        'Operating System :: Unix',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Topic :: Utilities',
+    ]
 )
