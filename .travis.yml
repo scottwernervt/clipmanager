@@ -10,7 +10,6 @@ sudo: required
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y build-essential git cmake
-  - sudo apt-get install -y sqlite3 libsqlite3-dev
     # http://pyside.readthedocs.io/en/latest/building/linux.html
   - sudo apt-get install libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev libqt4-sql-sqlite
   - sudo apt-get install -y xvfb
