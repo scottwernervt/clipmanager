@@ -1,13 +1,7 @@
 import os
-import sys
 
+import pkg_resources
 from PySide.QtGui import QIcon
-
-# windows executable path
-app_path = os.path.dirname(os.path.join(sys.argv[0]))
-icons_path = os.path.join(app_path, 'icons')
-print('app_path', app_path)
-print('icons_path', icons_path)
 
 
 def get_icon(name):
@@ -29,10 +23,10 @@ def get_icon(name):
     if not icon.isNull():
         return icon
 
-    if os.path.exists(icons_path):  # icons folder does not exist for pytest
-        for i in os.listdir(icons_path)[::-1]:
-            if i.startswith(name):
-                path = os.path.join(icons_path, i)
-                return QIcon(path)
+    for i in pkg_resources.resource_listdir('clipmanager', 'icons'):
+        if i.startswith(name):
+            path = pkg_resources.resource_filename('clipmanager',
+                                                   os.path.join('icons/', name))
+            return QIcon(path)
 
     return QIcon()
