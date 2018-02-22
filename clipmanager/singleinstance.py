@@ -28,7 +28,7 @@ class SingleInstance:
         self.pid_path = os.path.normpath(
             os.path.join(
                 tempfile.gettempdir(),
-                '%s-%s.lock' % (__name__.lower(), self._get_username())
+                '{}-{}.lock'.format(__name__.lower(), self._get_username())
             )
         )
 
@@ -40,13 +40,15 @@ class SingleInstance:
             # );
             #
             # DWORD WINAPI GetLastError(void);
-            self.mutex_name = '%s.%s' % (__org__, __name__)
+            self.mutex_name = '{}.{}'.format(__org__, __name__)
             self.mutex = CreateMutex(None, False, self.mutex_name)
             self.last_error = GetLastError()
         else:
             if os.path.exists(self.pid_path):
                 pid = open(self.pid_path, 'r').read().strip()
-                pid_running = commands.getoutput('ls /proc | grep %s' % pid)
+                pid_running = commands.getoutput(
+                    'ls /proc | grep {}'.format(pid)
+                )
 
                 if pid_running:
                     self.last_error = True

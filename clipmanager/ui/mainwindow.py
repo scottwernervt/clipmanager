@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
         else:
             self.system_tray.showMessage(
                 'Global Hot Key',
-                'Failed to bind global hot key %s.' % hotkey,
+                'Failed to bind global hot key {}.'.format(hotkey),
                 icon=QSystemTrayIcon.Warning,
                 msecs=10000
             )

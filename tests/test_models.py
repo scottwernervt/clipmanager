@@ -77,7 +77,7 @@ class TestMainSqlTableModel:
                                                 main_table.TITLE_SHORT),
                                   role=Qt.ToolTipRole)
 
-        assert isinstance(tooltip, unicode)
+        assert isinstance(tooltip, str)
         assert 'last used' in tooltip.lower()
 
 

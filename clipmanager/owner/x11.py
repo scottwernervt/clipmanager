@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def readlink_binary(pid):
-    cmd = ['readlink', '-f', '/proc/%s/exe' % pid]
+    cmd = ['readlink', '-f', '/proc/{}/exe'.format(pid)]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, close_fds=True)
     return p.stdout.read()
 

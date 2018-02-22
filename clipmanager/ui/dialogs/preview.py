@@ -56,7 +56,9 @@ class PreviewDialog(QDialog):
                 doc.insertFromMimeData(mime_data)
             else:
                 doc.setPlainText(
-                    'Invalid data formats: %s' % ','.join(mime_data.formats())
+                    'Invalid data formats: {}'.format(
+                        ','.join(mime_data.formats())
+                        )
                 )
 
             doc.moveCursor(QTextCursor.Start)  # scroll to top

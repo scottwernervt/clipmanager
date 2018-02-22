@@ -20,7 +20,7 @@ class AboutDialog(QDialog):
         app_name = QCoreApplication.applicationName()
         app_version = QCoreApplication.applicationVersion()
 
-        app_homepage = QLabel('<a href="%s">%s</a>' % (__url__, __url__))
+        app_homepage = QLabel('<a href="{0}">{0}</a>'.format(__url__))
         app_homepage.setTextFormat(Qt.RichText)
         app_homepage.setTextInteractionFlags(Qt.TextBrowserInteraction)
         app_homepage.setOpenExternalLinks(True)

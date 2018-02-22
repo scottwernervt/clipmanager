@@ -77,7 +77,7 @@ class MainSqlTableModel(QSqlTableModel):
             time_stamp = QDateTime()
             time_stamp.setMSecsSinceEpoch(QSqlTableModel.data(self, date_index))
             date_string = time_stamp.toString(Qt.SystemLocaleShortDate)
-            return 'Last used: %s' % date_string
+            return 'Last used: {!s}'.format(date_string)
         elif role == Qt.DecorationRole:  # future image icon
             return None
 
