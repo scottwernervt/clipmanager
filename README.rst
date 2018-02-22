@@ -53,6 +53,12 @@ Help
 
     $ ln -s icon/theme/directory $HOME/.icons/hicolor
 
+Icons
+-----
+
+* `ClipManager application icon <https://github.com/feathericons/feather>`_
+* `Menu icons <https://github.com/horst3180/arc-icon-theme>`_
+
 Inspiration
 -----------
 
