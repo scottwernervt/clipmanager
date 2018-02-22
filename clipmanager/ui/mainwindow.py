@@ -71,6 +71,7 @@ class MainWindow(QMainWindow):
         self.system_tray.show()
 
         self.settings = Settings()
+        logger.info(self.settings.filename())
 
         self.main_widget = MainWidget(self)
         self.setCentralWidget(self.main_widget)
@@ -173,7 +174,7 @@ class MainWindow(QMainWindow):
         # tray menu even though dialog is modal
         self.hotkey.unregister(winid=self.winId())
 
-        settings_dialog = SettingsDialog(self)
+        settings_dialog = SettingsDialog()
         settings_dialog.exec_()
 
         self.setCursor(Qt.BusyCursor)
@@ -565,7 +566,7 @@ class MainWidget(QWidget):
         for mime_format, byte_data in self.data_model.read(parent_id):
             mime_data.setData(mime_format, byte_data)
 
-        preview_dialog = PreviewDialog(mime_data, self)
+        preview_dialog = PreviewDialog(mime_data, parent=self)
         preview_dialog.exec_()
         del preview_dialog
 

@@ -73,8 +73,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         :return: None
         :rtype: None
         """
-        # parent forces dialog to load near main window
-        about = AboutDialog(self.parent)
+        about = AboutDialog()
         about.exec_()
         del about
 
