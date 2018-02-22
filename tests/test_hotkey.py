@@ -30,9 +30,9 @@ class TestGlobalHotKey:
         qtbot.keyPress(mw, Qt.Key_Return, modifier=Qt.ControlModifier)
 
     def test_invalid_register(self, main_window):
-        _, mw, hk = main_window
+        qtbot, mw, hk = main_window
         assert not hk.register('F16+Enter', callback, mw.winId())
 
     def test_unregister(self, main_window):
-        _, mw, hk = main_window
+        qtbot, mw, hk = main_window
         hk.unregister(winid=mw.winId())
