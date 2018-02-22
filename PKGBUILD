@@ -2,23 +2,20 @@
 
 pkgname=clipmanager
 pkgver=0.4
-pkgrel=0
-pkgdesc="Manage clipboard history."
-url="https://github.com/scottwernervt/clipmanager"
+pkgrel=1
+pkgdesc="Python Qt GUI clipboard manager"
 arch=('any')
+url="https://github.com/scottwernervt/clipmanager"
 license=('BSD')
-depends=('python2'
-		 'python2-distribute'
-		 'python2-pyside'
-		 'python2-keybinder2')
-optdepends=('xdotool: paste to active window')
+depends=('python2' 'python2-setuptools' 'python2-pyside' 'python2-xlib')
+optdepends=('xdotool: paste into active window')
 install=$pkgname.install
-source=("https://bitbucket.org/mercnet/clipmanager/downloads/${pkgname}-${pkgver}.tar.gz")
-md5sums=('d181dd0fcdb1e6996a2952de0c47c451')
+source=("https://github.com/scottwernervt/${pkgname}/archive/${pkgver}.tar.gz")
+md5sums=('SKIP')
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
-  python2 setup.py install --root="$pkgdir/" --optimize=1
+  cd $pkgname-$pkgver
+  python2 ./setup.py install --root="$pkgdir/"
 }
 
 # vim:set ts=2 sw=2 et:

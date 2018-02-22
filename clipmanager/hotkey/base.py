@@ -59,3 +59,6 @@ class GlobalHotkeyManagerBase(object):
 
     def _unregister_shortcut(self, native_key, native_mods, winid):
         raise NotImplemented()
+
+    def stop(self):
+        raise NotImplemented
