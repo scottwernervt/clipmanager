@@ -155,6 +155,9 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
                      self._translate_message_hook_ref)
         )
 
+    def __del__(self):
+        self.stop()
+
     def _translate_message_hook(self, pmsg):
         msg = pmsg.contents
         if msg.message == WM_HOTKEY:
@@ -168,11 +171,8 @@ class GlobalHotkeyManagerWin(GlobalHotkeyManagerBase):
         return self._TranslateMessageReal(pmsg)
 
     @staticmethod
-    def destroy():
+    def stop():
         unhotpatch(ctypes.windll.user32.TranslateMessage)
-
-    def __del__(self):
-        self.destroy()
 
     def _native_modifiers(self, modifiers):
         native = 0
