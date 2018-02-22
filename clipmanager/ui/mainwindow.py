@@ -54,10 +54,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(__title__)
         self.setWindowIcon(get_icon('clipmanager.ico'))
 
-        # Remove minimize and maximize buttons from window title
-        self.setWindowFlags(Qt.WindowStaysOnTopHint |
-                            Qt.CustomizeWindowHint |
-                            Qt.WindowCloseButtonHint)
+        # hide minimize and maximize in window title
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
 
         if not QSystemTrayIcon.isSystemTrayAvailable():
             QMessageBox.critical(
