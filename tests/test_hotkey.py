@@ -29,10 +29,6 @@ class TestGlobalHotKey:
         assert hk.register('Ctrl+Return', callback, mw.winId())
         qtbot.keyPress(mw, Qt.Key_Return, modifier=Qt.ControlModifier)
 
-    def test_invalid_register(self, main_window):
-        qtbot, mw, hk = main_window
-        assert not hk.register('F16+Enter', callback, mw.winId())
-
     def test_unregister(self, main_window):
         qtbot, mw, hk = main_window
         hk.unregister(winid=mw.winId())
