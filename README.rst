@@ -39,11 +39,11 @@ Development
 **Application Icon**
 
 #. Navigate to `fa2png.io <http://fa2png.io/>`_
-#. Icon = `feather-clipboard`
-#. Color = `#ececec`
-#. Background = `transparent`
-#. Size = `256px`
-#. Padding = `24px`
+#. Icon = ``feather-clipboard``
+#. Color = ``#ececec``
+#. Background = ``transparent``
+#. Size = ``256px``
+#. Padding = ``24px``
 
 Help
 ----
