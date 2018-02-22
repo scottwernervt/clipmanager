@@ -38,7 +38,7 @@ class SettingsDialog(QDialog):
         self.settings = Settings()
 
         self.setWindowTitle('Settings')
-        self.setWindowIcon(get_icon('clipmanager.ico'))
+        self.setWindowIcon(get_icon('clipmanager'))
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.key_combo_edit = HotKeyEdit(self)

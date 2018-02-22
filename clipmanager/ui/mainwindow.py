@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(__title__)
-        self.setWindowIcon(get_icon('clipmanager.ico'))
+        self.setWindowIcon(get_icon('clipmanager'))
 
         # hide minimize and maximize in window title
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
