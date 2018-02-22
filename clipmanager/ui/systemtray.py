@@ -28,7 +28,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         menu = QMenu(parent)
 
-        toggle_action = QAction(get_icon('search'), '&Toggle', self)
+        toggle_action = QAction('&Toggle', self)
         toggle_action.triggered.connect(self.emit_toggle_window)
 
         settings_action = QAction(get_icon('preferences-system'),
