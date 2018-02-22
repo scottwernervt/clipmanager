@@ -1,62 +1,54 @@
 """
 Source: https://github.com/rokups/paste2box
 License: GNU General Public License v3.0
+
+Source: https://github.com/SavinaRoja/PyKeyboard
+License: WTFPL
 """
 
-from PySide.QtCore import QObject, QThread, QTimer, Qt, Signal
-from PySide.QtGui import QApplication, QKeySequence
+from PySide.QtCore import (
+    QThread,
+    QTimer,
+    Qt,
+    Signal,
+)
+from PySide.QtGui import QKeySequence
 from Xlib import X, XK
 from Xlib.display import Display
-from Xlib.error import ConnectionClosedError
 from Xlib.ext import record
 from Xlib.protocol import rq
 
 from clipmanager.hotkey.base import GlobalHotkeyManagerBase
 
 
-class X11EventPoller(QObject):
+class X11EventPoller(QThread):
     keyPressed = Signal(object, object)
 
-    def __init__(self):
-        QObject.__init__(self)
-        self._display = Display()
-        self._thread = QThread()
-        self.moveToThread(self._thread)
-        self._thread.start()
+    def __init__(self, display=None):
+        QThread.__init__(self)
 
-    def start(self):
-        QTimer.singleShot(0, self.run)
-
-    def run(self):
-        ctx = self._display.record_create_context(
+        self.display = Display(display)
+        self.display2 = Display(display)
+        self.context = self.display2.record_create_context(
             0,
-            [record.CurrentClients],
+            [record.AllClients],
             [{
                 'core_requests': (0, 0),
                 'core_replies': (0, 0),
-                'ext_requests': (
-                    0, 0, 0, 0),
-                'ext_replies': (
-                    0, 0, 0, 0),
-                'delivered_events': (
-                    0, 0),
-                'device_events': (
-                    X.KeyPress,
-                    X.KeyRelease),
+                'ext_requests': (0, 0, 0, 0),
+                'ext_replies': (0, 0, 0, 0),
+                'delivered_events': (0, 0),
+                'device_events': (X.KeyPress, X.KeyRelease),
                 'errors': (0, 0),
                 'client_started': False,
                 'client_died': False,
-            }]
-        )
-        try:
-            self._display.record_enable_context(ctx, self._record_callback)
-            self._display.record_free_context(ctx)
-        except ConnectionClosedError:
-            # prevent tox InvocationError when display connection closed
-            pass
+            }])
 
-    def _record_callback(self, reply):
-        QApplication.processEvents()
+    def run(self):
+        self.display2.record_enable_context(self.context, self.record_callback)
+        self.display2.record_free_context(self.context)
+
+    def record_callback(self, reply):
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
@@ -70,21 +62,20 @@ class X11EventPoller(QObject):
         while len(data):
             event, data = rq.EventField(None).parse_binary_value(
                 data,
-                self._display.display,
+                self.display.display,
                 None, None)
             self.keyPressed.emit(event, data)
 
-    def destroy(self):
-        # TODO: This thread state must be current when releasing.
-        self._thread.terminate()
-        self._thread.wait()
+    def stop(self):
+        self.display.record_disable_context(self.context)
+        self.display.flush()
 
-    def __del__(self):
-        self.destroy()
+        self.display2.record_disable_context(self.context)
+        self.display2.flush()
 
 
 class GlobalHotkeyManagerX11(GlobalHotkeyManagerBase):
-    def __init__(self):
+    def __init__(self, display=None):
         self._text_to_native = {
             '-': 'minus',
             '+': 'plus',
@@ -102,14 +93,15 @@ class GlobalHotkeyManagerX11(GlobalHotkeyManagerBase):
         }
         GlobalHotkeyManagerBase.__init__(self)
 
+        self.display = Display(display)
         self._error = False
-        self._display = Display()
-        self._poller = X11EventPoller()
+
+        self._poller = X11EventPoller(display)
         self._poller.keyPressed.connect(self.x11_event)
         self._poller.start()
 
-    def destroy(self):
-        self._poller.destroy()
+    def stop(self):
+        self._poller.stop()
 
     # noinspection PyUnusedLocal
     def x11_event(self, event, data):
@@ -146,7 +138,7 @@ class GlobalHotkeyManagerX11(GlobalHotkeyManagerBase):
         keysym = QKeySequence(key).toString()
         if keysym in self._text_to_native:
             keysym = self._text_to_native[keysym]
-        return self._display.keysym_to_keycode(XK.string_to_keysym(keysym))
+        return self.display.keysym_to_keycode(XK.string_to_keysym(keysym))
 
     # noinspection PyUnusedLocal
     def _on_error(self, e, data):
@@ -156,12 +148,12 @@ class GlobalHotkeyManagerX11(GlobalHotkeyManagerBase):
         return 0
 
     def _register_shortcut(self, receiver, native_key, native_mods, winid=None):
-        window = self._display.screen().root
+        window = self.display.screen().root
         self._error = False
 
         window.grab_key(native_key, native_mods, True, X.GrabModeAsync,
                         X.GrabModeAsync, self._on_error)
-        self._display.sync()
+        self.display.sync()
 
         if not self._error:
             self.shortcuts[(native_key, native_mods)] = receiver
