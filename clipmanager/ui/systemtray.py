@@ -22,7 +22,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.parent = parent
 
         self.setToolTip(__title__)
-        self.setIcon(get_icon('clipmanager.ico'))
+        self.setIcon(get_icon('edit-paste'))
 
         self.settings = Settings()
 
