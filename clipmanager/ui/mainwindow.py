@@ -139,7 +139,7 @@ class MainWindow(QMainWindow):
 
         if self.hotkey:
             self.hotkey.unregister(winid=self.winId())
-            self.hotkey.destroy()
+            self.hotkey.stop()
 
         self.settings.set_window_pos(self.pos())
         self.settings.set_window_size(self.size())
