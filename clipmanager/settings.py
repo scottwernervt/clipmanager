@@ -14,6 +14,14 @@ class Settings(QObject):
 
         self.q_settings = QSettings()
 
+    def filename(self):
+        """Wrapper around QSettings.filename()
+
+        :return: Path to app's setting ini file.
+        :rtype: str
+        """
+        return self.q_settings.fileName()
+
     def sync(self):
         """Sync settings to storage method.
         """
