@@ -10,9 +10,9 @@ ClipManager
 Cross-platform (Windows and Linux) GUI application to manage the system's
 clipboard history.
 
-.. image:: http://i.imgur.com/myDxq5r.png
+.. image:: https://imgur.com/a/p86ht
    :alt: Main application screenshot
-   :target: http://i.imgur.com/myDxq5r.png
+   :target: https://imgur.com/a/p86ht
 
 Requirements
 ------------
