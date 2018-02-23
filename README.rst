@@ -21,6 +21,7 @@ Requirements
 * PySide
 * python-xlib (optional: for linux)
 * pywin32 (optional: for windows)
+* PyInstaller (optional: build executable)
 * cx_Freeze (optional: build executable)
 * Inno Setup (optional: windows installer package)
 
@@ -31,11 +32,6 @@ Installation
 Development
 -----------
 
-**Linux**
-
-* `qt4 <https://www.archlinux.org/packages/extra/x86_64/qt4/>`_
-* `qtwebkit <https://aur.archlinux.org/packages/qtwebkit/>`_
-
 **Application Icon**
 
 #. Navigate to `fa2png.io <http://fa2png.io/>`_
@@ -44,6 +40,14 @@ Development
 #. Background = ``transparent``
 #. Size = ``256px``
 #. Padding = ``24px``
+
+**Build Resources**
+
+``pyside-rcc -o data/resource_rc.py clipmanager/resource.qrc``
+
+**Build Win32 Executable**
+
+``pyinstaller -y clipmanager.spec``
 
 Help
 ----
