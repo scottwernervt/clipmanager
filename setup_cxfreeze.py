@@ -22,7 +22,7 @@ build_options = dict(
     include_files=[
         (
             os.path.join(site_packages_path,
-                         '\PySide\plugins\sqldrivers\qsqlite4.dll'),
+                         'PySide\plugins\sqldrivers\qsqlite4.dll'),
             os.path.join('sqldrivers', 'qsqlite4.dll')
         ),
     ],
