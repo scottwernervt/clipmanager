@@ -1,6 +1,5 @@
 import os
 import re
-import sys
 
 from cx_Freeze import Executable, setup
 
@@ -17,30 +16,40 @@ def get_version():
 # fine tuning.
 buildOptions = dict(packages=[
     'ctypes',
+    'datetime',
+    'itertools',
     'logging',
+    'operator',
+    'optparse',
     'os',
     'pkg_resources',
-    'textwrap',
-    're',
-    'subprocess',
-    'sys',
-    'zlib',
     'PySide.QtCore',
     'PySide.QtGui',
-    'PySide.QtSql',
     'PySide.QtNetwork',
+    'PySide.QtSql',
     'PySide.QtWebKit',
+    're',
+    'struct',
+    'subprocess',
+    'sys',
+    'tempfile',
+    'textwrap',
+    'win32gui',
+    'win32process',
+    'zlib',
 ], excludes=[
-    'email',
     'json',
     'unittest',
-    'xml'
+    'xml',
 ])
 
-base = 'Win32GUI' if sys.platform == 'win32' else None
-
 executables = [
-    Executable('clipmanager/app.py', base=base, targetName='clipmanager.exe')
+    Executable(
+        'clipmanager/app.py',
+        base='Win32GUI',
+        targetName='clipmanager.exe',
+        icon='clipmanager/icons/clipmanager.png'
+    )
 ]
 
 setup(name='clipmanager',
