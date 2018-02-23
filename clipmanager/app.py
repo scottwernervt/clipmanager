@@ -9,7 +9,7 @@ from logging.handlers import RotatingFileHandler
 from PySide.QtCore import QCoreApplication, QDir, QEvent, Slot
 from PySide.QtGui import QApplication
 
-from clipmanager import (__org__, __title__, __url__, __version__)
+from clipmanager import __org__, __title__, __url__, __version__
 from clipmanager.singleinstance import SingleInstance
 from clipmanager.ui.mainwindow import MainWindow
 
