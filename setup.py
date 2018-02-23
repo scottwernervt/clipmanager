@@ -34,8 +34,9 @@ if os.name == 'nt':
 elif os.name == 'posix':
     install_requires.append('python-xlib')
     data_files.extend([
-        ('share/applications', ['clipmanager.desktop']),
-        ('share/pixmaps', ['data/clipmanager.png']),
+        ('/usr/share/applications', ['clipmanager.desktop']),
+        ('/usr/share/pixmaps', ['data/clipmanager.png']),
+        ('/usr/share/licenses/clipmanager', ['LICENSE']),
     ])
 
 
