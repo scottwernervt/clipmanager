@@ -35,7 +35,6 @@ build_options = dict(
         'operator',
         'optparse',
         'os',
-        'pkg_resources',  # package dependencies are missed by cxfreeze
         're',
         'struct',
         'subprocess',
