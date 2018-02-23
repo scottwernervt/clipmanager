@@ -13,10 +13,6 @@ from clipmanager import (__org__, __title__, __url__, __version__)
 from clipmanager.singleinstance import SingleInstance
 from clipmanager.ui.mainwindow import MainWindow
 
-package = os.path.dirname(os.path.abspath(__file__))
-installation_directory = os.path.join(package, '..')
-sys.path.insert(0, installation_directory)
-
 
 def _setup_logger(logging_level='INFO'):
     log_path = os.path.join(QDir.tempPath(), __title__.lower() + '.log')
