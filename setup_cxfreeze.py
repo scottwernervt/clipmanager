@@ -39,6 +39,7 @@ buildOptions = dict(packages=[
     'zlib',
 ], excludes=[
     'json',
+    'Tkinter',
     'unittest',
     'Xlib',
     'xml',
