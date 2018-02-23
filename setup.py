@@ -35,7 +35,7 @@ elif os.name == 'posix':
     install_requires.append('python-xlib')
     data_files.extend([
         ('share/applications', ['clipmanager.desktop']),
-        ('share/pixmaps', ['clipmanager/icons/clipmanager.png']),
+        ('share/pixmaps', ['data/clipmanager.png']),
     ])
 
 
@@ -80,7 +80,7 @@ setup(
     test_suite='tests',
     packages=find_packages(exclude=['contrib', 'tests*']),
     include_package_data=True,
-    package_data={'clipmanager': ['icons/*.png', 'icons/*.ico']},
+    # package_data={'clipmanager': ['icons/*.png', 'icons/*.ico']},
     data_files=data_files,
     cmdclass={'test': PyTest},
     classifiers=[
