@@ -1,7 +1,7 @@
 include clipmanager.desktop
 
 recursive-include tests *
-recursive-include clipmanager/icons *.*
+recursive-include data *.*
 
 prune build
 
