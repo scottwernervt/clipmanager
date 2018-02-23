@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>application-exit.png</file>
+    <file>clipmanager.ico</file>
+    <file>clipmanager.png</file>
+    <file>document-print-preview.png</file>
+    <file>edit-paste.png</file>
+    <file>help-about.png</file>
+    <file>list-remove.png</file>
+    <file>preferences-system.png</file>
+    <file>search.png</file>
+  </qresource>
+</RCC>
