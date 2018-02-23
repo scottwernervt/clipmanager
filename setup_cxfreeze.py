@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 from cx_Freeze import Executable, setup
 
@@ -12,38 +13,33 @@ def get_version():
     return VERSION_RE.search(init).group(1)
 
 
-# Dependencies are automatically detected, but it might need
-# fine tuning.
-buildOptions = dict(packages=[
-    'ctypes',
-    'datetime',
-    'itertools',
-    'logging',
-    'operator',
-    'optparse',
-    'os',
-    'pkg_resources',
-    'PySide.QtCore',
-    'PySide.QtGui',
-    'PySide.QtNetwork',
-    'PySide.QtSql',
-    'PySide.QtWebKit',
-    're',
-    'struct',
-    'subprocess',
-    'sys',
-    'tempfile',
-    'textwrap',
-    'win32gui',
-    'win32process',
-    'zlib',
-], excludes=[
-    'json',
-    'Tkinter',
-    'unittest',
-    'Xlib',
-    'xml',
-])
+python_install_dir, __ = os.path.split(sys.executable)
+site_packages_path = os.path.join(python_install_dir, 'Lib', 'site-packages')
+
+buildOptions = dict(
+    optimize=2,
+    include_msvcr=False,
+    include_files=[
+        (
+            os.path.join(
+                site_packages_path,
+                'PySide',
+                'plugins',
+                'sqldrivers', 'qsqlite4.dll'
+            ),
+            os.path.join('sqldrivers', 'qsqlite4.dll')
+        ),
+    ],
+    packages=[
+        'pkg_resources',  # package dependencies are missed by cxfreeze
+    ],
+    excludes=[
+        'json',
+        'Tkinter',
+        'unittest',
+        'Xlib',
+        'xml',
+    ])
 
 executables = [
     Executable(
