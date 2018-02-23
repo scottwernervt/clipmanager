@@ -1,32 +1,23 @@
 import os
 
-import pkg_resources
 from PySide.QtGui import QIcon
+
+from clipmanager import resources
 
 
 def get_icon(name):
-    """Helper to load icon from linux theme or fail back to icons folder.
+    """Helper to load QIcon from theme or QResources.
 
-    :param name: Filename of the icon, e.g. search or app.ico.
+    :param name: Filename of the icon: search.png.
     :type name: str
 
     :return: Qt QIcon class.
     :rtype: QIcon
     """
-    if not name:
-        return QIcon()
+    basename = os.path.splitext(name)[0]
 
-    if os.path.isabs(name):
-        return QIcon(name)
-
-    icon = QIcon.fromTheme(name)
+    icon = QIcon.fromTheme(basename)
     if not icon.isNull():
         return icon
 
-    for i in pkg_resources.resource_listdir('clipmanager', 'icons'):
-        if i.startswith(name):
-            path = pkg_resources.resource_filename('clipmanager',
-                                                   os.path.join('icons/', name))
-            return QIcon(path)
-
-    return QIcon()
+    return QIcon(':/icons/{}'.format(name))
