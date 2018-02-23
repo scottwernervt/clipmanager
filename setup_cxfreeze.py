@@ -30,7 +30,9 @@ build_options = dict(
     packages=[
         'ctypes',
         'datetime',
+        'itertools',
         'logging',
+        'operator',
         'optparse',
         'os',
         'pkg_resources',  # package dependencies are missed by cxfreeze
@@ -49,8 +51,6 @@ build_options = dict(
     ],
     # modules to include
     includes=[
-        'itertools.groupby',
-        'operator.itemgetter',
         'PySide.QtCore',
         'PySide.QtGui',
         'PySide.QtNetwork',
