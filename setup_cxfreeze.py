@@ -40,6 +40,7 @@ buildOptions = dict(packages=[
 ], excludes=[
     'json',
     'unittest',
+    'Xlib',
     'xml',
 ])
 
@@ -48,7 +49,7 @@ executables = [
         'clipmanager/app.py',
         base='Win32GUI',
         targetName='clipmanager.exe',
-        icon='clipmanager/icons/clipmanager.png'
+        icon='clipmanager/icons/clipmanager.ico'
     )
 ]
 
