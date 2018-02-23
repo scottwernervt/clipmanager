@@ -20,10 +20,9 @@ Requirements
 * Python 2.7
 * PySide
 * python-xlib (optional: for linux)
-* pywin32 (optional: for windows)
-* PyInstaller (optional: build executable)
-* cx_Freeze (optional: build executable)
-* Inno Setup (optional: windows installer package)
+* pywin32 (optional: for win32)
+* PyInstaller (optional for: build win32 executable)
+* Inno Setup (optional: for win32 installer package)
 
 Installation
 ------------

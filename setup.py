@@ -66,8 +66,8 @@ setup(
     scripts=['bin/clipmanager'],
     install_requires=install_requires,
     extras_require={
-        'windows': [
-            'cx_Freeze',  # PSF
+        'win32': [
+            'PyInstaller',  # GPL
         ],
     },
     setup_requires=[
@@ -80,7 +80,6 @@ setup(
     test_suite='tests',
     packages=find_packages(exclude=['contrib', 'tests*']),
     include_package_data=True,
-    # package_data={'clipmanager': ['icons/*.png', 'icons/*.ico']},
     data_files=data_files,
     cmdclass={'test': PyTest},
     classifiers=[
