@@ -28,14 +28,33 @@ build_options = dict(
     ],
     # packages to include, which includes all submodules in the package
     packages=[
+        'ctypes',
+        'datetime',
+        'logging',
+        'optparse',
+        'os',
         'pkg_resources',  # package dependencies are missed by cxfreeze
+        're',
+        'struct',
+        'subprocess',
+        'sys',
+        'tempfile',
+        'textwrap',
+        'win32api',
+        'win32event',
+        'win32gui',
+        'win32process',
+        'winerror',
+        'zlib',
     ],
     # modules to include
     includes=[
+        'itertools.groupby',
+        'operator.itemgetter',
         'PySide.QtCore',
         'PySide.QtGui',
-        'PySide.QtSql',
         'PySide.QtNetwork',
+        'PySide.QtSql',
         'PySide.QtWebKit',
     ],
     # modules to exclude
