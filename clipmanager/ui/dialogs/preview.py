@@ -27,7 +27,7 @@ class PreviewDialog(QDialog):
 
         self.parent = parent
 
-        self.setWindowIcon(get_icon('clipmanager'))
+        self.setWindowIcon(get_icon('clipmanager.ico'))
         self.setWindowTitle('Preview')
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.resize(QSize(500, 300))

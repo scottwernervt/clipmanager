@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
 
         self.setWindowTitle(__title__)
-        self.setWindowIcon(get_icon('clipmanager'))
+        self.setWindowIcon(get_icon('clipmanager.ico'))
 
         # hide minimize and maximize in window title
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
@@ -292,7 +292,7 @@ class MainWidget(QWidget):
         self.search_box = SearchEdit(self.history_view, self.search_proxy)
 
         settings_button = QPushButton(self)
-        settings_button.setIcon(get_icon('preferences-system'))
+        settings_button.setIcon(get_icon('preferences-system.png'))
         settings_button.setToolTip('Settings...')
         settings_button.clicked.connect(self.emit_open_settings)
 

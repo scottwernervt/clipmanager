@@ -22,7 +22,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.parent = parent
 
         self.setToolTip(__title__)
-        self.setIcon(get_icon('clipmanager'))
+        self.setIcon(get_icon('clipmanager.ico'))
 
         self.settings = Settings()
 
@@ -31,15 +31,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         toggle_action = QAction('&Toggle', self)
         toggle_action.triggered.connect(self.emit_toggle_window)
 
-        settings_action = QAction(get_icon('preferences-system'),
+        settings_action = QAction(get_icon('preferences-system.png'),
                                   '&Settings',
                                   self)
         settings_action.triggered.connect(self.emit_open_settings)
 
-        about_action = QAction(get_icon('help-about'), '&About', self)
+        about_action = QAction(get_icon('help-about.png'), '&About', self)
         about_action.triggered.connect(self.open_about)
 
-        exit_action = QAction(get_icon('application-exit'), '&Quit', self)
+        exit_action = QAction(get_icon('application-exit.png'), '&Quit', self)
         exit_action.triggered.connect(QCoreApplication.quit)
 
         disconnect_action = QAction('&Private mode', self)

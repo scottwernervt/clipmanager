@@ -54,23 +54,23 @@ class HistoryListView(QListView):
 
         self.menu = QMenu(self)
 
-        self.paste_action = QAction(get_icon('edit-paste'), 'Paste', self)
+        self.paste_action = QAction(get_icon('edit-paste.png'), 'Paste', self)
         self.paste_action.setShortcut(QKeySequence(Qt.Key_Return))
         self.paste_action.triggered.connect(self.emit_set_clipboard)
 
         self.preview_action = QAction(
-            get_icon('document-print-preview'),
+            get_icon('document-print-preview.png'),
             'Preview',
             self
         )
         self.preview_action.setShortcut(QKeySequence(Qt.Key_F11))
         self.preview_action.triggered.connect(self.emit_open_preview)
 
-        self.delete_action = QAction(get_icon('list-remove'), 'Delete', self)
+        self.delete_action = QAction(get_icon('list-remove.png'), 'Delete', self)
         self.delete_action.setShortcut(QKeySequence.Delete)
         self.delete_action.triggered.connect(self.delete_item)
 
-        exit_action = QAction(get_icon('application-exit'), 'Quit', self)
+        exit_action = QAction(get_icon('application-exit.png'), 'Quit', self)
         exit_action.triggered.connect(QCoreApplication.quit)
 
         self.menu.addAction(self.paste_action)

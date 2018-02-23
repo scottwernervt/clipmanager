@@ -14,7 +14,7 @@ class AboutDialog(QDialog):
         self.parent = parent
 
         self.setWindowTitle('About')
-        self.setWindowIcon(get_icon('clipmanager'))
+        self.setWindowIcon(get_icon('clipmanager.ico'))
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         app_name = QCoreApplication.applicationName()
