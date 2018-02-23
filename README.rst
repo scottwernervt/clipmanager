@@ -47,7 +47,7 @@ Development
 
 **Build Win32 Executable**
 
-``pyinstaller -y clipmanager.spec``
+``pyinstaller --noconfirm --clean clipmanager.spec``
 
 Help
 ----
