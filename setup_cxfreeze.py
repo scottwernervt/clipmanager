@@ -31,7 +31,7 @@ build_options = dict(
         'pkg_resources',  # package dependencies are missed by cxfreeze
     ],
     # modules to include
-    include=[
+    includes=[
         'PySide.QtCore',
         'PySide.QtGui',
         'PySide.QtSql',
