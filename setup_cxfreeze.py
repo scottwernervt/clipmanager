@@ -18,7 +18,7 @@ def get_version():
 
 build_options = dict(
     optimize=2,
-    include_msvcr=False,
+    include_msvcr=False,  # Microsoft Visual C runtime DLLs
     include_files=[
         (
             os.path.join(site_packages_path,
@@ -26,9 +26,19 @@ build_options = dict(
             os.path.join('sqldrivers', 'qsqlite4.dll')
         ),
     ],
+    # packages to include, which includes all submodules in the package
     packages=[
         'pkg_resources',  # package dependencies are missed by cxfreeze
     ],
+    # modules to include
+    include=[
+        'PySide.QtCore',
+        'PySide.QtGui',
+        'PySide.QtSql',
+        'PySide.QtNetwork',
+        'PySide.QtWebKit',
+    ],
+    # modules to exclude
     excludes=[
         'json',
         'Tkinter',
@@ -39,7 +49,7 @@ build_options = dict(
 
 executables = [
     Executable(
-        'clipmanager/app.py',
+        'bin/clipmanager',
         base='Win32GUI',
         targetName='clipmanager.exe',
         icon='clipmanager/icons/clipmanager.ico'
