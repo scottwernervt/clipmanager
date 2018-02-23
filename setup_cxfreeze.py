@@ -15,7 +15,27 @@ def get_version():
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages=[], excludes=[])
+buildOptions = dict(packages=[
+    'ctypes',
+    'logging',
+    'os',
+    'pkg_resources',
+    'textwrap',
+    're',
+    'subprocess',
+    'sys',
+    'zlib',
+    'PySide.QtCore',
+    'PySide.QtGui',
+    'PySide.QtSql',
+    'PySide.QtNetwork',
+    'PySide.QtWebKit',
+], excludes=[
+    'email',
+    'json',
+    'unittest',
+    'xml'
+])
 
 base = 'Win32GUI' if sys.platform == 'win32' else None
 
