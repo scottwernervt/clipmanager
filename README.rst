@@ -48,7 +48,11 @@ Development
 
 **Build Win32 Executable**
 
-``pyinstaller --noconfirm --clean clipmanager.spec``
+
+.. code:: bash
+
+    > pyinstaller --noconfirm --clean clipmanager.spec
+    >
 
 Help
 ----
