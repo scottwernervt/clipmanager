@@ -34,7 +34,9 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           upx=True,
-          console=False, icon='data\\clipmanager.ico')
+          console=False,
+          icon='data\\clipmanager.ico',
+          version='clipmanager.version')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
