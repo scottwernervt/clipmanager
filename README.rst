@@ -7,6 +7,9 @@ ClipManager
 .. image:: https://img.shields.io/badge/license-BSD-blue.svg
    :target: /LICENSE
 
+.. image:: https://img.shields.io/codeclimate/github/scottwernervt/clipmanager.svg
+    :target: https://codeclimate.com/github/scottwernervt/clipmanager
+
 Cross-platform (Windows and Linux) GUI application to manage the system's
 clipboard history.
 
