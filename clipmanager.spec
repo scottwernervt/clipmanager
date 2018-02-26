@@ -42,3 +42,20 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                name='clipmanager')
+
+# Digitally sign executable
+import subprocess
+import getpass
+
+pwd = os.path.abspath(sys.argv[0])
+executable = os.path.join(pwd, 'dist', 'clipmanager', 'clipmanager.exe')
+
+password = getpass.getpass()
+subprocess.call([
+   'signtool.exe',
+   'sign',
+   '-f', 'clipmanager.pfx',
+   '-p', password,
+   '-t', 'http://timestamp.comodoca.com',
+   executable,
+])
