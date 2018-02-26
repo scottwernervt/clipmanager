@@ -52,7 +52,7 @@ Development
 .. code:: bash
 
     > pyinstaller --noconfirm --clean clipmanager.spec
-    >
+    > 'C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\signtool.exe' sign -f clipmanager.pfx -t http://timestamp.comodoca.com -p <password> dist/clipmanager/clipmanager.exe
 
 Help
 ----
