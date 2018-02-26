@@ -19,10 +19,9 @@ Requirements
 
 * Python 2.7
 * PySide
-* python-xlib (optional: for linux)
-* pywin32 (optional: for win32)
-* PyInstaller (optional for: build win32 executable)
-* Inno Setup (optional: for win32 installer package)
+* python-xlib (linux) or pywin32 (windows)
+* PyInstaller (optional: win32 executable)
+* Inno Setup (optional: win32 installer package)
 
 Installation
 ------------
