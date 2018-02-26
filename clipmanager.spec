@@ -47,15 +47,20 @@ coll = COLLECT(exe,
 import subprocess
 import getpass
 
-pwd = os.path.abspath(sys.argv[0])
+pwd = os.getcwd()
+
+signtool_path = 'c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\signtool.exe'
+pfx_path = os.path.join(pwd, 'clipmanager.pfx')
+timestamp_path = 'http://timestamp.comodoca.com'
 executable = os.path.join(pwd, 'dist', 'clipmanager', 'clipmanager.exe')
 
-password = getpass.getpass()
+password = getpass.getpass(prompt='Password for opening PFX:')
+
 subprocess.call([
-   'signtool.exe',
+   signtool_path,
    'sign',
-   '-f', 'clipmanager.pfx',
+   '-f', pfx_path,
    '-p', password,
-   '-t', 'http://timestamp.comodoca.com',
+   '-t', timestamp_url,
    executable,
 ])
