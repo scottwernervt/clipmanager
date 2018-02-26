@@ -42,25 +42,3 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                name='clipmanager')
-
-# Digitally sign executable
-import subprocess
-import getpass
-
-pwd = os.getcwd()
-
-signtool_path = 'c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\signtool.exe'
-pfx_path = os.path.join(pwd, 'clipmanager.pfx')
-timestamp_path = 'http://timestamp.comodoca.com'
-executable = os.path.join(pwd, 'dist', 'clipmanager', 'clipmanager.exe')
-
-password = getpass.getpass(prompt='Password for opening PFX:')
-
-subprocess.call([
-   signtool_path,
-   'sign',
-   '-f', pfx_path,
-   '-p', password,
-   '-t', timestamp_url,
-   executable,
-])
