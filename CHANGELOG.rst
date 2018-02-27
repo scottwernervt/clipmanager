@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.4 (2018-02-XX)
+0.4 (2018-02-27)
 ++++++++++++++++
 
 * Major code refactor, overhaul, and PEP8 / Pyside style applied.
