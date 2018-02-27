@@ -46,13 +46,14 @@ Development
 
 ``pyside-rcc -o data/resource_rc.py clipmanager/resource.qrc``
 
-**Build Win32 Executable**
-
+**Package Win32 Executable**
 
 .. code:: bash
 
     > pyinstaller --noconfirm --clean clipmanager.spec
-    > "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\signtool.exe" sign -f clipmanager.pfx -t http://timestamp.comodoca.com -p <password> dist\clipmanager\clipmanager.exe
+    > "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\signtool.exe" sign -f clipmanager.pfx -t http://timestamp.comodoca.com -p <PASSWORD> dist\clipmanager\clipmanager.exe
+    > "C:\Program Files\Inno Setup 5\iscc.exe" "clipmanager.iss"
+    > "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\signtool.exe" sign -f clipmanager.pfx -t http://timestamp.comodoca.com -p <PASSWORD> dist\clipmanager-setup-<VERSION>.exe
 
 Help
 ----
@@ -63,7 +64,7 @@ Help
 
 .. code:: bash
 
-    copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32
+    > copy C:\Python27\lib\site-packages\pywin32_system32\py*.dll C:\Python27\lib\site-packages\win32
 
 **ClipManager is not using my GTK theme**
 
