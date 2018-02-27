@@ -29,6 +29,14 @@ Requirements
 Installation
 ------------
 
+**Arch Linux**
+
+`clipmanager <https://aur.archlinux.org/packages/clipmanager>`_
+
+**Windows**
+
+`clipmanager-setup-v0.4.0.exe <https://github.com/scottwernervt/clipmanager/releases/download/v0.4.0/clipmanager-setup-v0.4.0.exe>`_
+
 
 Development
 -----------
@@ -46,7 +54,7 @@ Development
 
 ``pyside-rcc -o data/resource_rc.py clipmanager/resource.qrc``
 
-**Package Arch AUR***
+**Package Arch AUR**
 
 .. code:: bash
 
