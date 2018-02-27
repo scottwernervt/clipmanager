@@ -1,5 +1,5 @@
 __title__ = 'ClipManager'
-__version__ = '0.4'
+__version__ = '0.4.0'
 __author__ = 'Scott Werner'
 __license__ = 'BSD'
 __copyright__ = 'Copyright 2018 Scott Werner'

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "ClipManager"
-#define MyAppVersion "0.4"
+#define MyAppVersion "0.4.0"
 #define MyAppPublisher "Werner"
 #define MyAppURL "https://github.com/scottwernervt/clipmanager"
 #define MyAppExeName "clipmanager.exe"
@@ -14,7 +14,7 @@
 AppId={{3B5A17D5-C21D-4701-9AF0-0B599D7AAB4B}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
