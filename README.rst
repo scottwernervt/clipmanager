@@ -46,6 +46,21 @@ Development
 
 ``pyside-rcc -o data/resource_rc.py clipmanager/resource.qrc``
 
+**Package Arch AUR***
+
+.. code:: bash
+
+    $ makepkg -g >> PKGBUILD
+    $ namcap PKGBUILD
+    $ makepkg -f
+    $ namcap clipmanager-<version>-1-any.pkg.tar.xz
+    $ makepkg -si
+    $ makepkg --printsrcinfo > .SRCINFO
+
+    $ git add PKGBUILD .SRCINFO
+    $ git commit -m "useful commit message"
+    $ git push
+
 **Package Win32 Executable**
 
 .. code:: bash
