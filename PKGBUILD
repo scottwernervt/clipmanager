@@ -10,7 +10,7 @@ depends=('python2' 'python2-setuptools' 'python2-pyside' 'python2-xlib')
 optdepends=('xdotool: paste into active window')
 install=$pkgname.install
 source=("https://github.com/scottwernervt/${pkgname}/archive/v${pkgver}.tar.gz")
-md5sums=('c2e879c98a7a7243c69934b36dc1e07d')
+md5sums=('70d67ef14797ca8149dffc55dbf0cc88')
 
 package() {
   cd $pkgname-$pkgver
