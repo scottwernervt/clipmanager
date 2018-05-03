@@ -181,3 +181,6 @@ venv.bak/
 
 # signtool
 *.pvk
+
+# inno setup
+/src
