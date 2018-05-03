@@ -6,7 +6,6 @@ from PySide.QtGui import (
     QTextCursor,
     QTextEdit,
 )
-from PySide.QtWebKit import QWebSettings, QWebView
 
 from clipmanager.ui.icons import get_icon
 
@@ -32,21 +31,12 @@ class PreviewDialog(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.resize(QSize(500, 300))
 
+        doc = QTextEdit(self)
+
         if mime_data.hasHtml():
-            doc = QWebView(self)
-            doc.settings().setAttribute(
-                QWebSettings.LocalContentCanAccessRemoteUrls,
-                True
-            )
-            doc.settings().setAttribute(
-                QWebSettings.LocalContentCanAccessFileUrls,
-                True
-            )
             html = mime_data.html()
             doc.setHtml(html)
         else:
-            doc = QTextEdit(self)
-
             if mime_data.hasUrls():
                 text = 'Copied File(s): '
                 for url in mime_data.urls():
@@ -58,12 +48,11 @@ class PreviewDialog(QDialog):
                 doc.setPlainText(
                     'Invalid data formats: {}'.format(
                         ','.join(mime_data.formats())
-                        )
+                    )
                 )
 
-            doc.moveCursor(QTextCursor.Start)  # scroll to top
-            doc.ensureCursorVisible()
-            doc.setReadOnly(True)
+        doc.moveCursor(QTextCursor.Start)  # scroll to top
+        doc.ensureCursorVisible()
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.Close)
         self.button_box.setFocus()
