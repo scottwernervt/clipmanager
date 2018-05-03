@@ -54,7 +54,6 @@ build_options = dict(
         'PySide.QtGui',
         'PySide.QtNetwork',
         'PySide.QtSql',
-        'PySide.QtWebKit',
     ],
     # modules to exclude
     excludes=[
