@@ -431,7 +431,7 @@ class MainWidget(QWidget):
                 index = self.main_model.index(row, self.main_model.ID)
                 parent_id = self.main_model.data(index)
 
-                self.database.delete_mime(parent_id)
+                self.data_model.delete([parent_id])
                 self.main_model.removeRow(row)
             else:
                 break

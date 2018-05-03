@@ -11,7 +11,7 @@ sudo: required
 before_install:
   - sudo apt-get -qq update
     # http://pyside.readthedocs.io/en/latest/building/linux.html
-  - sudo apt-get install build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqtwebkit-dev libqt4-sql-sqlite
+  - sudo apt-get install build-essential git cmake libqt4-dev libxml2-dev libxslt1-dev libqt4-sql-sqlite
   - sudo apt-get install xvfb
 
 install:
