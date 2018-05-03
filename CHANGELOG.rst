@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+v0.5.0 (2018-05-03)
++++++++++++++++++++
+
+* Drop QtWebKit dependency. (`#13 <https://github.com/scottwernervt/clipmanager/issues/13>`_)
+
 v0.4.0 (2018-02-27)
 +++++++++++++++++++
 

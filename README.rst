@@ -35,7 +35,8 @@ Installation
 
 **Windows**
 
-`clipmanager-setup-v0.4.0.exe <https://github.com/scottwernervt/clipmanager/releases/download/v0.4.0/clipmanager-setup-v0.4.0.exe>`_
+* `clipmanager-setup-v0.5.0.exe <https://github.com/scottwernervt/clipmanager/releases/download/v0.5.0/clipmanager-setup-v0.5.0.exe>`_
+* `clipmanager-setup-v0.4.0.exe <https://github.com/scottwernervt/clipmanager/releases/download/v0.4.0/clipmanager-setup-v0.4.0.exe>`_
 
 
 Development

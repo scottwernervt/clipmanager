@@ -1,6 +1,6 @@
 # Maintainer: Scott Werner <scott.werner.vt@gmail.com>
 pkgname=clipmanager
-pkgver=0.4.0
+pkgver=0.5.0
 pkgrel=1
 pkgdesc="Python Qt GUI clipboard manager"
 arch=('any')
